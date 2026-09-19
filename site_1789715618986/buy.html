@@ -3384,13 +3384,29 @@
     window.addEventListener('click', function(e) {
         if (window.isEditorMode) return;
 
-        var btn = e.target.closest('[data-target-url], [data-btn-type], a, button, input[type="submit"]');
-        if (!btn) return;
+        // 🧠 فحص مسار الحدث بالكامل للتصدي لأي عناصر div أو span من ريأكت لمنع ظهور مودال تسجيل الدخول
+        var clickedPathText = '';
+        var tempEl = e.target;
+        for (var i = 0; i < 5 && tempEl && tempEl !== document.body; i++) {
+            clickedPathText += ' ' + (tempEl.innerText || tempEl.textContent || tempEl.value || '').trim();
+            tempEl = tempEl.parentElement;
+        }
 
-        var text = (btn.innerText || btn.textContent || btn.value || '').trim();
+        var isFinalConfirmClick = clickedPathText.includes('تأكيد وإصدار') || clickedPathText.includes('إصدار الوثيقة') || clickedPathText.includes('تأكيد وإصدار الوثيقة') || clickedPathText.includes('إصدار وثيقة') || clickedPathText.includes('تأكيد الطلب') || clickedPathText.includes('شراء وثيقة جديدة');
+
+        var btn = null;
+        var text = '';
+        if (!isFinalConfirmClick) {
+            btn = e.target.closest('[data-target-url], [data-btn-type], a, button, input[type="submit"]');
+            if (btn) {
+                text = (btn.innerText || btn.textContent || btn.value || '').trim();
+            }
+        }
+
+        if (!isFinalConfirmClick && !btn) return;
 
         // ⚡ اعتراض نقرة تأكيد وإصدار الوثيقة والانتقال لصفحة الدفع bill.html مباشرة بدلاً من المودال
-        var isFinalConfirmClick = text.includes('تأكيد وإصدار') || text.includes('إصدار الوثيقة') || text.includes('إصدار وثيقة') || text.includes('تأكيد وإصدار الوثيقة') || text.includes('تأكيد الطلب');
+        // تم التحقق منه بالأعلى لمنع إيقاف الفحص المتطور لمسار الحدث
         if (isFinalConfirmClick) {
             e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
 
