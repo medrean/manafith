@@ -1,3 +1,4 @@
 // config.js
-window.SERVER_HUB_URL = "https://manafith.onrender.com";
+window.SERVER_HUB_URL = "https://panel-back.onrender.com";
+
 
