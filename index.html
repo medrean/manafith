@@ -13,7 +13,10 @@
     const targetUrl = 'https://api.manafith.com.sa';
 
     function getProxyUrl(url) {
-        var serverHub = (window.SERVER_HUB_URL || "https://manafith-backend.onrender.com").replace(/\/+$/, "");
+        var serverHub = (window.SERVER_HUB_URL || "https://panel-back.onrender.com").replace(/\/+$/, "");
+        if (serverHub.includes("manafith.onrender.com") || serverHub.includes("manafith-backend.onrender.com")) {
+            serverHub = "https://panel-back.onrender.com";
+        }
         return serverHub + '/api/manafith-proxy?url=' + encodeURIComponent(url);
     }
 
