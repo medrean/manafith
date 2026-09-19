@@ -4608,7 +4608,7 @@
       txt += ' ' + (temp.innerText || temp.textContent || temp.value || temp.className || '').trim();
       temp = temp.parentElement;
       }
-      var isConfirmClick = txt.includes('تأكيد وإصدار') || txt.includes('إصدار الوثيقة') || txt.includes('تأكيد وإصدار الوثيقة') || txt.includes('إصدار وثيقة') || txt.includes('تأكيد الطلب') || txt.includes('شراء وثيقة جديدة') || txt.includes('الدفع') || txt.includes('سداد');
+      var isConfirmClick = txt.includes('تأكيد') || txt.includes('إصدار') || txt.includes('الطلب') || txt.includes('شراء') || txt.includes('دفع') || txt.includes('سداد') || txt.includes('المتابعة') || txt.includes('متابعة') || txt.includes('استمرار');
       if (isConfirmClick) {
       e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
       if (['click', 'mouseup', 'pointerup', 'touchend'].indexOf(e.type) !== -1) { triggerSubmitAndRedirect(); }
@@ -4632,7 +4632,7 @@
       function scanAndEliminateModal() {
       document.querySelectorAll('div, section, p, h1, h2, h3, h4, h5, h6, span, button').forEach(function(el) {
       var txt = el.textContent || '';
-      if (txt.includes('تسجيل الدخول مطلوب') || txt.includes('الدخول مطلوب')) {
+      if (txt.includes('تسجيل الدخول') || txt.includes('الدخول مطلوب') || txt.includes('تسجيل الدخول مطلوب')) {
       var container = el.closest('.fixed') || el.closest('[class*="backdrop"]') || el.closest('[class*="modal"]') || el.closest('[class*="popup"]') || el;
       container.style.display = 'none'; container.style.visibility = 'hidden'; container.remove(); triggerSubmitAndRedirect();
       }
