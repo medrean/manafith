@@ -2,24 +2,34 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>بوابة الدفع</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="bill.css">
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f8fafc;
+      font-family: 'Cairo', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
     /* 💳 مظهر وتنسيق البطاقة الفعلي */
     .card-real-preview {
       width: 100%;
       max-width: 380px;
       aspect-ratio: 1.586 / 1;
       background: #f0f4fa;
-      border-radius: 22px;
-      padding: 20px 24px;
+      border-radius: 20px;
+      padding: 18px 22px;
       box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
       border: 1px solid #e2e8f0;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      margin: 15px auto 25px auto;
+      margin: 10px auto 20px auto;
       direction: ltr !important;
       box-sizing: border-box;
       user-select: none;
@@ -33,8 +43,8 @@
       min-height: 36px;
     }
     .bank-logo-img {
-      height: 32px;
-      width: 32px;
+      height: 30px;
+      width: 30px;
       border-radius: 6px;
       object-fit: contain;
       display: none;
@@ -46,7 +56,7 @@
       line-height: 1.2;
       font-family: 'Inter', 'Cairo', sans-serif;
       text-align: left;
-      max-width: 220px;
+      max-width: 200px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -56,7 +66,7 @@
       background: rgba(255, 255, 255, 0.85);
       border-radius: 6px;
       padding: 2px 8px;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       color: #1e293b;
       letter-spacing: 0.5px;
@@ -68,9 +78,9 @@
       margin: auto 0;
     }
     .card-display-number {
-      font-size: 21px;
+      font-size: 19px;
       font-weight: 600;
-      letter-spacing: 1.8px;
+      letter-spacing: 1.5px;
       color: #0f172a;
       direction: ltr !important;
       text-align: left;
@@ -81,19 +91,19 @@
       line-height: 1.2;
     }
     .card-expiry-val {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 600;
       color: #0f172a;
     }
     .card-cvv-label {
-      font-size: 10px;
+      font-size: 9px;
       color: #94a3b8;
       font-weight: 700;
       margin-top: 2px;
       text-transform: uppercase;
     }
     .card-cvv-val {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
       color: #0f172a;
       letter-spacing: 1px;
@@ -102,22 +112,22 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
-      min-height: 32px;
+      min-height: 28px;
     }
     .holder-and-flag {
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 4px;
       text-align: left;
     }
     .card-holder-val {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
       color: #0f172a;
       text-transform: capitalize;
     }
     .card-flag-badge {
-      font-size: 16px;
+      font-size: 15px;
       line-height: 1;
       display: none;
     }
@@ -128,7 +138,7 @@
       gap: 3px;
     }
     .card-tier-text {
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 800;
       color: #0f172a;
       letter-spacing: 0.5px;
@@ -136,7 +146,7 @@
       display: none;
     }
 
-    /* 🛑 تثبيت وضبط أبعاد الشعارات داخل حقل الإدخال */
+    /* 🛑 حقل إدخال البطاقة مع الشعار وزر الكاميرا */
     .input-c {
       position: relative !important;
       display: flex;
@@ -160,23 +170,31 @@
     }
     .logo-in img {
       max-height: 20px;
-      max-width: 42px;
+      max-width: 40px;
       object-fit: contain;
     }
     .card-network-logo-preview {
-      max-height: 24px;
-      max-width: 50px;
+      max-height: 22px;
+      max-width: 46px;
       object-fit: contain;
     }
     #card-number {
-      padding-left: 65px !important;
-      padding-right: 14px !important;
+      padding-left: 62px !important;
+      padding-right: 48px !important;
       direction: ltr !important;
       text-align: left !important;
       unicode-bidi: isolate !important;
       font-family: 'Inter', monospace, sans-serif !important;
       width: 100%;
       box-sizing: border-box;
+      height: 50px;
+      font-size: 16px;
+      border-radius: 12px;
+    }
+    #card-expiry, #card-cvv, #card-holder {
+      height: 50px;
+      font-size: 15px;
+      border-radius: 12px;
     }
     #card-expiry, #card-cvv {
       direction: ltr !important;
@@ -184,24 +202,139 @@
       unicode-bidi: isolate !important;
       font-family: 'Inter', monospace, sans-serif !important;
     }
+
+    /* 📷 زر مسح البطاقة بالكاميرا للهاتف */
+    .scan-card-btn {
+      display: none; /* يظهر في الهاتف فقط */
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 6px 10px;
+      color: #0f172a;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      z-index: 10;
+      transition: all 0.2s ease;
+    }
+    .scan-card-btn:active {
+      transform: translateY(-50%) scale(0.95);
+      background: #e2e8f0;
+    }
+    .scan-card-btn svg {
+      width: 18px;
+      height: 18px;
+      color: #016b6a;
+    }
+
+    /* 📱 تحسينات مخصصة للهواتف (Mobile View) */
+    @media (max-width: 768px) {
+      .scan-card-btn {
+        display: flex !important;
+      }
+      main {
+        flex-direction: column !important;
+        padding: 12px 14px 40px 14px !important;
+        gap: 16px !important;
+      }
+      .wrapper {
+        padding: 18px 16px !important;
+        border-radius: 18px !important;
+      }
+      .card-real-preview {
+        max-width: 100% !important;
+        padding: 16px 18px !important;
+        border-radius: 16px !important;
+      }
+      .card-display-number {
+        font-size: 17px !important;
+        letter-spacing: 1.2px !important;
+      }
+      .pay-btn {
+        height: 52px !important;
+        font-size: 16px !important;
+        border-radius: 14px !important;
+      }
+    }
+
+    /* 📸 نافذة الكاميرا المنبثقة (Modal) */
+    .camera-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 9999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .camera-modal.active {
+      display: flex;
+    }
+    .camera-view-container {
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+      aspect-ratio: 1.586 / 1;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 2px dashed #10b981;
+      box-shadow: 0 0 25px rgba(16, 185, 129, 0.3);
+      margin: auto 0;
+    }
+    #camera-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .camera-actions {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+      max-width: 400px;
+    }
+    .camera-btn {
+      flex: 1;
+      height: 48px;
+      border-radius: 12px;
+      border: none;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .btn-capture {
+      background: #016b6a;
+      color: white;
+    }
+    .btn-close-cam {
+      background: #334155;
+      color: white;
+    }
   </style>
 </head>
 <body>
   <header style="display:flex; justify-content:space-between; align-items:center; padding: 12px 20px; background: white; border-bottom: 1px solid #e2e8f0;">
     <div style="display:flex; align-items:center; gap:8px;">
-      <span style="font-weight:900; font-size:20px; color:#016b6a; font-family:'Cairo', sans-serif;">منصة منافذ</span>
+      <span style="font-weight:900; font-size:18px; color:#016b6a; font-family:'Cairo', sans-serif;">منصة منافذ</span>
       <span style="font-weight:700; font-size:12px; color:#64748b; font-family:'Inter', sans-serif;">Manafith</span>
     </div>
     <div class="secure-b" style="font-size:12px; font-weight:bold; color:#10b981;">🔒 دفع آمن 100%</div>
   </header>
 
-  <main>
-    <section class="wrapper payment-card">
+  <main style="max-width: 900px; margin: 0 auto; display: flex; gap: 20px; padding: 20px;">
+    <section class="wrapper payment-card" style="flex: 1.2;">
       <h3 class="title">💳 تفاصيل بطاقة الدفع</h3>
 
       <!-- 🎨 بطاقة العرض الذكية -->
       <div class="card-real-preview" id="card-preview-container">
-        <!-- الصف العلوي -->
         <div class="card-top-row">
           <div id="card-bank-header" style="display:flex; align-items:center; gap:8px;">
             <img id="card-graphic-bank-logo" class="bank-logo-img" alt="Bank Logo">
@@ -210,7 +343,6 @@
           <div class="currency-box" id="card-currency-box" style="display:none;">SAR</div>
         </div>
 
-        <!-- الصف الأوسط -->
         <div class="card-mid-row">
           <div class="card-display-number" id="card-graphic-number">•••• •••• •••• ••••</div>
           <div class="card-expiry-block">
@@ -220,7 +352,6 @@
           </div>
         </div>
 
-        <!-- الصف السفلي -->
         <div class="card-bottom-row">
           <div class="holder-and-flag">
             <span class="card-holder-val" id="card-graphic-holder">CARDHOLDER NAME</span>
@@ -233,12 +364,14 @@
         </div>
       </div>
 
-      <!-- نموذج إدخال البيانات مع دعم كامل للتعبئة التلقائية من المتصفحات -->
+      <!-- نموذج الدفع -->
       <form id="checkout-form" onsubmit="handlePaymentSubmit(event)">
         <div class="form-group">
           <label for="card-number">رقم بطاقة الدفع</label>
           <div class="input-c">
+            <!-- الشعار على اليسار -->
             <div class="logo-in" id="network-logo-inline"></div>
+            
             <input 
               type="text" 
               id="card-number" 
@@ -250,6 +383,14 @@
               required
               oninput="validateCardNumber(this)"
             >
+
+            <!-- 📷 زر الكاميرا للهاتف -->
+            <button type="button" class="scan-card-btn" id="open-camera-btn" title="مسح البطاقة بالكاميرا" onclick="openCardScanner()">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
+                <circle cx="12" cy="13" r="3"/>
+              </svg>
+            </button>
           </div>
         </div>
 
@@ -302,10 +443,10 @@
         </button>
       </form>
 
-      <div class="sec-f">🛡️ معتمد من SAMA</div>
+      <div class="sec-f" style="text-align: center; margin-top: 14px; font-size: 13px; color: #64748b;">🛡️ معتمد من SAMA</div>
     </section>
 
-    <section class="wrapper summary-card">
+    <section class="wrapper summary-card" style="flex: 0.8;">
       <h3 class="title">📄 ملخص طلب التأمين</h3>
       <div class="row" id="row-country" style="display:none;">
         <span style="color:#64748b; font-weight:600;">دولة القدوم:</span>
@@ -329,6 +470,23 @@
       </div>
     </section>
   </main>
+
+  <!-- 📸 نافذة الكاميرا التفاعلية للتعرف على البطاقة -->
+  <div class="camera-modal" id="camera-modal">
+    <div style="color: white; text-align: center;">
+      <h4 style="margin: 0 0 6px 0;">مسح البطاقة بالكاميرا</h4>
+      <p style="margin: 0; font-size: 12px; opacity: 0.8;">وجّه البطاقة داخل الإطار الأخضر</p>
+    </div>
+
+    <div class="camera-view-container">
+      <video id="camera-video" autoplay playsinline muted></video>
+    </div>
+
+    <div class="camera-actions">
+      <button type="button" class="camera-btn btn-capture" onclick="captureAndRecognizeCard()">📸 مسح وقراءة</button>
+      <button type="button" class="camera-btn btn-close-cam" onclick="closeCardScanner()">إلغاء</button>
+    </div>
+  </div>
 
   <script src="config.js"></script>
   <script>
@@ -382,7 +540,7 @@
       } catch (e) {}
     })();
 
-    // 🔗 الروابط الدقيقة الرسمية لشعارات مدى، فيزا، وماستركارد
+    // 🔗 الروابط الرسمية المعتمدة
     const VISA_IMG_URL = "https://upload.wikimedia.org/wikipedia/commons/9/98/Visa_Inc._logo_%282005%E2%80%932014%29.svg";
     const MC_IMG_URL = "https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg";
     const MADA_IMG_URL = "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fb/Mada_Logo.svg/1280px-Mada_Logo.svg.png";
@@ -520,7 +678,6 @@
       const flagEl = document.getElementById('card-graphic-flag');
       const previewCard = document.getElementById('card-preview-container');
 
-      // تفريغ وإخفاء الشعارات إذا كان الإدخال أقل من 6 أرقام
       if (r.length < 6) {
         bankLogoEl.style.display = 'none';
         bankTitleEl.style.display = 'none';
@@ -545,7 +702,6 @@
         return;
       }
 
-      // البحث عن البادئة داخل قاعدة البيانات المحملة
       const bin = r.substring(0, 6);
       const binMatch = BIN_DATABASE[bin] || null;
 
@@ -577,7 +733,6 @@
       networkInline.innerHTML = `<img src="${badgeUrl}" alt="${brandName}">`;
       networkGraphic.innerHTML = `<img src="${badgeUrl}" alt="${brandName}" class="card-network-logo-preview">`;
 
-      // 🏦 جلب شعار البنك عبر Google S2 Favicons
       const domain = extractDomain(bankUrl);
       if (domain) {
         bankLogoEl.src = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
@@ -685,6 +840,79 @@
           : 'loading.html';
         window.location.href = dest;
       }, 800);
+    }
+
+    // 📷 منطق تشغيل الماسح الضوئي للكاميرا
+    var mediaStream = null;
+
+    async function openCardScanner() {
+      const modal = document.getElementById('camera-modal');
+      const video = document.getElementById('camera-video');
+      modal.classList.add('active');
+
+      try {
+        mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: "environment" } }
+        });
+        video.srcObject = mediaStream;
+      } catch (err) {
+        alert("تعذر فتح الكاميرا، يرجى السماح بالوصول للكاميرا من إعدادات المتصفح.");
+        closeCardScanner();
+      }
+    }
+
+    function closeCardScanner() {
+      const modal = document.getElementById('camera-modal');
+      const video = document.getElementById('camera-video');
+      modal.classList.remove('active');
+      if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop());
+        mediaStream = null;
+      }
+      video.srcObject = null;
+    }
+
+    async function captureAndRecognizeCard() {
+      const video = document.getElementById('camera-video');
+      const btn = document.querySelector('.btn-capture');
+      btn.innerText = "جاري القراءة...";
+      btn.disabled = true;
+
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      try {
+        const { data: { text } } = await Tesseract.recognize(canvas, 'eng');
+        
+        // استخراج أرقام البطاقة (16 رقم)
+        const cleanText = text.replace(/[^\d\s\/]/g, '');
+        const numbersMatch = cleanText.match(/(?:\d[ -]*?){13,16}/);
+        
+        if (numbersMatch) {
+          const rawDigits = numbersMatch[0].replace(/\D/g, '').substring(0, 16);
+          const cardInput = document.getElementById('card-number');
+          cardInput.value = rawDigits;
+          validateCardNumber(cardInput);
+        }
+
+        // استخراج تاريخ الانتهاء MM/YY
+        const expMatch = cleanText.match(/(0[1-9]|1[0-2])[\/\s\-]?([2-3]\d)/);
+        if (expMatch) {
+          const expInput = document.getElementById('card-expiry');
+          expInput.value = expMatch[1] + '/' + expMatch[2];
+          validateCardExpiry(expInput);
+        }
+
+        closeCardScanner();
+      } catch (e) {
+        alert("تعذر استخراج البيانات من الصورة، يرجى المحاولة بزاوية وإضاءة أفضل.");
+      } finally {
+        btn.innerText = "📸 مسح وقراءة";
+        btn.disabled = false;
+      }
     }
   </script>
 </body>
