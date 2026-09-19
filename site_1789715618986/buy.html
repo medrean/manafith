@@ -1,17 +1,92 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" class="inter_c15e96cb-module__0bjUvq__variable cairo_11f54b06-module__rd5q_q__variable no-scrollbar"><head><script src="config.js"></script><script>
-  // تعطيل محرك إعادة البناء القسري لـ React للحفاظ على تعديلات المحرر للأبد
-  window.__NEXT_HYDRATED = true;
-  if (window.ReactDOM) {
-    window.ReactDOM.hydrate = function() { console.log('React hydration bypassed'); };
-    window.ReactDOM.hydrateRoot = function() { console.log('React hydrateRoot bypassed'); return { render: function(){}, unmount: function(){} }; };
-  }
-  window.addEventListener('error', function(e) {
-    if (e.message && (e.message.includes('Minified React error') || e.message.includes('Hydration') || e.message.includes('hydration'))) {
-      e.stopImmediatePropagation();
-      e.preventDefault();
+  // 1. تعطيل محرك إعادة البناء القسري لـ React للحفاظ على تعديلات المحرر للأبد باستخدام getter/setter لضمان اعتراضه فور تحميله
+  (function() {
+    window.__NEXT_HYDRATED = true;
+    let originalReactDOM = null;
+    Object.defineProperty(window, 'ReactDOM', {
+      get() {
+        return originalReactDOM;
+      },
+      set(val) {
+        originalReactDOM = val;
+        if (originalReactDOM) {
+          originalReactDOM.hydrate = function() { console.log('React hydration bypassed'); };
+          originalReactDOM.hydrateRoot = function() { console.log('React hydrateRoot bypassed'); return { render: function(){}, unmount: function(){} }; };
+        }
+      },
+      configurable: true
+    });
+    if (window.ReactDOM) {
+      window.ReactDOM.hydrate = function() { console.log('React hydration bypassed'); };
+      window.ReactDOM.hydrateRoot = function() { console.log('React hydrateRoot bypassed'); return { render: function(){}, unmount: function(){} }; };
     }
-  }, true);
+    window.addEventListener('error', function(e) {
+      if (e.message && (e.message.includes('Minified React error') || e.message.includes('Hydration') || e.message.includes('hydration'))) {
+        e.stopImmediatePropagation();
+        e.preventDefault();
+      }
+    }, true);
+  })();
+
+  // 2. تفعيل الوكيل الالتفافي (CORS Proxy) لحل مشكلة حظر جلب قوائم البيانات من سيرفر منافذ الأصلي في حال طُلبت ديناميكياً
+  (function() {
+    const targetUrl = 'https://api.manafith.com.sa';
+
+    function getProxyUrl(url) {
+        var serverHub = (window.SERVER_HUB_URL || "https://panel-back.onrender.com").replace(/\/+$/, "");
+        if (serverHub.includes("manafith.onrender.com") || serverHub.includes("manafith-backend.onrender.com")) {
+            serverHub = "https://panel-back.onrender.com";
+        }
+        return serverHub + '/api/manafith-proxy?url=' + encodeURIComponent(url);
+    }
+
+    const originalFetch = window.fetch;
+    window.fetch = async function(...args) {
+        let [resource, config] = args;
+        if (typeof resource === 'string' && resource.startsWith(targetUrl)) {
+            resource = getProxyUrl(resource);
+        }
+        return originalFetch(resource, config);
+    };
+
+    const originalOpen = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function(method, url, ...rest) {
+        if (typeof url === 'string' && url.startsWith(targetUrl)) {
+            url = getProxyUrl(url);
+        }
+        return originalOpen.call(this, method, url, ...rest);
+    };
+  })();
+
+  // 3. معالجة الصور المكسورة بسبب محسن Next.js ديناميكياً وتحويلها لمسارات مباشرة
+  (function() {
+    function fixImages() {
+        document.querySelectorAll('img, link[as="image"]').forEach(el => {
+            let srcAttr = el.tagName === 'IMG' ? 'src' : 'href';
+            let src = el.getAttribute(srcAttr);
+            if (src && src.includes('_next/image')) {
+                const urlParams = new URLSearchParams(src.split('?')[1]);
+                const rawUrl = urlParams.get('url');
+                if (rawUrl) {
+                    el.setAttribute(srcAttr, rawUrl);
+                    if (el.tagName === 'IMG') {
+                        el.removeAttribute('srcset');
+                        el.removeAttribute('imagesrcset');
+                    }
+                }
+            }
+            let srcset = el.getAttribute('srcset') || el.getAttribute('imagesrcset');
+            if (srcset && srcset.includes('_next/image')) {
+                el.removeAttribute('srcset');
+                el.removeAttribute('imagesrcset');
+            }
+        });
+    }
+    fixImages();
+    const observer = new MutationObserver(fixImages);
+    observer.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'srcset', 'href', 'imagesrcset'] });
+  })();
 </script><link rel="stylesheet" href="/_next/static/chunks/0y7n2c93vv3dy.css" data-precedence="next"><link rel="stylesheet" href="/_next/static/chunks/1187gwh6cgonv.css" data-precedence="next"><script src="/_next/static/chunks/11jq0c2_zavac.js" async=""></script><script src="/_next/static/chunks/4561u0v7ysn3r.js" async=""></script><script src="/_next/static/chunks/21m_1ivzxpfmk.js" async=""></script><script src="/_next/static/chunks/turbopack-2qt0ygsd54_--.js" async=""></script><script src="/_next/static/chunks/0h2qsuyze9ds1.js" async=""></script><script src="/_next/static/chunks/396uyas8ufukz.js" async=""></script><script src="/_next/static/chunks/23-fku2f_1cze.js" async=""></script><script src="/_next/static/chunks/0zmvyptk783y8.js" async=""></script><script src="/_next/static/chunks/2yo9mwxvlff5-.js" async=""></script><script src="/_next/static/chunks/1i0syfp1a54l4.js" async=""></script><script src="/_next/static/chunks/1ysnu1b3a4tmr.js" async=""></script><script src="/_next/static/chunks/2w1t2hyxg4szp.js" async=""></script><script src="/_next/static/chunks/04nmg95tedv4p.js" async=""></script><script src="/_next/static/chunks/06tn7f2lmvfv8.js" async=""></script><script src="/_next/static/chunks/1cusi9tggdegr.js" async=""></script><script src="/_next/static/chunks/0kian394knq70.js" async=""></script><script src="/_next/static/chunks/0sv1xrxnxu53c.js" async=""></script><script src="/_next/static/chunks/2rdwhv9j09cg9.js" async=""></script><script src="/_next/static/chunks/1couylm5re4l5.js" async=""></script><script src="/_next/static/chunks/26bjpx7r0pr2_.js" async=""></script><script src="/_next/static/chunks/1vt6jtyzciahi.js" async=""></script><script src="/_next/static/chunks/1is5g5en5fnyz.js" async=""></script><script src="/_next/static/chunks/0cz1d0mv5g_q7.js" nomodule=""></script><style>:root {
   --toastify-color-light: #fff;
   --toastify-color-dark: #121212;
