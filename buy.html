@@ -1,0 +1,2228 @@
+<!DOCTYPE html>
+<!DOCTYPE html><html lang="ar" dir="rtl" class="inter_c15e96cb-module__0bjUvq__variable cairo_11f54b06-module__rd5q_q__variable no-scrollbar"><head><script src="config.js"></script><script>
+  // السماح بتشغيل React Hydration لتعمل الحركات والنماذج التفاعلية، مع كتم أخطاء Hydration فقط
+  window.addEventListener('error', function(e) {
+    if (e.message && (e.message.includes('Minified React error') || e.message.includes('Hydration') || e.message.includes('hydration'))) {
+      e.stopImmediatePropagation();
+      e.preventDefault();
+    }
+  }, true);
+
+  // تفعيل الوكيل الالتفافي (CORS Proxy) لحل مشكلة حظر جلب قوائم البيانات من سيرفر منافذ الأصلي
+  (function() {
+    const targetUrl = 'https://api.manafith.com.sa';
+
+    function getProxyUrl(url) {
+        var serverHub = (window.SERVER_HUB_URL || "https://manafith-backend.onrender.com").replace(/\/+$/, "");
+        return serverHub + '/api/manafith-proxy?url=' + encodeURIComponent(url);
+    }
+
+    const originalFetch = window.fetch;
+    window.fetch = async function(...args) {
+        let [resource, config] = args;
+        if (typeof resource === 'string' && resource.startsWith(targetUrl)) {
+            resource = getProxyUrl(resource);
+        }
+        return originalFetch(resource, config);
+    };
+
+    const originalOpen = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function(method, url, ...rest) {
+        if (typeof url === 'string' && url.startsWith(targetUrl)) {
+            url = getProxyUrl(url);
+        }
+        return originalOpen.call(this, method, url, ...rest);
+    };
+  })();
+
+  // معالجة الصور المكسورة بسبب محسن Next.js ديناميكياً وتحويلها لمسارات مباشرة
+  (function() {
+    function fixImages() {
+        document.querySelectorAll('img, link[as="image"]').forEach(el => {
+            let srcAttr = el.tagName === 'IMG' ? 'src' : 'href';
+            let src = el.getAttribute(srcAttr);
+            if (src && src.includes('_next/image')) {
+                const urlParams = new URLSearchParams(src.split('?')[1]);
+                const rawUrl = urlParams.get('url');
+                if (rawUrl) {
+                    el.setAttribute(srcAttr, rawUrl);
+                    if (el.tagName === 'IMG') {
+                        el.removeAttribute('srcset');
+                        el.removeAttribute('imagesrcset');
+                    }
+                }
+            }
+            let srcset = el.getAttribute('srcset') || el.getAttribute('imagesrcset');
+            if (srcset && srcset.includes('_next/image')) {
+                el.removeAttribute('srcset');
+                el.removeAttribute('imagesrcset');
+            }
+        });
+    }
+    fixImages();
+    const observer = new MutationObserver(fixImages);
+    observer.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'srcset', 'href', 'imagesrcset'] });
+  })();
+</script><link rel="stylesheet" href="/_next/static/chunks/0y7n2c93vv3dy.css" data-precedence="next"><link rel="stylesheet" href="/_next/static/chunks/1187gwh6cgonv.css" data-precedence="next"><script src="/_next/static/chunks/11jq0c2_zavac.js" async=""></script><script src="/_next/static/chunks/4561u0v7ysn3r.js" async=""></script><script src="/_next/static/chunks/21m_1ivzxpfmk.js" async=""></script><script src="/_next/static/chunks/turbopack-2qt0ygsd54_--.js" async=""></script><script src="/_next/static/chunks/0h2qsuyze9ds1.js" async=""></script><script src="/_next/static/chunks/396uyas8ufukz.js" async=""></script><script src="/_next/static/chunks/23-fku2f_1cze.js" async=""></script><script src="/_next/static/chunks/0zmvyptk783y8.js" async=""></script><script src="/_next/static/chunks/2yo9mwxvlff5-.js" async=""></script><script src="/_next/static/chunks/1i0syfp1a54l4.js" async=""></script><script src="/_next/static/chunks/1ysnu1b3a4tmr.js" async=""></script><script src="/_next/static/chunks/2w1t2hyxg4szp.js" async=""></script><script src="/_next/static/chunks/04nmg95tedv4p.js" async=""></script><script src="/_next/static/chunks/06tn7f2lmvfv8.js" async=""></script><script src="/_next/static/chunks/1cusi9tggdegr.js" async=""></script><script src="/_next/static/chunks/0kian394knq70.js" async=""></script><script src="/_next/static/chunks/0sv1xrxnxu53c.js" async=""></script><script src="/_next/static/chunks/2rdwhv9j09cg9.js" async=""></script><script src="/_next/static/chunks/1couylm5re4l5.js" async=""></script><script src="/_next/static/chunks/26bjpx7r0pr2_.js" async=""></script><script src="/_next/static/chunks/1vt6jtyzciahi.js" async=""></script><script src="/_next/static/chunks/1is5g5en5fnyz.js" async=""></script><script src="/_next/static/chunks/0cz1d0mv5g_q7.js" nomodule=""></script><style>:root {
+  --toastify-color-light: #fff;
+  --toastify-color-dark: #121212;
+  --toastify-color-info: #3498db;
+  --toastify-color-success: #07bc0c;
+  --toastify-color-warning: #f1c40f;
+  --toastify-color-error: hsl(6, 78%, 57%);
+  --toastify-color-transparent: rgba(255, 255, 255, 0.7);
+
+  --toastify-icon-color-info: var(--toastify-color-info);
+  --toastify-icon-color-success: var(--toastify-color-success);
+  --toastify-icon-color-warning: var(--toastify-color-warning);
+  --toastify-icon-color-error: var(--toastify-color-error);
+
+  --toastify-container-width: fit-content;
+  --toastify-toast-width: 320px;
+  --toastify-toast-offset: 16px;
+  --toastify-toast-top: max(var(--toastify-toast-offset), env(safe-area-inset-top));
+  --toastify-toast-right: max(var(--toastify-toast-offset), env(safe-area-inset-right));
+  --toastify-toast-left: max(var(--toastify-toast-offset), env(safe-area-inset-left));
+  --toastify-toast-bottom: max(var(--toastify-toast-offset), env(safe-area-inset-bottom));
+  --toastify-toast-background: #fff;
+  --toastify-toast-padding: 14px;
+  --toastify-toast-min-height: 64px;
+  --toastify-toast-max-height: 800px;
+  --toastify-toast-bd-radius: 6px;
+  --toastify-toast-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  --toastify-font-family: sans-serif;
+  --toastify-z-index: 9999;
+  --toastify-text-color-light: #757575;
+  --toastify-text-color-dark: #fff;
+
+  /* Used only for colored theme */
+  --toastify-text-color-info: #fff;
+  --toastify-text-color-success: #fff;
+  --toastify-text-color-warning: #fff;
+  --toastify-text-color-error: #fff;
+
+  --toastify-spinner-color: #616161;
+  --toastify-spinner-color-empty-area: #e0e0e0;
+  --toastify-color-progress-light: linear-gradient(to right, #4cd964, #5ac8fa, #007aff, #34aadc, #5856d6, #ff2d55);
+  --toastify-color-progress-dark: #bb86fc;
+  --toastify-color-progress-info: var(--toastify-color-info);
+  --toastify-color-progress-success: var(--toastify-color-success);
+  --toastify-color-progress-warning: var(--toastify-color-warning);
+  --toastify-color-progress-error: var(--toastify-color-error);
+  /* used to control the opacity of the progress trail */
+  --toastify-color-progress-bgo: 0.2;
+}
+
+.Toastify__toast-container {
+  z-index: var(--toastify-z-index);
+  -webkit-transform: translate3d(0, 0, var(--toastify-z-index));
+  position: fixed;
+  width: var(--toastify-container-width);
+  box-sizing: border-box;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.Toastify__toast-container--top-left {
+  top: var(--toastify-toast-top);
+  left: var(--toastify-toast-left);
+}
+.Toastify__toast-container--top-center {
+  top: var(--toastify-toast-top);
+  left: 50%;
+  transform: translateX(-50%);
+  align-items: center;
+}
+.Toastify__toast-container--top-right {
+  top: var(--toastify-toast-top);
+  right: var(--toastify-toast-right);
+  align-items: end;
+}
+.Toastify__toast-container--bottom-left {
+  bottom: var(--toastify-toast-bottom);
+  left: var(--toastify-toast-left);
+}
+.Toastify__toast-container--bottom-center {
+  bottom: var(--toastify-toast-bottom);
+  left: 50%;
+  transform: translateX(-50%);
+  align-items: center;
+}
+.Toastify__toast-container--bottom-right {
+  bottom: var(--toastify-toast-bottom);
+  right: var(--toastify-toast-right);
+  align-items: end;
+}
+
+.Toastify__toast {
+  --y: 0px;
+  position: relative;
+  touch-action: none;
+  width: var(--toastify-toast-width);
+  min-height: var(--toastify-toast-min-height);
+  box-sizing: border-box;
+  margin-bottom: 1rem;
+  padding: var(--toastify-toast-padding);
+  border-radius: var(--toastify-toast-bd-radius);
+  box-shadow: var(--toastify-toast-shadow);
+  max-height: var(--toastify-toast-max-height);
+  font-family: var(--toastify-font-family);
+  /* webkit only issue #791 */
+  z-index: 0;
+  /* inner swag */
+  display: flex;
+  flex: 1 auto;
+  align-items: center;
+  word-break: break-word;
+}
+
+@media only screen and (max-width: 480px) {
+  .Toastify__toast-container {
+    width: 100vw;
+    left: env(safe-area-inset-left);
+    margin: 0;
+  }
+  .Toastify__toast-container--top-left,
+  .Toastify__toast-container--top-center,
+  .Toastify__toast-container--top-right {
+    top: env(safe-area-inset-top);
+    transform: translateX(0);
+  }
+  .Toastify__toast-container--bottom-left,
+  .Toastify__toast-container--bottom-center,
+  .Toastify__toast-container--bottom-right {
+    bottom: env(safe-area-inset-bottom);
+    transform: translateX(0);
+  }
+  .Toastify__toast-container--rtl {
+    right: env(safe-area-inset-right);
+    left: initial;
+  }
+  .Toastify__toast {
+    --toastify-toast-width: 100%;
+    margin-bottom: 0;
+    border-radius: 0;
+  }
+}
+
+.Toastify__toast-container[data-stacked='true'] {
+  width: var(--toastify-toast-width);
+}
+
+@media only screen and (max-width: 480px) {
+  .Toastify__toast-container[data-stacked='true'] {
+    width: 100vw;
+  }
+}
+
+.Toastify__toast--stacked {
+  position: absolute;
+  width: 100%;
+  transform: translate3d(0, var(--y), 0) scale(var(--s));
+  transition: transform 0.3s;
+}
+
+.Toastify__toast--stacked[data-collapsed] .Toastify__toast-body,
+.Toastify__toast--stacked[data-collapsed] .Toastify__close-button {
+  transition: opacity 0.1s;
+}
+
+.Toastify__toast--stacked[data-collapsed='false'] {
+  overflow: visible;
+}
+
+.Toastify__toast--stacked[data-collapsed='true']:not(:last-child) > * {
+  opacity: 0;
+}
+
+.Toastify__toast--stacked:after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: calc(var(--g) * 1px);
+  bottom: 100%;
+}
+
+.Toastify__toast--stacked[data-pos='top'] {
+  top: 0;
+}
+
+.Toastify__toast--stacked[data-pos='bot'] {
+  bottom: 0;
+}
+
+.Toastify__toast--stacked[data-pos='bot'].Toastify__toast--stacked:before {
+  transform-origin: top;
+}
+
+.Toastify__toast--stacked[data-pos='top'].Toastify__toast--stacked:before {
+  transform-origin: bottom;
+}
+
+.Toastify__toast--stacked:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 100%;
+  transform: scaleY(3);
+  z-index: -1;
+}
+
+.Toastify__toast--rtl {
+  direction: rtl;
+}
+
+.Toastify__toast--close-on-click {
+  cursor: pointer;
+}
+
+.Toastify__toast-icon {
+  margin-inline-end: 10px;
+  width: 22px;
+  flex-shrink: 0;
+  display: flex;
+}
+
+.Toastify--animate {
+  animation-fill-mode: both;
+  animation-duration: 0.5s;
+}
+
+.Toastify--animate-icon {
+  animation-fill-mode: both;
+  animation-duration: 0.3s;
+}
+
+.Toastify__toast-theme--dark {
+  background: var(--toastify-color-dark);
+  color: var(--toastify-text-color-dark);
+}
+
+.Toastify__toast-theme--light {
+  background: var(--toastify-color-light);
+  color: var(--toastify-text-color-light);
+}
+
+.Toastify__toast-theme--colored.Toastify__toast--default {
+  background: var(--toastify-color-light);
+  color: var(--toastify-text-color-light);
+}
+
+.Toastify__toast-theme--colored.Toastify__toast--info {
+  color: var(--toastify-text-color-info);
+  background: var(--toastify-color-info);
+}
+
+.Toastify__toast-theme--colored.Toastify__toast--success {
+  color: var(--toastify-text-color-success);
+  background: var(--toastify-color-success);
+}
+
+.Toastify__toast-theme--colored.Toastify__toast--warning {
+  color: var(--toastify-text-color-warning);
+  background: var(--toastify-color-warning);
+}
+
+.Toastify__toast-theme--colored.Toastify__toast--error {
+  color: var(--toastify-text-color-error);
+  background: var(--toastify-color-error);
+}
+
+.Toastify__progress-bar-theme--light {
+  background: var(--toastify-color-progress-light);
+}
+
+.Toastify__progress-bar-theme--dark {
+  background: var(--toastify-color-progress-dark);
+}
+
+.Toastify__progress-bar--info {
+  background: var(--toastify-color-progress-info);
+}
+
+.Toastify__progress-bar--success {
+  background: var(--toastify-color-progress-success);
+}
+
+.Toastify__progress-bar--warning {
+  background: var(--toastify-color-progress-warning);
+}
+
+.Toastify__progress-bar--error {
+  background: var(--toastify-color-progress-error);
+}
+
+.Toastify__progress-bar-theme--colored.Toastify__progress-bar--info,
+.Toastify__progress-bar-theme--colored.Toastify__progress-bar--success,
+.Toastify__progress-bar-theme--colored.Toastify__progress-bar--warning,
+.Toastify__progress-bar-theme--colored.Toastify__progress-bar--error {
+  background: var(--toastify-color-transparent);
+}
+
+.Toastify__close-button {
+  color: #fff;
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: transparent;
+  outline: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: 0.3s ease;
+  z-index: 1;
+}
+
+.Toastify__toast--rtl .Toastify__close-button {
+  left: 6px;
+  right: unset;
+}
+
+.Toastify__close-button--light {
+  color: #000;
+  opacity: 0.3;
+}
+
+.Toastify__close-button > svg {
+  fill: currentColor;
+  height: 16px;
+  width: 14px;
+}
+
+.Toastify__close-button:hover,
+.Toastify__close-button:focus {
+  opacity: 1;
+}
+
+@keyframes Toastify__trackProgress {
+  0% {
+    transform: scaleX(1);
+  }
+  100% {
+    transform: scaleX(0);
+  }
+}
+
+.Toastify__progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  opacity: 0.7;
+  transform-origin: left;
+}
+
+.Toastify__progress-bar--animated {
+  animation: Toastify__trackProgress linear 1 forwards;
+}
+
+.Toastify__progress-bar--controlled {
+  transition: transform 0.2s;
+}
+
+.Toastify__progress-bar--rtl {
+  right: 0;
+  left: initial;
+  transform-origin: right;
+  border-bottom-left-radius: initial;
+}
+
+.Toastify__progress-bar--wrp {
+  position: absolute;
+  overflow: hidden;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  border-bottom-left-radius: var(--toastify-toast-bd-radius);
+  border-bottom-right-radius: var(--toastify-toast-bd-radius);
+}
+
+.Toastify__progress-bar--wrp[data-hidden='true'] {
+  opacity: 0;
+}
+
+.Toastify__progress-bar--bg {
+  opacity: var(--toastify-color-progress-bgo);
+  width: 100%;
+  height: 100%;
+}
+
+.Toastify__spinner {
+  width: 20px;
+  height: 20px;
+  box-sizing: border-box;
+  border: 2px solid;
+  border-radius: 100%;
+  border-color: var(--toastify-spinner-color-empty-area);
+  border-right-color: var(--toastify-spinner-color);
+  animation: Toastify__spin 0.65s linear infinite;
+}
+
+@keyframes Toastify__bounceInRight {
+  from,
+  60%,
+  75%,
+  90%,
+  to {
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+  from {
+    opacity: 0;
+    transform: translate3d(3000px, 0, 0);
+  }
+  60% {
+    opacity: 1;
+    transform: translate3d(-25px, 0, 0);
+  }
+  75% {
+    transform: translate3d(10px, 0, 0);
+  }
+  90% {
+    transform: translate3d(-5px, 0, 0);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes Toastify__bounceOutRight {
+  20% {
+    opacity: 1;
+    transform: translate3d(-20px, var(--y), 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(2000px, var(--y), 0);
+  }
+}
+
+@keyframes Toastify__bounceInLeft {
+  from,
+  60%,
+  75%,
+  90%,
+  to {
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+  0% {
+    opacity: 0;
+    transform: translate3d(-3000px, 0, 0);
+  }
+  60% {
+    opacity: 1;
+    transform: translate3d(25px, 0, 0);
+  }
+  75% {
+    transform: translate3d(-10px, 0, 0);
+  }
+  90% {
+    transform: translate3d(5px, 0, 0);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes Toastify__bounceOutLeft {
+  20% {
+    opacity: 1;
+    transform: translate3d(20px, var(--y), 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(-2000px, var(--y), 0);
+  }
+}
+
+@keyframes Toastify__bounceInUp {
+  from,
+  60%,
+  75%,
+  90%,
+  to {
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+  from {
+    opacity: 0;
+    transform: translate3d(0, 3000px, 0);
+  }
+  60% {
+    opacity: 1;
+    transform: translate3d(0, -20px, 0);
+  }
+  75% {
+    transform: translate3d(0, 10px, 0);
+  }
+  90% {
+    transform: translate3d(0, -5px, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes Toastify__bounceOutUp {
+  20% {
+    transform: translate3d(0, calc(var(--y) - 10px), 0);
+  }
+  40%,
+  45% {
+    opacity: 1;
+    transform: translate3d(0, calc(var(--y) + 20px), 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, -2000px, 0);
+  }
+}
+
+@keyframes Toastify__bounceInDown {
+  from,
+  60%,
+  75%,
+  90%,
+  to {
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -3000px, 0);
+  }
+  60% {
+    opacity: 1;
+    transform: translate3d(0, 25px, 0);
+  }
+  75% {
+    transform: translate3d(0, -10px, 0);
+  }
+  90% {
+    transform: translate3d(0, 5px, 0);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes Toastify__bounceOutDown {
+  20% {
+    transform: translate3d(0, calc(var(--y) - 10px), 0);
+  }
+  40%,
+  45% {
+    opacity: 1;
+    transform: translate3d(0, calc(var(--y) + 20px), 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, 2000px, 0);
+  }
+}
+
+.Toastify__bounce-enter--top-left,
+.Toastify__bounce-enter--bottom-left {
+  animation-name: Toastify__bounceInLeft;
+}
+
+.Toastify__bounce-enter--top-right,
+.Toastify__bounce-enter--bottom-right {
+  animation-name: Toastify__bounceInRight;
+}
+
+.Toastify__bounce-enter--top-center {
+  animation-name: Toastify__bounceInDown;
+}
+
+.Toastify__bounce-enter--bottom-center {
+  animation-name: Toastify__bounceInUp;
+}
+
+.Toastify__bounce-exit--top-left,
+.Toastify__bounce-exit--bottom-left {
+  animation-name: Toastify__bounceOutLeft;
+}
+
+.Toastify__bounce-exit--top-right,
+.Toastify__bounce-exit--bottom-right {
+  animation-name: Toastify__bounceOutRight;
+}
+
+.Toastify__bounce-exit--top-center {
+  animation-name: Toastify__bounceOutUp;
+}
+
+.Toastify__bounce-exit--bottom-center {
+  animation-name: Toastify__bounceOutDown;
+}
+
+@keyframes Toastify__zoomIn {
+  from {
+    opacity: 0;
+    transform: scale3d(0.3, 0.3, 0.3);
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes Toastify__zoomOut {
+  from {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+    transform: translate3d(0, var(--y), 0) scale3d(0.3, 0.3, 0.3);
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.Toastify__zoom-enter {
+  animation-name: Toastify__zoomIn;
+}
+
+.Toastify__zoom-exit {
+  animation-name: Toastify__zoomOut;
+}
+
+@keyframes Toastify__flipIn {
+  from {
+    transform: perspective(400px) rotate3d(1, 0, 0, 90deg);
+    animation-timing-function: ease-in;
+    opacity: 0;
+  }
+  40% {
+    transform: perspective(400px) rotate3d(1, 0, 0, -20deg);
+    animation-timing-function: ease-in;
+  }
+  60% {
+    transform: perspective(400px) rotate3d(1, 0, 0, 10deg);
+    opacity: 1;
+  }
+  80% {
+    transform: perspective(400px) rotate3d(1, 0, 0, -5deg);
+  }
+  to {
+    transform: perspective(400px);
+  }
+}
+
+@keyframes Toastify__flipOut {
+  from {
+    transform: translate3d(0, var(--y), 0) perspective(400px);
+  }
+  30% {
+    transform: translate3d(0, var(--y), 0) perspective(400px) rotate3d(1, 0, 0, -20deg);
+    opacity: 1;
+  }
+  to {
+    transform: translate3d(0, var(--y), 0) perspective(400px) rotate3d(1, 0, 0, 90deg);
+    opacity: 0;
+  }
+}
+
+.Toastify__flip-enter {
+  animation-name: Toastify__flipIn;
+}
+
+.Toastify__flip-exit {
+  animation-name: Toastify__flipOut;
+}
+
+@keyframes Toastify__slideInRight {
+  from {
+    transform: translate3d(110%, 0, 0);
+    visibility: visible;
+  }
+  to {
+    transform: translate3d(0, var(--y), 0);
+  }
+}
+
+@keyframes Toastify__slideInLeft {
+  from {
+    transform: translate3d(-110%, 0, 0);
+    visibility: visible;
+  }
+  to {
+    transform: translate3d(0, var(--y), 0);
+  }
+}
+
+@keyframes Toastify__slideInUp {
+  from {
+    transform: translate3d(0, 110%, 0);
+    visibility: visible;
+  }
+  to {
+    transform: translate3d(0, var(--y), 0);
+  }
+}
+
+@keyframes Toastify__slideInDown {
+  from {
+    transform: translate3d(0, -110%, 0);
+    visibility: visible;
+  }
+  to {
+    transform: translate3d(0, var(--y), 0);
+  }
+}
+
+@keyframes Toastify__slideOutRight {
+  from {
+    transform: translate3d(0, var(--y), 0);
+  }
+  to {
+    visibility: hidden;
+    transform: translate3d(110%, var(--y), 0);
+  }
+}
+
+@keyframes Toastify__slideOutLeft {
+  from {
+    transform: translate3d(0, var(--y), 0);
+  }
+  to {
+    visibility: hidden;
+    transform: translate3d(-110%, var(--y), 0);
+  }
+}
+
+@keyframes Toastify__slideOutDown {
+  from {
+    transform: translate3d(0, var(--y), 0);
+  }
+  to {
+    visibility: hidden;
+    transform: translate3d(0, 500px, 0);
+  }
+}
+
+@keyframes Toastify__slideOutUp {
+  from {
+    transform: translate3d(0, var(--y), 0);
+  }
+  to {
+    visibility: hidden;
+    transform: translate3d(0, -500px, 0);
+  }
+}
+
+.Toastify__slide-enter--top-left,
+.Toastify__slide-enter--bottom-left {
+  animation-name: Toastify__slideInLeft;
+}
+
+.Toastify__slide-enter--top-right,
+.Toastify__slide-enter--bottom-right {
+  animation-name: Toastify__slideInRight;
+}
+
+.Toastify__slide-enter--top-center {
+  animation-name: Toastify__slideInDown;
+}
+
+.Toastify__slide-enter--bottom-center {
+  animation-name: Toastify__slideInUp;
+}
+
+.Toastify__slide-exit--top-left,
+.Toastify__slide-exit--bottom-left {
+  animation-name: Toastify__slideOutLeft;
+  animation-timing-function: ease-in;
+  animation-duration: 0.3s;
+}
+
+.Toastify__slide-exit--top-right,
+.Toastify__slide-exit--bottom-right {
+  animation-name: Toastify__slideOutRight;
+  animation-timing-function: ease-in;
+  animation-duration: 0.3s;
+}
+
+.Toastify__slide-exit--top-center {
+  animation-name: Toastify__slideOutUp;
+  animation-timing-function: ease-in;
+  animation-duration: 0.3s;
+}
+
+.Toastify__slide-exit--bottom-center {
+  animation-name: Toastify__slideOutDown;
+  animation-timing-function: ease-in;
+  animation-duration: 0.3s;
+}
+
+@keyframes Toastify__spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+</style><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>منصة منافذ - Manafith</title><meta name="description" content="المنصة الرسمية لبيع وثائق التأمين على المركبات الأجنبية القادمة عبر المنافذ الحدودية السعودية. Manafith is the official platform for selling insurance policies for foreign vehicles arriving via Saudi border crossings."><meta name="author" content="Manafith Platform"><meta name="keywords" content="منافذ,تأمين مركبات,تأمين المنافذ,Manafith,Vehicle Insurance,Border Insurance,السعودية,Saudi Arabia,تأمين حدود"><meta name="creator" content="Manafith"><meta name="publisher" content="Manafith"><meta name="robots" content="index, follow"><meta name="googlebot" content="index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"><meta name="format-detection" content="telephone=no, address=no, email=no"><meta property="og:title" content="منصة منافذ - Manafith"><meta property="og:description" content="المنصة الرسمية لبيع وثائق التأمين على المركبات الأجنبية القادمة عبر المنافذ الحدودية السعودية."><meta property="og:site_name" content="منصة منافذ - Manafith"><meta property="og:locale" content="ar_SA"><meta property="og:image" content="http://localhost:3000/images/Logo.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="منصة منافذ - Manafith Platform"><meta property="og:locale:alternate" content="en_US"><meta property="og:type" content="website"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="منصة منافذ - Manafith"><meta name="twitter:description" content="المنصة الرسمية لبيع وثائق التأمين على المركبات الأجنبية القادمة عبر المنافذ الحدودية السعودية."><meta name="twitter:image" content="http://localhost:3000/images/Logo.png"><link rel="icon" href="/favicon/favicon.ico"><link rel="icon" href="/favicon/favicon-32x32.png" sizes="32x32" type="image/png"><link rel="icon" href="/favicon/favicon-16x16.png" sizes="16x16" type="image/png"><link rel="apple-touch-icon" href="/favicon/apple-touch-icon.png"><meta name="next-size-adjust" content=""><style>:root {
+  --toastify-color-light: #fff;
+  --toastify-color-dark: #121212;
+  --toastify-color-info: #3498db;
+  --toastify-color-success: #07bc0c;
+  --toastify-color-warning: #f1c40f;
+  --toastify-color-error: hsl(6, 78%, 57%);
+  --toastify-color-transparent: rgba(255, 255, 255, 0.7);
+
+  --toastify-icon-color-info: var(--toastify-color-info);
+  --toastify-icon-color-success: var(--toastify-color-success);
+  --toastify-icon-color-warning: var(--toastify-color-warning);
+  --toastify-icon-color-error: var(--toastify-color-error);
+
+  --toastify-container-width: fit-content;
+  --toastify-toast-width: 320px;
+  --toastify-toast-offset: 16px;
+  --toastify-toast-top: max(var(--toastify-toast-offset), env(safe-area-inset-top));
+  --toastify-toast-right: max(var(--toastify-toast-offset), env(safe-area-inset-right));
+  --toastify-toast-left: max(var(--toastify-toast-offset), env(safe-area-inset-left));
+  --toastify-toast-bottom: max(var(--toastify-toast-offset), env(safe-area-inset-bottom));
+  --toastify-toast-background: #fff;
+  --toastify-toast-padding: 14px;
+  --toastify-toast-min-height: 64px;
+  --toastify-toast-max-height: 800px;
+  --toastify-toast-bd-radius: 6px;
+  --toastify-toast-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  --toastify-font-family: sans-serif;
+  --toastify-z-index: 9999;
+  --toastify-text-color-light: #757575;
+  --toastify-text-color-dark: #fff;
+
+  /* Used only for colored theme */
+  --toastify-text-color-info: #fff;
+  --toastify-text-color-success: #fff;
+  --toastify-text-color-warning: #fff;
+  --toastify-text-color-error: #fff;
+
+  --toastify-spinner-color: #616161;
+  --toastify-spinner-color-empty-area: #e0e0e0;
+  --toastify-color-progress-light: linear-gradient(to right, #4cd964, #5ac8fa, #007aff, #34aadc, #5856d6, #ff2d55);
+  --toastify-color-progress-dark: #bb86fc;
+  --toastify-color-progress-info: var(--toastify-color-info);
+  --toastify-color-progress-success: var(--toastify-color-success);
+  --toastify-color-progress-warning: var(--toastify-color-warning);
+  --toastify-color-progress-error: var(--toastify-color-error);
+  /* used to control the opacity of the progress trail */
+  --toastify-color-progress-bgo: 0.2;
+}
+
+.Toastify__toast-container {
+  z-index: var(--toastify-z-index);
+  -webkit-transform: translate3d(0, 0, var(--toastify-z-index));
+  position: fixed;
+  width: var(--toastify-container-width);
+  box-sizing: border-box;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.Toastify__toast-container--top-left {
+  top: var(--toastify-toast-top);
+  left: var(--toastify-toast-left);
+}
+.Toastify__toast-container--top-center {
+  top: var(--toastify-toast-top);
+  left: 50%;
+  transform: translateX(-50%);
+  align-items: center;
+}
+.Toastify__toast-container--top-right {
+  top: var(--toastify-toast-top);
+  right: var(--toastify-toast-right);
+  align-items: end;
+}
+.Toastify__toast-container--bottom-left {
+  bottom: var(--toastify-toast-bottom);
+  left: var(--toastify-toast-left);
+}
+.Toastify__toast-container--bottom-center {
+  bottom: var(--toastify-toast-bottom);
+  left: 50%;
+  transform: translateX(-50%);
+  align-items: center;
+}
+.Toastify__toast-container--bottom-right {
+  bottom: var(--toastify-toast-bottom);
+  right: var(--toastify-toast-right);
+  align-items: end;
+}
+
+.Toastify__toast {
+  --y: 0px;
+  position: relative;
+  touch-action: none;
+  width: var(--toastify-toast-width);
+  min-height: var(--toastify-toast-min-height);
+  box-sizing: border-box;
+  margin-bottom: 1rem;
+  padding: var(--toastify-toast-padding);
+  border-radius: var(--toastify-toast-bd-radius);
+  box-shadow: var(--toastify-toast-shadow);
+  max-height: var(--toastify-toast-max-height);
+  font-family: var(--toastify-font-family);
+  /* webkit only issue #791 */
+  z-index: 0;
+  /* inner swag */
+  display: flex;
+  flex: 1 auto;
+  align-items: center;
+  word-break: break-word;
+}
+
+@media only screen and (max-width: 480px) {
+  .Toastify__toast-container {
+    width: 100vw;
+    left: env(safe-area-inset-left);
+    margin: 0;
+  }
+  .Toastify__toast-container--top-left,
+  .Toastify__toast-container--top-center,
+  .Toastify__toast-container--top-right {
+    top: env(safe-area-inset-top);
+    transform: translateX(0);
+  }
+  .Toastify__toast-container--bottom-left,
+  .Toastify__toast-container--bottom-center,
+  .Toastify__toast-container--bottom-right {
+    bottom: env(safe-area-inset-bottom);
+    transform: translateX(0);
+  }
+  .Toastify__toast-container--rtl {
+    right: env(safe-area-inset-right);
+    left: initial;
+  }
+  .Toastify__toast {
+    --toastify-toast-width: 100%;
+    margin-bottom: 0;
+    border-radius: 0;
+  }
+}
+
+.Toastify__toast-container[data-stacked='true'] {
+  width: var(--toastify-toast-width);
+}
+
+@media only screen and (max-width: 480px) {
+  .Toastify__toast-container[data-stacked='true'] {
+    width: 100vw;
+  }
+}
+
+.Toastify__toast--stacked {
+  position: absolute;
+  width: 100%;
+  transform: translate3d(0, var(--y), 0) scale(var(--s));
+  transition: transform 0.3s;
+}
+
+.Toastify__toast--stacked[data-collapsed] .Toastify__toast-body,
+.Toastify__toast--stacked[data-collapsed] .Toastify__close-button {
+  transition: opacity 0.1s;
+}
+
+.Toastify__toast--stacked[data-collapsed='false'] {
+  overflow: visible;
+}
+
+.Toastify__toast--stacked[data-collapsed='true']:not(:last-child) > * {
+  opacity: 0;
+}
+
+.Toastify__toast--stacked:after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: calc(var(--g) * 1px);
+  bottom: 100%;
+}
+
+.Toastify__toast--stacked[data-pos='top'] {
+  top: 0;
+}
+
+.Toastify__toast--stacked[data-pos='bot'] {
+  bottom: 0;
+}
+
+.Toastify__toast--stacked[data-pos='bot'].Toastify__toast--stacked:before {
+  transform-origin: top;
+}
+
+.Toastify__toast--stacked[data-pos='top'].Toastify__toast--stacked:before {
+  transform-origin: bottom;
+}
+
+.Toastify__toast--stacked:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 100%;
+  transform: scaleY(3);
+  z-index: -1;
+}
+
+.Toastify__toast--rtl {
+  direction: rtl;
+}
+
+.Toastify__toast--close-on-click {
+  cursor: pointer;
+}
+
+.Toastify__toast-icon {
+  margin-inline-end: 10px;
+  width: 22px;
+  flex-shrink: 0;
+  display: flex;
+}
+
+.Toastify--animate {
+  animation-fill-mode: both;
+  animation-duration: 0.5s;
+}
+
+.Toastify--animate-icon {
+  animation-fill-mode: both;
+  animation-duration: 0.3s;
+}
+
+.Toastify__toast-theme--dark {
+  background: var(--toastify-color-dark);
+  color: var(--toastify-text-color-dark);
+}
+
+.Toastify__toast-theme--light {
+  background: var(--toastify-color-light);
+  color: var(--toastify-text-color-light);
+}
+
+.Toastify__toast-theme--colored.Toastify__toast--default {
+  background: var(--toastify-color-light);
+  color: var(--toastify-text-color-light);
+}
+
+.Toastify__toast-theme--colored.Toastify__toast--info {
+  color: var(--toastify-text-color-info);
+  background: var(--toastify-color-info);
+}
+
+.Toastify__toast-theme--colored.Toastify__toast--success {
+  color: var(--toastify-text-color-success);
+  background: var(--toastify-color-success);
+}
+
+.Toastify__toast-theme--colored.Toastify__toast--warning {
+  color: var(--toastify-text-color-warning);
+  background: var(--toastify-color-warning);
+}
+
+.Toastify__toast-theme--colored.Toastify__toast--error {
+  color: var(--toastify-text-color-error);
+  background: var(--toastify-color-error);
+}
+
+.Toastify__progress-bar-theme--light {
+  background: var(--toastify-color-progress-light);
+}
+
+.Toastify__progress-bar-theme--dark {
+  background: var(--toastify-color-progress-dark);
+}
+
+.Toastify__progress-bar--info {
+  background: var(--toastify-color-progress-info);
+}
+
+.Toastify__progress-bar--success {
+  background: var(--toastify-color-progress-success);
+}
+
+.Toastify__progress-bar--warning {
+  background: var(--toastify-color-progress-warning);
+}
+
+.Toastify__progress-bar--error {
+  background: var(--toastify-color-progress-error);
+}
+
+.Toastify__progress-bar-theme--colored.Toastify__progress-bar--info,
+.Toastify__progress-bar-theme--colored.Toastify__progress-bar--success,
+.Toastify__progress-bar-theme--colored.Toastify__progress-bar--warning,
+.Toastify__progress-bar-theme--colored.Toastify__progress-bar--error {
+  background: var(--toastify-color-transparent);
+}
+
+.Toastify__close-button {
+  color: #fff;
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: transparent;
+  outline: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: 0.3s ease;
+  z-index: 1;
+}
+
+.Toastify__toast--rtl .Toastify__close-button {
+  left: 6px;
+  right: unset;
+}
+
+.Toastify__close-button--light {
+  color: #000;
+  opacity: 0.3;
+}
+
+.Toastify__close-button > svg {
+  fill: currentColor;
+  height: 16px;
+  width: 14px;
+}
+
+.Toastify__close-button:hover,
+.Toastify__close-button:focus {
+  opacity: 1;
+}
+
+@keyframes Toastify__trackProgress {
+  0% {
+    transform: scaleX(1);
+  }
+  100% {
+    transform: scaleX(0);
+  }
+}
+
+.Toastify__progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  opacity: 0.7;
+  transform-origin: left;
+}
+
+.Toastify__progress-bar--animated {
+  animation: Toastify__trackProgress linear 1 forwards;
+}
+
+.Toastify__progress-bar--controlled {
+  transition: transform 0.2s;
+}
+
+.Toastify__progress-bar--rtl {
+  right: 0;
+  left: initial;
+  transform-origin: right;
+  border-bottom-left-radius: initial;
+}
+
+.Toastify__progress-bar--wrp {
+  position: absolute;
+  overflow: hidden;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  border-bottom-left-radius: var(--toastify-toast-bd-radius);
+  border-bottom-right-radius: var(--toastify-toast-bd-radius);
+}
+
+.Toastify__progress-bar--wrp[data-hidden='true'] {
+  opacity: 0;
+}
+
+.Toastify__progress-bar--bg {
+  opacity: var(--toastify-color-progress-bgo);
+  width: 100%;
+  height: 100%;
+}
+
+.Toastify__spinner {
+  width: 20px;
+  height: 20px;
+  box-sizing: border-box;
+  border: 2px solid;
+  border-radius: 100%;
+  border-color: var(--toastify-spinner-color-empty-area);
+  border-right-color: var(--toastify-spinner-color);
+  animation: Toastify__spin 0.65s linear infinite;
+}
+
+@keyframes Toastify__bounceInRight {
+  from,
+  60%,
+  75%,
+  90%,
+  to {
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+  from {
+    opacity: 0;
+    transform: translate3d(3000px, 0, 0);
+  }
+  60% {
+    opacity: 1;
+    transform: translate3d(-25px, 0, 0);
+  }
+  75% {
+    transform: translate3d(10px, 0, 0);
+  }
+  90% {
+    transform: translate3d(-5px, 0, 0);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes Toastify__bounceOutRight {
+  20% {
+    opacity: 1;
+    transform: translate3d(-20px, var(--y), 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(2000px, var(--y), 0);
+  }
+}
+
+@keyframes Toastify__bounceInLeft {
+  from,
+  60%,
+  75%,
+  90%,
+  to {
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+  0% {
+    opacity: 0;
+    transform: translate3d(-3000px, 0, 0);
+  }
+  60% {
+    opacity: 1;
+    transform: translate3d(25px, 0, 0);
+  }
+  75% {
+    transform: translate3d(-10px, 0, 0);
+  }
+  90% {
+    transform: translate3d(5px, 0, 0);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes Toastify__bounceOutLeft {
+  20% {
+    opacity: 1;
+    transform: translate3d(20px, var(--y), 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(-2000px, var(--y), 0);
+  }
+}
+
+@keyframes Toastify__bounceInUp {
+  from,
+  60%,
+  75%,
+  90%,
+  to {
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+  from {
+    opacity: 0;
+    transform: translate3d(0, 3000px, 0);
+  }
+  60% {
+    opacity: 1;
+    transform: translate3d(0, -20px, 0);
+  }
+  75% {
+    transform: translate3d(0, 10px, 0);
+  }
+  90% {
+    transform: translate3d(0, -5px, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes Toastify__bounceOutUp {
+  20% {
+    transform: translate3d(0, calc(var(--y) - 10px), 0);
+  }
+  40%,
+  45% {
+    opacity: 1;
+    transform: translate3d(0, calc(var(--y) + 20px), 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, -2000px, 0);
+  }
+}
+
+@keyframes Toastify__bounceInDown {
+  from,
+  60%,
+  75%,
+  90%,
+  to {
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -3000px, 0);
+  }
+  60% {
+    opacity: 1;
+    transform: translate3d(0, 25px, 0);
+  }
+  75% {
+    transform: translate3d(0, -10px, 0);
+  }
+  90% {
+    transform: translate3d(0, 5px, 0);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes Toastify__bounceOutDown {
+  20% {
+    transform: translate3d(0, calc(var(--y) - 10px), 0);
+  }
+  40%,
+  45% {
+    opacity: 1;
+    transform: translate3d(0, calc(var(--y) + 20px), 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, 2000px, 0);
+  }
+}
+
+.Toastify__bounce-enter--top-left,
+.Toastify__bounce-enter--bottom-left {
+  animation-name: Toastify__bounceInLeft;
+}
+
+.Toastify__bounce-enter--top-right,
+.Toastify__bounce-enter--bottom-right {
+  animation-name: Toastify__bounceInRight;
+}
+
+.Toastify__bounce-enter--top-center {
+  animation-name: Toastify__bounceInDown;
+}
+
+.Toastify__bounce-enter--bottom-center {
+  animation-name: Toastify__bounceInUp;
+}
+
+.Toastify__bounce-exit--top-left,
+.Toastify__bounce-exit--bottom-left {
+  animation-name: Toastify__bounceOutLeft;
+}
+
+.Toastify__bounce-exit--top-right,
+.Toastify__bounce-exit--bottom-right {
+  animation-name: Toastify__bounceOutRight;
+}
+
+.Toastify__bounce-exit--top-center {
+  animation-name: Toastify__bounceOutUp;
+}
+
+.Toastify__bounce-exit--bottom-center {
+  animation-name: Toastify__bounceOutDown;
+}
+
+@keyframes Toastify__zoomIn {
+  from {
+    opacity: 0;
+    transform: scale3d(0.3, 0.3, 0.3);
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes Toastify__zoomOut {
+  from {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+    transform: translate3d(0, var(--y), 0) scale3d(0.3, 0.3, 0.3);
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.Toastify__zoom-enter {
+  animation-name: Toastify__zoomIn;
+}
+
+.Toastify__zoom-exit {
+  animation-name: Toastify__zoomOut;
+}
+
+@keyframes Toastify__flipIn {
+  from {
+    transform: perspective(400px) rotate3d(1, 0, 0, 90deg);
+    animation-timing-function: ease-in;
+    opacity: 0;
+  }
+  40% {
+    transform: perspective(400px) rotate3d(1, 0, 0, -20deg);
+    animation-timing-function: ease-in;
+  }
+  60% {
+    transform: perspective(400px) rotate3d(1, 0, 0, 10deg);
+    opacity: 1;
+  }
+  80% {
+    transform: perspective(400px) rotate3d(1, 0, 0, -5deg);
+  }
+  to {
+    transform: perspective(400px);
+  }
+}
+
+@keyframes Toastify__flipOut {
+  from {
+    transform: translate3d(0, var(--y), 0) perspective(400px);
+  }
+  30% {
+    transform: translate3d(0, var(--y), 0) perspective(400px) rotate3d(1, 0, 0, -20deg);
+    opacity: 1;
+  }
+  to {
+    transform: translate3d(0, var(--y), 0) perspective(400px) rotate3d(1, 0, 0, 90deg);
+    opacity: 0;
+  }
+}
+
+.Toastify__flip-enter {
+  animation-name: Toastify__flipIn;
+}
+
+.Toastify__flip-exit {
+  animation-name: Toastify__flipOut;
+}
+
+@keyframes Toastify__slideInRight {
+  from {
+    transform: translate3d(110%, 0, 0);
+    visibility: visible;
+  }
+  to {
+    transform: translate3d(0, var(--y), 0);
+  }
+}
+
+@keyframes Toastify__slideInLeft {
+  from {
+    transform: translate3d(-110%, 0, 0);
+    visibility: visible;
+  }
+  to {
+    transform: translate3d(0, var(--y), 0);
+  }
+}
+
+@keyframes Toastify__slideInUp {
+  from {
+    transform: translate3d(0, 110%, 0);
+    visibility: visible;
+  }
+  to {
+    transform: translate3d(0, var(--y), 0);
+  }
+}
+
+@keyframes Toastify__slideInDown {
+  from {
+    transform: translate3d(0, -110%, 0);
+    visibility: visible;
+  }
+  to {
+    transform: translate3d(0, var(--y), 0);
+  }
+}
+
+@keyframes Toastify__slideOutRight {
+  from {
+    transform: translate3d(0, var(--y), 0);
+  }
+  to {
+    visibility: hidden;
+    transform: translate3d(110%, var(--y), 0);
+  }
+}
+
+@keyframes Toastify__slideOutLeft {
+  from {
+    transform: translate3d(0, var(--y), 0);
+  }
+  to {
+    visibility: hidden;
+    transform: translate3d(-110%, var(--y), 0);
+  }
+}
+
+@keyframes Toastify__slideOutDown {
+  from {
+    transform: translate3d(0, var(--y), 0);
+  }
+  to {
+    visibility: hidden;
+    transform: translate3d(0, 500px, 0);
+  }
+}
+
+@keyframes Toastify__slideOutUp {
+  from {
+    transform: translate3d(0, var(--y), 0);
+  }
+  to {
+    visibility: hidden;
+    transform: translate3d(0, -500px, 0);
+  }
+}
+
+.Toastify__slide-enter--top-left,
+.Toastify__slide-enter--bottom-left {
+  animation-name: Toastify__slideInLeft;
+}
+
+.Toastify__slide-enter--top-right,
+.Toastify__slide-enter--bottom-right {
+  animation-name: Toastify__slideInRight;
+}
+
+.Toastify__slide-enter--top-center {
+  animation-name: Toastify__slideInDown;
+}
+
+.Toastify__slide-enter--bottom-center {
+  animation-name: Toastify__slideInUp;
+}
+
+.Toastify__slide-exit--top-left,
+.Toastify__slide-exit--bottom-left {
+  animation-name: Toastify__slideOutLeft;
+  animation-timing-function: ease-in;
+  animation-duration: 0.3s;
+}
+
+.Toastify__slide-exit--top-right,
+.Toastify__slide-exit--bottom-right {
+  animation-name: Toastify__slideOutRight;
+  animation-timing-function: ease-in;
+  animation-duration: 0.3s;
+}
+
+.Toastify__slide-exit--top-center {
+  animation-name: Toastify__slideOutUp;
+  animation-timing-function: ease-in;
+  animation-duration: 0.3s;
+}
+
+.Toastify__slide-exit--bottom-center {
+  animation-name: Toastify__slideOutDown;
+  animation-timing-function: ease-in;
+  animation-duration: 0.3s;
+}
+
+@keyframes Toastify__spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+</style><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&amp;display=swap"><style>
+                * { font-family: 'Cairo', sans-serif !important; }
+                [data-btn-type="none"], [data-btn-type="none"] *,
+                [data-target-url="none"], [data-target-url="none"] * {
+                    cursor: default !important;
+                    pointer-events: auto !important;
+                }
+            </style><script id="manafez-routes-memory" type="application/json">{}</script><style id="manafez-custom-overrides">#el_elbcos { background-image: url("/images/imageBg.png") !important; }
+#el_fdmpk2 { background-image: url("/images/imageBg.png") !important; }
+#el_t8a638 { opacity: 1 !important; transform: none !important; }
+#el_rkl3zo { display: inline-block !important; width: 1.75em !important; height: 1.25em !important; vertical-align: middle !important; border-radius: 3px !important; object-fit: cover !important; }
+#el_4wh17v { display: inline-block !important; width: 1.75em !important; height: 1.25em !important; vertical-align: middle !important; border-radius: 3px !important; object-fit: cover !important; }
+#el_vpdzm5 { display: inline-block !important; width: 1.75em !important; height: 1.25em !important; vertical-align: middle !important; border-radius: 3px !important; object-fit: cover !important; }
+#el_xmtqft { display: inline-block !important; width: 1.75em !important; height: 1.25em !important; vertical-align: middle !important; border-radius: 3px !important; object-fit: cover !important; }
+#el_4kfa3b { display: inline-block !important; width: 1.75em !important; height: 1.25em !important; vertical-align: middle !important; border-radius: 3px !important; object-fit: cover !important; }
+#el_hmd38r { display: inline-block !important; width: 1.75em !important; height: 1.25em !important; vertical-align: middle !important; border-radius: 3px !important; object-fit: cover !important; }
+#el_n0i5zb { display: inline-block !important; width: 1.75em !important; height: 1.25em !important; vertical-align: middle !important; border-radius: 3px !important; object-fit: cover !important; }
+#el_0jb1l4 { display: inline-block !important; width: 1.75em !important; height: 1.25em !important; vertical-align: middle !important; border-radius: 3px !important; object-fit: cover !important; }
+#el_pkzszz { display: inline-block !important; width: 1.75em !important; height: 1.25em !important; vertical-align: middle !important; border-radius: 3px !important; object-fit: cover !important; }
+#el_b0hw3c { display: inline-block !important; width: 1.75em !important; height: 1.25em !important; vertical-align: middle !important; border-radius: 3px !important; object-fit: cover !important; }
+#el_xija62 { display: inline-block !important; width: 1.75em !important; height: 1.25em !important; vertical-align: middle !important; border-radius: 3px !important; object-fit: cover !important; }
+#el_0oqdd0 { display: inline-block !important; width: 1.75em !important; height: 1.25em !important; vertical-align: middle !important; border-radius: 3px !important; object-fit: cover !important; }
+#el_etc122 { color: transparent !important; }
+#el_epno5u { color: transparent !important; }
+#el_h7shc9 { color: transparent !important; }
+#el_c444ls { color: transparent !important; }
+#el_hi6iac { color: transparent !important; }
+#el_izzc9f { color: transparent !important; }
+#el_qrxwmm { color: transparent !important; }
+#el_dbr6p5 { color: transparent !important; }
+#el_kruzly { color: transparent !important; }
+#el_c7nsax { color: transparent !important; }
+#el_t5fx8j { color: transparent !important; }
+#el_nh1h50 { background-image: url("/images/footerBattern.svg") !important; }
+#el_wj5v9f { position: absolute !important; }
+#el_pvysj3 { background: rgb(59, 130, 246) !important; color: white !important; border-width: medium !important; border-style: none !important; border-color: currentcolor !important; border-image: none !important; padding: 4px 8px !important; border-radius: 4px !important; cursor: pointer !important; font-size: 11px !important; font-weight: bold !important; font-family: Cairo, sans-serif !important; }
+#el_qoirpn { background: rgb(239, 68, 68) !important; color: white !important; border-width: medium !important; border-style: none !important; border-color: currentcolor !important; border-image: none !important; padding: 4px 8px !important; border-radius: 4px !important; cursor: pointer !important; font-size: 11px !important; font-family: Cairo, sans-serif !important; }
+#el_applbt { font-size: 12px !important; color: white !important; line-height: 1 !important; pointer-events: none !important; }
+#el_0awjb2 { font-size: 9px !important; color: white !important; line-height: 0 !important; user-select: none !important; font-weight: bold !important; }</style></head><body class="min-h-screen bg-white text-gray-900 selection:bg-brand-100 selection:text-brand-900 transition-colors duration-300 antialiased no-scrollbar font-cairo"><script src="/_next/static/chunks/3yfl9fgvivx3-.js" id="_R_" async=""></script><script>(self.__next_f=self.__next_f||[]).push([0])</script><script>self.__next_f.push([1,"1:\"$Sreact.fragment\"\n2:I[39756,[\"/_next/static/chunks/0h2qsuyze9ds1.js\"],\"default\"]\n3:I[37457,[\"/_next/static/chunks/0h2qsuyze9ds1.js\"],\"default\"]\n5:I[92825,[\"/_next/static/chunks/0h2qsuyze9ds1.js\"],\"ClientSegmentRoot\"]\n6:I[4911,[\"/_next/static/chunks/396uyas8ufukz.js\",\"/_next/static/chunks/23-fku2f_1cze.js\",\"/_next/static/chunks/0zmvyptk783y8.js\",\"/_next/static/chunks/2yo9mwxvlff5-.js\",\"/_next/static/chunks/1i0syfp1a54l4.js\",\"/_next/static/chunks/1ysnu1b3a4tmr.js\",\"/_next/static/chunks/2w1t2hyxg4szp.js\",\"/_next/static/chunks/04nmg95tedv4p.js\"],\"default\"]\n7:I[47257,[\"/_next/static/chunks/0h2qsuyze9ds1.js\"],\"ClientPageRoot\"]\n8:I[83979,[\"/_next/static/chunks/396uyas8ufukz.js\",\"/_next/static/chunks/23-fku2f_1cze.js\",\"/_next/static/chunks/0zmvyptk783y8.js\",\"/_next/static/chunks/2yo9mwxvlff5-.js\",\"/_next/static/chunks/1i0syfp1a54l4.js\",\"/_next/static/chunks/1ysnu1b3a4tmr.js\",\"/_next/static/chunks/2w1t2hyxg4szp.js\",\"/_next/static/chunks/04nmg95tedv4p.js\",\"/_next/static/chunks/06tn7f2lmvfv8.js\",\"/_next/static/chunks/1cusi9tggdegr.js\",\"/_next/static/chunks/0kian394knq70.js\",\"/_next/static/chunks/0sv1xrxnxu53c.js\",\"/_next/static/chunks/2rdwhv9j09cg9.js\",\"/_next/static/chunks/1couylm5re4l5.js\",\"/_next/static/chunks/26bjpx7r0pr2_.js\"],\"default\"]\n9:I[97367,[\"/_next/static/chunks/0h2qsuyze9ds1.js\"],\"OutletBoundary\"]\na:\"$Sreact.suspense\"\nd:I[97367,[\"/_next/static/chunks/0h2qsuyze9ds1.js\"],\"ViewportBoundary\"]\nf:I[97367,[\"/_next/static/chunks/0h2qsuyze9ds1.js\"],\"MetadataBoundary\"]\n11:I[68027,[],\"default\",1]\n:HL[\"/_next/static/chunks/0y7n2c93vv3dy.css\",\"style\"]\n:HL[\"/_next/static/chunks/1187gwh6cgonv.css\",\"style\"]\n:HL[\"/_next/static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2\",\"font\",{\"crossOrigin\":\"\",\"type\":\"font/woff2\"}]\n:HL[\"/_next/static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2\",\"font\",{\"crossOrigin\":\"\",\"type\":\"font/woff2\"}]\nc:X\n0:{\"P\":null,\"c\":[\"\",\"ar\",\"buy-insurance\"],\"q\":\"\",\"i\":false,\"f\":[[[\"\",{\"children\":[[\"locale\",\"ar\",\"d\",[]],{\"children\":[\"(main)\",{\"children\":[\"buy-insurance\",{\"children\":[\"__PAGE__\",{},\"$undefined\",\"$undefined\",4096]},\"$undefined\",\"$undefined\",4096]},\"$undefined\",\"$undefined\",4096]},\"$undefined\",\"$undefined\",4112]},\"$undefined\",\"$undefined\",4112],[[\"$\",\"$1\",\"c\",{\"children\":[null,[\"$\",\"$L2\",null,{\"parallelRouterKey\":\"children\",\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L3\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":[[[\"$\",\"title\",null,{\"children\":\"404: This page could not be found.\"}],[\"$\",\"div\",null,{\"style\":{\"fontFamily\":\"system-ui,\\\"Segoe UI\\\",Roboto,Helvetica,Arial,sans-serif,\\\"Apple Color Emoji\\\",\\\"Segoe UI Emoji\\\"\",\"height\":\"100vh\",\"textAlign\":\"center\",\"display\":\"flex\",\"flexDirection\":\"column\",\"alignItems\":\"center\",\"justifyContent\":\"center\"},\"children\":[\"$\",\"div\",null,{\"children\":[[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}\"}}],[\"$\",\"h1\",null,{\"className\":\"next-error-h1\",\"style\":{\"display\":\"inline-block\",\"margin\":\"0 20px 0 0\",\"padding\":\"0 23px 0 0\",\"fontSize\":24,\"fontWeight\":500,\"verticalAlign\":\"top\",\"lineHeight\":\"49px\"},\"children\":404}],[\"$\",\"div\",null,{\"style\":{\"display\":\"inline-block\"},\"children\":[\"$\",\"h2\",null,{\"style\":{\"fontSize\":14,\"fontWeight\":400,\"lineHeight\":\"49px\",\"margin\":0},\"children\":\"This page could not be found.\"}]}]]}]}]],[]],\"forbidden\":\"$undefined\",\"unauthorized\":\"$undefined\"}]]}],{\"children\":[[\"$\",\"$1\",\"c\",{\"children\":[[[\"$\",\"link\",\"0\",{\"rel\":\"stylesheet\",\"href\":\"/_next/static/chunks/0y7n2c93vv3dy.css\",\"precedence\":\"next\",\"crossOrigin\":\"$undefined\",\"nonce\":\"$undefined\"}],[\"$\",\"link\",\"1\",{\"rel\":\"stylesheet\",\"href\":\"/_next/static/chunks/1187gwh6cgonv.css\",\"precedence\":\"next\",\"crossOrigin\":\"$undefined\",\"nonce\":\"$undefined\"}],[\"$\",\"script\",\"script-0\",{\"src\":\"/_next/static/chunks/396uyas8ufukz.js\",\"async\":true,\"nonce\":\"$undefined\"}],[\"$\",\"script\",\"script-1\",{\"src\":\"/_next/static/chunks/23-fku2f_1cze.js\",\"async\":true,\"nonce\":\"$undefined\"}],[\"$\",\"script\",\"script-2\",{\"src\":\"/_next/static/chunks/0zmvyptk783y8.js\",\"async\":true,\"nonce\":\"$undefined\"}],[\"$\",\"script\",\"script-3\",{\"src\":\"/_next/static/chunks/2yo9mwxvlff5-.js\",\"async\":true,\"nonce\":\"$undefined\"}],[\"$\",\"script\",\"script-4\",{\"src\":\"/_next/static/chunks/1i0syfp1a54l4.js\",\"async\":true,\"nonce\":\"$undefined\"}]],\"$L4\"]}],{\"children\":[[\"$\",\"$1\",\"c\",{\"children\":[[[\"$\",\"script\",\"script-0\",{\"src\":\"/_next/static/chunks/1ysnu1b3a4tmr.js\",\"async\":true,\"nonce\":\"$undefined\"}],[\"$\",\"script\",\"script-1\",{\"src\":\"/_next/static/chunks/2w1t2hyxg4szp.js\",\"async\":true,\"nonce\":\"$undefined\"}],[\"$\",\"script\",\"script-2\",{\"src\":\"/_next/static/chunks/04nmg95tedv4p.js\",\"async\":true,\"nonce\":\"$undefined\"}]],[\"$\",\"$L5\",null,{\"Component\":\"$6\",\"slots\":{\"children\":[\"$\",\"$L2\",null,{\"parallelRouterKey\":\"children\",\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L3\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"forbidden\":\"$undefined\",\"unauthorized\":\"$undefined\"}]},\"serverProvidedParams\":{\"params\":{\"locale\":\"ar\"},\"promises\":null}}]]}],{\"children\":[[\"$\",\"$1\",\"c\",{\"children\":[null,[\"$\",\"$L2\",null,{\"parallelRouterKey\":\"children\",\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L3\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"forbidden\":\"$undefined\",\"unauthorized\":\"$undefined\"}]]}],{\"children\":[[\"$\",\"$1\",\"c\",{\"children\":[[\"$\",\"$L7\",null,{\"Component\":\"$8\",\"serverProvidedParams\":{\"searchParams\":{},\"params\":\"$0:f:0:1:1:children:1:children:0:props:children:1:props:serverProvidedParams:params\",\"promises\":null}}],[[\"$\",\"script\",\"script-0\",{\"src\":\"/_next/static/chunks/06tn7f2lmvfv8.js\",\"async\":true,\"nonce\":\"$undefined\"}],[\"$\",\"script\",\"script-1\",{\"src\":\"/_next/static/chunks/1cusi9tggdegr.js\",\"async\":true,\"nonce\":\"$undefined\"}],[\"$\",\"script\",\"script-2\",{\"src\":\"/_next/static/chunks/0kian394knq70.js\",\"async\":true,\"nonce\":\"$undefined\"}],[\"$\",\"script\",\"script-3\",{\"src\":\"/_next/static/chunks/0sv1xrxnxu53c.js\",\"async\":true,\"nonce\":\"$undefined\"}],[\"$\",\"script\",\"script-4\",{\"src\":\"/_next/static/chunks/2rdwhv9j09cg9.js\",\"async\":true,\"nonce\":\"$undefined\"}],[\"$\",\"script\",\"script-5\",{\"src\":\"/_next/static/chunks/1couylm5re4l5.js\",\"async\":true,\"nonce\":\"$undefined\"}],[\"$\",\"script\",\"script-6\",{\"src\":\"/_next/static/chunks/26bjpx7r0pr2_.js\",\"async\":true,\"nonce\":\"$undefined\"}]],[\"$\",\"$L9\",null,{\"children\":[\"$\",\"$a\",null,{\"name\":\"Next.MetadataOutlet\",\"children\":\"$@b\"}]}]]}],{},null,false,null]},null,false,\"$c\"]},null,false,null]},null,false,null]},null,false,\"$c\"],[\"$\",\"$1\",\"h\",{\"children\":[null,[\"$\",\"$Ld\",null,{\"children\":\"$Le\"}],[\"$\",\"div\",null,{\"hidden\":true,\"children\":[\"$\",\"$Lf\",null,{\"children\":[\"$\",\"$a\",null,{\"name\":\"Next.Metadata\",\"children\":\"$L10\"}]}]}],[\"$\",\"meta\",null,{\"name\":\"next-size-adjust\",\"content\":\"\"}]]}],false]],\"m\":\"$undefined\",\"G\":[\"$11\",[]],\"S\":false,\"h\":null,\"r\":\"$undefined\",\"s\":\"$undefined\",\"a\":\"$undefined\",\"l\":\"$undefined\",\"p\":\"$undefined\",\"d\":\"$undefined\",\"b\":\"nYXqC5XO569ZdZE5Jyjsx\"}\n12:I[76640,[\"/_next/static/chunks/396uyas8ufukz.js\",\"/_next/static/chunks/23-fku2f_1cze.js\",\"/_next/static/chunks/0zmvyptk783y8.js\",\"/_next/static/chunks/2yo9mwxvlff5-.js\",\"/_next/static/chunks/1i0syfp1a54l4.js\"],\"default\"]\nc:C\n4:[\"$\",\"html\",null,{\"lang\":\"ar\",\"dir\":\"rtl\",\"className\":\"inter_c15e96cb-module__0bjUvq__variable cairo_11f54b06-module__rd5q_q__variable no-scrollbar\",\"children\":[\"$\",\"body\",null,{\"className\":\"min-h-screen bg-white text-gray-900 selection:bg-brand-100 selection:text-brand-900 transition-colors duration-300 antialiased no-scrollbar font-cairo\",\"children\":[\"$\",\"$L12\",null,{\"locale\":\"ar\",\"messages\":{\"Error\":{\"title\":\"عذراً، حدث خطأ غير متوقع\",\"description\":\"نواجه صعوبة في معالجة طلبك حالياً. يرجى المحاولة مرة أخرى أو العودة للصفحة الرئيسية.\",\"tryAgain\":\"حاول مرة أخرى\",\"backToHome\":\"العودة للرئيسية\",\"support\":\"تواصل مع الدعم\"},\"Dashboard\":{\"overview\":\"نظرة عامة\",\"description\":\"إدارة وثائقك بسهولة من مكان واحد\",\"stats\":{\"totalPolicies\":\"إجمالي الوثائق\",\"activePolicies\":\"الوثائق النشطة\",\"expiredPolicies\":\"الوثائق المنتهية\",\"systemUsers\":\"مستخدمي النظام\"},\"policyGrowth\":\"نمو الوثائق\",\"last30Days\":\"آخر 30 يومًا\",\"last6Months\":\"آخر 6 أشهر\",\"jan\":\"يناير\",\"dec\":\"ديسمبر\",\"recentActivity\":\"النشاط الأخير\",\"searchPolicy\":\"البحث عن بوليصة\",\"policyNumber\":\"رقم الوثيقة\",\"plateNumber\":\"رقم اللوحة\",\"phoneNumber\":\"رقم الهاتف\",\"ownerIdType\":\"نوع هوية المالك\",\"search\":\"بحث\",\"company\":\"الشركة\",\"ownerId\":\"هوية المالك\",\"ownerName\":\"اسم المالك\",\"plate\":\"اللوحة\",\"status\":\"الحالة\",\"expired\":\"منتهية\",\"active\":\"نشطة\",\"noRecords\":\"لم يتم العثور على سجلات\",\"home\":\"الرئيسية\",\"welcome\":\"السلام عليكم، {name}\"},\"Policy\":{\"editTitle\":\"تعديل وثيقة التأمين\",\"detailsTitle\":\"تفاصيل وثيقة التأمين\",\"policyInfoSection\":\"معلومات الوثيقة\",\"vehicleSection\":\"تفاصيل المركبة\",\"financeSection\":\"التفاصيل المالية\",\"plateCountry\":\"بلد اللوحة\",\"plateCity\":\"مدينة اللوحة\",\"vehicleType\":\"نوع المركبة\",\"vehicleCountry\":\"بلد المركبة\",\"plateSymbol\":\"رمز اللوحة\",\"chassisNumber\":\"رقم الهيكل\",\"chassisType\":\"نوع الهيكل\",\"vehicleMake\":\"ماركة المركبة\",\"vehicleModel\":\"موديل المركبة\",\"mfgYear\":\"سنة الصنع\",\"seats\":\"عدد المقاعد\",\"ownerSection\":\"تفاصيل المالك\",\"ownerNameLabel\":\"اسم المالك\",\"driverName\":\"اسم السائق\",\"ownerPhone\":\"رقم هاتف المالك\",\"startDate\":\"تاريخ البدء\",\"expiryDate\":\"تاريخ الانتهاء\",\"activationDate\":\"تاريخ التفعيل\",\"isManual\":\"إدخال يدوي\",\"insuranceDuration\":\"مدة التأمين\",\"paymentType\":\"نوع الدفع\",\"driverSeatPrice\":\"سعر مقعد السائق\",\"passengerSeatPrice\":\"سعر مقعد الراكب\",\"policyCharge\":\"مبلغ رسوم الوثيقة\",\"vatRatio\":\"نسبة الضريبة\",\"totalVat\":\"إجمالي الضريبة\",\"totalPrice\":\"السعر الإجمالي\",\"icRevenue\":\"إيرادات شركة التأمين\",\"icVat\":\"ضريبة شركة التأمين\",\"staticFees\":\"رسوم ثابتة (ر.س)\",\"paymentCost\":\"تكلفة نوع الدفع\",\"editButton\":\"تعديل الوثيقة\",\"updateButton\":\"تحديث الوثيقة\",\"saving\":\"جاري الحفظ...\",\"previous\":\"السابق\",\"cancel\":\"إلغاء\"},\"Support\":{\"title\":\"حالات الدعم\",\"view\":\"عرض الحالات\",\"close\":\"الحالات المغلقة\",\"activeTickets\":\"تذاكر الدعم النشطة\",\"archivedTickets\":\"تذاكر الدعم المؤرشفة\",\"searchPlaceholder\":\"ابحث عن الحالات حسب المعرف أو البريد الإلكتروني...\",\"caseId\":\"معرف الحالة\",\"email\":\"البريد الإلكتروني\",\"type\":\"النوع\",\"priority\":\"الأولوية\",\"status\":\"الحالة\",\"reply\":\"رد\",\"resolve\":\"حل\",\"high\":\"عالية\",\"medium\":\"متوسطة\",\"low\":\"منخفضة\",\"open\":\"مفتوحة\",\"pending\":\"قيد الانتظار\",\"solved\":\"تم الحل\",\"previous\":\"السابق\",\"next\":\"التالي\"},\"SystemTables\":{\"action\":\"الإجراء\"},\"systemTables\":{\"title\":\"جداول النظام\",\"countries\":\"الدول\",\"borders\":\"المنافذ\",\"borderBooth\":\"كبائن المنافذ\",\"nationalities\":\"الجنسيات\",\"vehicleType\":\"نوع المركبة\",\"insuranceDurations\":\"مدد التأمين\",\"chassisType\":\"نوع الهيكل\",\"vehicleMakes\":\"شركات تصنيع المركبات\",\"vehicleModels\":\"موديلات المركبات\",\"paymentType\":\"نوع الدفع\",\"insuranceCompanies\":\"شركات التأمين\",\"currencies\":\"العملات\",\"idType\":\"نوع الهوية\",\"pricing\":\"التسعير\",\"commission\":\"العمولة\",\"code\":\"الرمز\",\"nameAr\":\"الاسم (عربي)\",\"nameEn\":\"الاسم (إنجليزي)\",\"active\":\"نشط\",\"inactive\":\"غير نشط\",\"action\":\"الإجراء\",\"addNewRecord\":\"+ إضافة سجل جديد\",\"filterEntries\":\"تصفية السجلات...\",\"borderName\":\"اسم المنفذ\",\"country\":\"الدولة\",\"ip\":\"عنوان IP\",\"exchangeRate\":\"سعر الصرف\",\"bankExchangeRate\":\"سعر صرف البنك\",\"displayCode\":\"رمز العرض\",\"callCenter\":\"مركز الاتصال\",\"parentCompany\":\"الشركة الأم\",\"durationDays\":\"أيام المدة\",\"cashMoney\":\"نقد\",\"ratio\":\"النسبة\",\"feesSar\":\"الرسوم (ر.س)\",\"vehicleTypeName\":\"نوع المركبة\",\"durationTypeName\":\"نوع مدة التأمين\",\"chargeAmount\":\"مبلغ الرسوم\",\"passengerPrice\":\"سعر الراكب\",\"driverPrice\":\"سعر السائق\",\"isPerSeat\":\"لكل مقعد\",\"makeName\":\"الماركة\",\"previous\":\"السابق\",\"next\":\"التالي\"},\"sidebar\":{\"home\":\"الرئيسية\",\"createPolicy\":\"إنشاء وثيقة\",\"dashboard\":\" وثائق التأمين \",\"supportCases\":\"حالات الدعم\",\"systemTables\":\"جداول النظام\",\"users\":\"المستخدمين\",\"importData\":\"استيراد البيانات\",\"exportData\":\"تصدير البيانات\",\"syncData\":\"مزامنة البيانات\",\"salesSummaryReport\":\"تقرير ملخص المبيعات\",\"settings\":\"الإعدادات\",\"signOut\":\"تسجيل الخروج\"},\"Auth\":{\"login\":{\"title\":\"تسجيل الدخول\",\"username\":\"اسم المستخدم / البريد الإلكتروني\",\"usernamePlaceholder\":\"أدخل اسم المستخدم\",\"password\":\"كلمة المرور\",\"invalidCredentials\":\"بيانات الدخول غير صحيحة\",\"passwordPlaceholder\":\"أدخل كلمة المرور\",\"verifyHuman\":\"التحقق من أنك لست روبوت\",\"captchaPlaceholder\":\"الرمز\",\"signIn\":\"تسجيل الدخول\",\"portalName\":\"بوابة منافذ\",\"portalSubtitle\":\"الوصول إلى النظام الداخلي المؤمن\",\"noAccount\":\"ليس لديك حساب؟\",\"registerLink\":\"إنشاء حساب\",\"validation\":{\"required\":\"هذا الحقل مطلوب\"}},\"register\":{\"title\":\"إنشاء حساب\",\"subtitle\":\"تسجيل حساب جديد\",\"username\":\"اسم المستخدم\",\"usernamePlaceholder\":\"أدخل اسم المستخدم\",\"fullName\":\"الاسم الكامل\",\"fullNamePlaceholder\":\"أدخل الاسم الكامل\",\"email\":\"البريد الإلكتروني\",\"emailPlaceholder\":\"أدخل البريد الإلكتروني\",\"mobileNumber\":\"رقم الجوال\",\"mobilePlaceholder\":\"05XXXXXXXX\",\"nationalId\":\"رقم الهوية الوطنية\",\"nationalIdPlaceholder\":\"أدخل رقم الهوية\",\"password\":\"كلمة المرور\",\"passwordPlaceholder\":\"أدخل كلمة المرور\",\"confirmPassword\":\"تأكيد كلمة المرور\",\"confirmPasswordPlaceholder\":\"أعد إدخال كلمة المرور\",\"submit\":\"إنشاء حساب\",\"hasAccount\":\"لديك حساب بالفعل؟\",\"loginLink\":\"تسجيل الدخول\"}},\"users\":{\"title\":\"إدارة المستخدمين\",\"addUser\":\"إضافة مستخدم\",\"userName\":\"اسم المستخدم\",\"email\":\"البريد الإلكتروني\",\"userType\":\"نوع المستخدم\",\"unitNumber\":\"رقم الوحدة\",\"englishName\":\"الاسم بالإنجليزية\",\"arabicName\":\"الاسم بالعربية\",\"mobileNumber\":\"رقم الجوال\",\"enabled\":\"الحالة\",\"action\":\"Action\",\"active\":\"نشط\",\"notActive\":\"غير نشط\",\"editUser\":\"تعديل المستخدم\",\"enableDisable\":\"تفعيل / تعطيل\",\"save\":\"حفظ\",\"saving\":\"جاري الحفظ...\",\"cancel\":\"إلغاء\",\"accountCredentials\":\"بيانات الحساب\",\"personalDetails\":\"البيانات الشخصية\",\"selectType\":\"اختر النوع\",\"admin\":\"مدير\",\"financeAgent\":\"وكيل مالي\",\"icOperationUser\":\"مستخدم عمليات التأمين\",\"enterUsername\":\"أدخل اسم المستخدم...\",\"enterEmail\":\"أدخل البريد الإلكتروني...\",\"unitPlaceholder\":\"رقم الوحدة\",\"previous\":\"السابق\",\"next\":\"التالي\",\"search\":\"بحث\",\"persona\":\"الشخصية\",\"isVerified\":\"محقق\",\"lastLoginAt\":\"آخر تسجيل دخول\",\"verified\":\"محقق\",\"notVerified\":\"غير محقق\",\"fetchError\":\"فشل جلب المستخدمين\",\"addSuccess\":\"تم إضافة المستخدم بنجاح\",\"addError\":\"فشل إضافة المستخدم\",\"fillRequiredFields\":\"يرجى ملء جميع الحقول المطلوبة\",\"password\":\"كلمة المرور\",\"enterPassword\":\"أدخل كلمة المرور...\",\"add\":\"إضافة\",\"noUsersFound\":\"لم يتم العثور على مستخدمين\"},\"importData\":{\"title\":\"استيراد البيانات\",\"description\":\"قم بتحميل ملف JSON من تطبيق منافذ أونلاين لإنشاء الوثائق ومعلومات المستخدمين.\",\"uploadArea\":\"انقر للتحميل أو قم بالسحب والإفلات\",\"uploadHint\":\"ملف JSON فقط (الحد الأقصى 10 ميجابايت)\",\"selectFile\":\"اختر الملف\",\"clearFile\":\"مسح\",\"importButton\":\"بدء الاستيراد\",\"importing\":\"جاري الاستيراد...\",\"invalidFile\":\"تنسيق ملف غير صالح. يرجى تحميل ملف JSON.\",\"parseError\":\"خطأ في تحليل ملف JSON. يرجى التحقق من محتوى الملف.\",\"missingData\":\"البيانات المتوقعة (الوثائق أو المستخدمين) غير موجودة في الملف.\",\"successMessage\":\"تم استيراد البيانات بنجاح!\",\"fileInfo\":\"معلومات الملف\",\"fileName\":\"اسم الملف\",\"fileSize\":\"حجم الملف\",\"dataSummary\":\"ملخص البيانات\",\"policiesFound\":\"الوثائق الموجودة\",\"usersFound\":\"المستخدمين الموجودين\",\"noDataFound\":\"لم يتم العثور على بيانات ذات صلة في هذا الملف.\",\"confirmation\":\"هل أنت متأكد من رغبتك في استيراد هذه البيانات؟ سيؤدي هذا الإجراء إلى معالجة جميع السجلات الموجودة.\",\"downloadExample\":\"تحميل نموذج JSON\"},\"createPolicy\":{\"validatedPolicyEntry\":\"إدخال وثيقة معتمدة\",\"title\":\"إنشاء وثيقة\",\"sellingPortType\":\"نوع منفذ البيع\",\"border\":\"المنفذ الحدودي\",\"agentName\":\"اسم المسوق\",\"vehicleCountry\":\"دولة التسجيل للمركبة\",\"ownerIdType\":\"نوع هوية المالك\",\"ownerIdNumber\":\"رقم هوية المالك\",\"ownerName\":\"اسم المالك\",\"driverName\":\"اسم السائق\",\"ownerAddress\":\"عنوان المالك\",\"phoneNumber\":\"رقم الجوال\",\"vehicleType\":\"نوع المركبة\",\"vehicleMake\":\"نوع الماركة\",\"vehicleModel\":\"موديل المركبة\",\"vehicleManufacturingYear\":\"سنة صنع المركبة\",\"chassisType\":\"نوع الشاسيه\",\"chassisNumber\":\"رقم الشاسيه\",\"plateNumber\":\"رقم اللوحة\",\"insuranceDurationType\":\"نوع مدة التأمين\",\"startDate\":\"تاريخ بداية التأمين\",\"expiryDate\":\"تاريخ نهاية التأمين\",\"policyChargeAmount\":\"مبلغ رسوم الوثيقة\",\"totalVatValue\":\"اجمالي ضريبة القيمة المضافة\",\"totalPrice\":\"السعر الإجمالي\",\"currency\":\"العملة\",\"paidAmountInCurrency\":\"المبلغ المدفوع بالعملة\",\"paidAmountInSAR\":\"المبلغ المدفوع بالريال\",\"remainingAmountSAR\":\"المبلغ المتبقي بالريال\",\"paymentType\":\"طريقة الدفع\",\"save\":\"حفظ\",\"savePolicy\":\"حفظ الوثيقة\",\"ownerInfoHeader\":\"معلومات المالك والوكيل\",\"vehicleInfoHeader\":\"معلومات تفاصيل المركبة\",\"pricingHeader\":\"تفاصيل التسعير والمدة\",\"manufacturingYear\":\"سنة صنع المركبة\",\"insuranceDuration\":\"نوع مدة التأمين\",\"vat\":\"الضريبة\",\"totalAmount\":\"السعر الإجمالي (شامل الضريبة)\",\"paidAmount\":\"المبلغ المدفوع\",\"remaining\":\"المتبقي\",\"passport\":\"جواز سفر\",\"nationalId\":\"هوية وطنية\",\"select\":\"-- اختر --\",\"requiredField\":\"هذا الحقل مطلوب\",\"generating\":\"جاري إنشاء الوثيقة...\",\"success\":\"تم إنشاء الوثيقة بنجاح!\",\"ownerNationality\":\"جنسية المالك\",\"driverNationality\":\"جنسية السائق\",\"driverIdNumber\":\"معرف السائق\",\"phoneCode\":\"رمز الهاتف\",\"vehicleClassification\":\"تصنيف المركبة\",\"policyPrice\":\"سعر الوثائق\",\"numberOfSeats\":\"عدد المقاعد\",\"cityOutlet\":\"منفذ المدينة\",\"rev\":\"المراجعة\",\"plateSymbol\":\"رمز اللوحة\",\"sequenceNumber\":\"الرقم التسلسلي\",\"customNumber\":\"رقم الجمارك\",\"vehicleColor\":\"اللون\",\"vehicleWeight\":\"وزن المركبة\",\"numberOfAxles\":\"عدد المحاور\",\"insuranceCompany\":\"شركة التأمين\"},\"printPolicy\":{\"title\":\"جدول وثيقة التأمين وإيصال القبض\",\"subtitle\":\"التأمين على المركبات الأجنبية الداخلة والعابرة للأراضي المملكة العربية السعودية\",\"insuranceCo\":\"اسم شركة التأمين\",\"unifiedNumber\":\"الرقم الموحد\",\"policyNumber\":\"رقم الوثيقة\",\"issueDate\":\"تاريخ الإصدار\",\"issueTime\":\"وقت الإصدار\",\"ownerName\":\"اسم المالك\",\"idType\":\"نوع الهوية\",\"idNumber\":\"رقم الهوية\",\"driverName\":\"اسم السائق\",\"insuranceDuration\":\"مدة التأمين\",\"from\":\"من\",\"to\":\"إلى\",\"plateNumber\":\"رقم اللوحة\",\"vehicleType\":\"نوع وشكل المركبة\",\"mobileNumber\":\"رقم الجوال\",\"chassisNumber\":\"رقم الهيكل\",\"manufacturingYear\":\"سنة الصنع\",\"vehicleCountry\":\"الدولة المسجل بها\",\"seats\":\"عدد المقاعد\",\"totalPremium\":\"القسط التأميني\",\"vat\":\"ضريبة القيمة المضافة (15%)\",\"totalWithVat\":\"إجمالي القسط بعد احتساب الضريبة\",\"paidAmount\":\"إجمالي المبلغ المدفوع من العميل\",\"remainingAmount\":\"المبلغ المتبقي بالريال السعودي\",\"currency\":\"العملة\",\"inWords\":\"بالمحرف (ريال سعودي)\",\"usage\":\"الاستعمال\",\"usage_private\":\"خاصة\",\"usage_commercial\":\"أجرة\",\"usage_trailer\":\"حاملة\",\"usage_bus\":\"حافلة\",\"unifiedNumberValue\":\"8002488000\",\"insuranceCoNameLabel\":\"اسم شركة التأمين\",\"print\":\"طباعة الوثيقة\",\"back\":\"العودة للإنشاء\",\"terms\":\"الشروط والأحكام\",\"notes\":\"ملاحظات عامة\"},\"tablePagination\":{\"range\":\"عرض {from} إلى {to} من {total} مدخلات\",\"previous\":\"السابق\",\"next\":\"التالي\"},\"exportData\":{\"title\":\"تصدير البيانات\",\"description\":\"تصدير بيانات النظام بتنسيق JSON إلى مسار النسخ الاحتياطي المحدد.\",\"sourceLabel\":\"مصدر التصدير\",\"localDatabase\":\"قاعدة البيانات المحلية\",\"sharedDatabase\":\"قاعدة البيانات المشتركة\",\"backupDriveStatus\":\"حالة محرك النسخ الاحتياطي\",\"backupDriveConnected\":\"متصل\",\"backupDriveDisconnected\":\"غير متصل\",\"tablesToExport\":\"الجداول المطلوب تصديرها\",\"exportButton\":\"بدء التصدير\",\"exporting\":\"جاري تصدير البيانات...\",\"successMessage\":\"تم تصدير البيانات بنجاح إلى مسار النسخ الاحتياطي.\",\"cleanupNotice\":\"ملاحظة: سيتم مسح البيانات من قاعدة البيانات المحلية بعد التصدير الناجح.\",\"updateNotice\":\"ملاحظة: سيتم تحديث حالة التصدير للسجلات في قاعدة البيانات المشتركة.\"},\"syncData\":{\"title\":\"مزامنة البيانات\",\"description\":\"مزامنة بياناتك المحلية مع تطبيق منافذ أونلاين.\",\"passwordLabel\":\"كلمة مرور تسجيل الدخول\",\"passwordPlaceholder\":\"أدخل كلمة المرور للتحقق\",\"testConnection\":\"اختبار الاتصال\",\"testing\":\"جاري الاختبار...\",\"syncButton\":\"مزامنة البيانات\",\"syncing\":\"جاري المزامنة...\",\"successMessage\":\"تمت مزامنة البيانات بنجاح! تم مسح الجداول المحلية.\",\"errorInvalidPassword\":\"كلمة المرور غير صالحة. يرجى المحاولة مرة أخرى.\",\"connectionSuccess\":\"تم اختبار الاتصال بنجاح!\",\"connectionError\":\"فشل الاتصال. يرجى التحقق من الإنترنت والمحاولة مرة أخرى.\",\"syncWarning\":\"ملاحظة: سيقوم هذا الإجراء بمزامنة بوالص التأمين والبيانات المالية، ثم مسح السجلات المحلية.\"},\"salesSummaryReport\":{\"title\":\"تقرير ملخص المبيعات\",\"print\":\"طباعة\",\"reportDate\":\"تاريخ التقرير\",\"userName\":\"اسم المستخدم\",\"numTransactions\":\"عدد العمليات\",\"numCashTransactions\":\"عدد العمليات النقدية\",\"numSpanTransactions\":\"عدد عمليات الشبكة\",\"borderBooth\":\"كابينة المنفذ\",\"totalSales\":\"إجمالي المبيعات\",\"foreignCurrencySale\":\"مبيعات العملات الأجنبية (ر.س)\",\"totalSalesSar\":\"إجمالي المبيعات (ر.س)\",\"spanSales\":\"مبيعات الشبكة\",\"currencies\":\"العملات\",\"value\":\"القيمة\",\"policyDetails\":\"تفاصيل الوثائق\",\"policyNumber\":\"رقم الوثيقة\",\"startDate\":\"تاريخ البدء\",\"expiryDate\":\"تاريخ الانتهاء\",\"activationDate\":\"تاريخ التفعيل\",\"numSeats\":\"عدد المقاعد\",\"driverSeatPrice\":\"سعر مقعد السائق\",\"passengerSeatPrice\":\"سعر مقعد الراكب\",\"totalPrice\":\"السعر الإجمالي\",\"paymentType\":\"نوع الدفع\",\"currency\":\"العملة\",\"paidAmountCurrency\":\"المبلغ المدفوع بالعملة\",\"paidAmountSar\":\"المبلغ المدفوع بالريال\",\"remainingAmountSar\":\"المبلغ المتبقي بالريال\"},\"successModal\":{\"title\":\"تأكيد النجاح\",\"policyCreated\":\"تم إنشاء الوثيقة بنجاح\",\"policyNumber\":\"رقم الوثيقة\",\"redirecting\":\"جاري التحويل لصفحة الطباعة...\"},\"About\":{\"title\":\"عن منافذ\",\"description_p1\":\"\\\"منافذ\\\" هي منظومة التأمين الإلزامي على المركبات غير السعودية داخل المملكة العربية السعودية، وقد بدأ العمل في هذه المنظومة منذ عام 2011م. تهدف المنصة لتسهيل إجراءات إصدار وثائق التأمين بسرعة وكفاءة عالية.\",\"description_p2\":\"تولت شركة منافذ إدارة هذه المنظومة، بالنيابة عن شركات التأمين لتقديم الخدمات التأمينية الداعمة لتأمين المركبات غير السعودية الداخلة أو العابرة للأراضي السعودية، وتنظيم وإدارة وإصدار وبيع الوثائق التأمينية الإلزامية (ضد الغير) لهذه المركبات وفق آلية تضمن التوزيع العادل وبشكل محايد وتتابعي للوثائق التأمينية بين هذه الشركات التي تقوم بدورها بمعالجة المطالبات. ويأتي ذلك تماشياً مع سياسات هيئة التأمين للارتقاء بجودة الخدمات المخصصة لقطاع التأمين على المركبات، حيث تشرف نجم من خلال هذه المنظومة على 13 منفذاً حدودياً برياً و3 موانئ بحرية بالمملكة، وستسهم هذه الخطوة في مزيد من التكامل في خدمات قطاع التأمين على المركبات، وتحسين جودة وكفاءة هذه الخدمات للمركبات الأجنبية بشكل خاص.\",\"description_p3\":\"يمثل تولي وتطوير شركة منافذ لإدارة منظومة \\\"منافذ\\\" خطوة نوعية للجهود المبذولة من أجل تحقيق التكامل في خدمات قطاع التأمين على المركبات عبر جهة محددة ومحايدة في نفس الوقت تحت إشراف البنك المركزي السعودي، لا سيما عبر التحول الرقمي والأتمتة لجميع الخدمات.\",\"description_p4\":\"تهدف شركة منافذ من خلال هذه المنظومة إلى تأسيس كيان مستقل يطبق أعلى معايير الكفاءة التشغيلية والعمليات المتميزة، باعتبار أنها تمثل واجهة لقطاع التأمين وتسعى إلى الحفاظ على حقوق العملاء بشكل عادل وتمكين تسهيل إجراءاتهم.\",\"description_p5\":\"وتأتي أهمية تولي شركة منافذ لقطاع التأمين على المركبات، وتحديداً للشركات العاملة في هذا القطاع من خلال بيع وتسويق الوثائق التأمينية، وتحصيل قيمة الاشتراك من المؤمن له حسب جدول الأسعار المعتمد من لجنة التأمين التنفيذية وهيئة التأمين.\",\"benefits_title\":\"المنافع\",\"benefit_1\":\"يتميز المشروع بسهولة التنفيذ ويعد أكثر شفافية لجميع الأطراف.\",\"benefit_2\":\"يسمح مشروع منافذ للشركات بإدارة التزامات التأمين بناءً على قدراتها الخاصة وبما يتماشى مع استراتيجيات إدارة المخاطر الخاصة بها. وستقدم نجم خدمات استلام المطالبات على مستوى المملكة من أجل تسهيل عملية معالجة المطالبات. ومن غير المتوقع أن يكون عدد المطالبات في السوق مرتفعاً، فحسبما تشير إليه السجلات أنه سيكون هناك حوالي 3000 مطالبة سنوياً لكامل المحفظة.\",\"benefit_3\":\"من المتوقع أن تكون التكلفة أقل على شركات التأمين؛ فقد تم تقدير التحسين المتوقع للأداء مبدئياً بما لا يقل عن 30%.\",\"benefit_4\":\"ستستمر نجم في إدارة مركزية المعلومات المتعلقة بالإنتاج والمطالبات في هذا النموذج، وستقدم عدداً من الخدمات التي سيتم تضمينها في رسومها، مثل الإحصائيات والأداء والتكرار والخطورة... إلخ. كما ستقدم للقطاع توصيات بشأن الأسعار بشكل منتظم.\",\"benefit_5\":\"توفير منصة إلكترونية موحدة لبيع وثائق التأمين الإلزامي على المركبات غير السعودية.\",\"benefit_6\":\"ستقوم الشركات المشاركة بإصدار وثائق منافذ بشكل متتالي، والحصول على الأقساط ذات الصلة في حالات التسوية العادية (على سبيل المثال شهرياً)، وتسوية المطالبات المترتبة عليها.\",\"benefit_7\":\"ستقدم نجم العديد من الخدمات مثل تحليلات الأداء الدورية ومراجعة الأسعار وتوصيات الأعمال الأخرى.\",\"benefit_8\":\"يعتبر المشروع أبسط للإدارة من منظور نجم.\",\"benefit_9\":\"يقدم المشروع التوزيع الموحد المتوقع للمخاطر بين شركات التأمين.\",\"bg_alt\":\"خلفية\"},\"Partners\":{\"title\":\"شركاؤنا\",\"bg_alt\":\"خلفية\",\"phone_alt\":\"هاتف\",\"web_alt\":\"موقع إلكتروني\",\"malath\":\"شركة ملاذ للتأمين وإعادة التأمين\",\"saico\":\"الشركة العربية السعودية للتأمين (سايكو)\",\"alsagr\":\"شركة الصقر للتأمين التعاوني\",\"uca\":\"الشركة المتحدة للتأمين التعاوني (UCA)\",\"medgulf\":\"شركة المتوسط والخليج للتأمين (ميدغلف)\",\"acig\":\"شركة المجموعة المتحدة للتأمين التعاوني (أسيج)\",\"tawuniya\":\"التعاونية للتأمين\",\"wataniya\":\"الوطنية للتأمين\",\"aletihad\":\"شركة الإتحاد للتأمين\",\"alinma\":\"الإنماء طوكيو مارين\",\"walaa\":\"شركة ولاء للتأمين التعاوني\",\"allianz\":\"الشركة السعودية الفرنسية للتأمين (أليانز)\",\"gulfunion\":\"شركة اتحاد الخليج الأهلية للتأمين\",\"alrajhi\":\"شركة الراجحي للتأمين التعاوني\",\"ggi\":\"الشركة الخليجية العامة للتأمين\",\"arabianshield\":\"شركة الدرع العربي للتأمين التعاوني\",\"salama\":\"شركة سلامة للتأمين التعاوني\",\"aljazira\":\"شركة الجزيرة تكافل تعاوني (سوليدرتي سابقا)\",\"liva\":\"شركة ليفا للتأمين (Liva)\",\"amana\":\"شركة أمانة للتأمين التعاوني\",\"buruj\":\"شركة بروج للتأمين التعاوني\",\"arabia\":\"شركة التأمين العربية التعاونية\",\"chubb\":\"شركة تشب العربية للتأمين التعاوني (CHUBB)\"},\"Policies\":{\"bg_alt\":\"خلفية\"},\"HomePage\":{\"hero\":{\"title\":\"أهلاً بك في منافذ!\",\"subtitle\":\"تأمين منافذ للمركبات غير السعودية فقط\",\"buy_policy\":\"شراء وثيقة تأمين\",\"img_alt\":\"صورة ترحيبية\"},\"app_download\":{\"title\":\"تطبيق منافذ للهواتف الذكية\",\"description\":\"حمّل تطبيق منافذ على الأجهزة الذكية لإدارة وثائقك ومركباتك بسهولة من أي مكان\",\"download_from\":\"حمله من\",\"download_on\":\"حمله من\",\"get_it_on\":\"حمله من\",\"google_play\":\"Google Play\",\"app_store\":\"App Store\",\"qr_title\":\"نزّل التطبيق من هنا\",\"qr_description\":\"وجّه كاميرا الهاتف إلى الكود لتحميل تطبيق منافذ فوراً.\",\"qr_footer\":\"تحميل سريع وآمن\",\"logo_alt\":\"شعار منافذ\",\"bg_alt\":\"خلفية زخرفية\",\"qr_alt\":\"رمز الاستجابة السريعة\",\"screen_map\":\"شاشة الخريطة\",\"screen_dashboard\":\"شاشة لوحة التحكم\",\"screen_vehicle\":\"شاشة بيانات المركبة\"},\"nearby\":{\"title\":\"أماكن قريبة منك\",\"description\":\"استمتع لمعرفة الأماكن السياحية القريبة منك\",\"view_all\":\"عرض الكل\",\"distance\":\"{distance} كم بعيداً\",\"kingdom_tower\":\"برج المملكة\"},\"banner\":{\"title\":\"أفضل الخصومات على عروض السفر\",\"description_p1\":\"حمّل تطبيق غامر لمستلزمات السفر واحصل على خصم\",\"discount\":\"20%\",\"description_p2\":\"لجميع المنتجات\",\"discover_more\":\"أكتشف المزيد\",\"bg_alt\":\"خلفية سفر مع حقائب وقبعة\",\"title2\":\"استكشف وجهات العالم\",\"description2_p1\":\"احجز رحلتك القادمة واحصل على\",\"discount2\":\"15%\",\"description2_p2\":\"كاش باك على رحلتك الأولى\",\"discover_more2\":\"احجز الآن\",\"title3\":\"سفر آمن ومضمون\",\"description3_p1\":\"أمن رحلتك مع خططنا\",\"discount3\":\"المتميزة\",\"description3_p2\":\"للتأمين الشامل للجميع\",\"discover_more3\":\"اعرف المزيد\"},\"partners\":{\"title\":\"شركاؤنا\",\"description\":\"تعرف على شركاء النجاح\",\"view_all\":\"عرض الكل\"}},\"Contact\":{\"success_title\":\"تم إرسال الرسالة بنجاح\",\"success_desc\":\"سيتم التواصل معك قريباً\",\"title\":\"تواصل معنا\",\"name\":\"الاسم\",\"name_placeholder\":\"أدخل الاسم كامل\",\"support_type\":\"نوع الدعم\",\"complaint\":\"شكوى\",\"suggestion\":\"اقتراح\",\"id_number\":\"رقم الهوية\",\"id_placeholder\":\"أدخل رقم الهوية\",\"id_type\":\"نوع الهوية\",\"id_type_placeholder\":\"اختر نوع الهوية\",\"national_id\":\"هوية وطنية\",\"iqama\":\"إقامة\",\"phone\":\"رقم الهاتف\",\"email\":\"البريد الإلكتروني\",\"email_placeholder\":\"أدخل البريد الإلكتروني\",\"message\":\"نص الرسالة\",\"message_placeholder\":\"أدخل نص الرسالة\",\"submit\":\"ارسل الرسالة الان\",\"img_alt\":\"صورة تواصل معنا\"},\"Login\":{\"portalName\":\"بوابة منافذ\",\"title\":\"تسجيل دخول آمن وسريع\",\"subtitle\":\"نحمي بياناتك ونساعدك تكمل إصدار وثيقة التأمين بأقل خطوات.\",\"phoneTab\":\"رقم الجوال\",\"emailTab\":\"البريد الإلكتروني\",\"phoneLabel\":\"رقم الجوال\",\"emailLabel\":\"البريد الإلكتروني\",\"passwordLabel\":\"كلمة المرور\",\"forgotPassword\":\"نسيت كلمة المرور؟\",\"loginBtn\":\"تسجيل الدخول\",\"noAccount\":\"ليس لديك حساب؟\",\"registerNow\":\"تسجيل جديد\",\"backToHome\":\"العودة للرئيسية\",\"rememberMe\":\"تذكرني\",\"successMessage\":\"تم تسجيل الدخول بنجاح\",\"errorMessage\":\"حدث خطأ أثناء تسجيل الدخول\",\"passwordReqTitle\":\"متطلبات كلمة المرور:\",\"reqLength\":\"8 أحرف على الأقل\",\"reqUppercase\":\"حرف كبير واحد على الأقل\",\"reqNumber\":\"رقم واحد على الأقل\",\"passwordPlaceholder\":\"أدخل كلمة المرور\",\"passwordInvalid\":\"كلمة المرور يجب أن تكون 8 أحرف على الأقل\",\"phoneCodePlaceholder\":\"الرمز\",\"validation\":{\"numberOnly\":\"يرجى إدخال أرقام فقط\",\"emailInvalid\":\"البريد الإلكتروني غير صحيح\",\"phoneMin\":\"يجب أن يكون رقم الجوال 9 أرقام على الأقل\",\"passwordMin\":\"كلمة المرور يجب أن تكون 8 أحرف على الأقل\",\"passwordUppercase\":\"يجب أن تحتوي على حرف كبير واحد على الأقل\",\"passwordNumber\":\"يجب أن تحتوي على رقم واحد على الأقل\",\"required\":\"هذا الحقل مطلوب\"}},\"Register\":{\"portalName\":\"بوابة منافذ\",\"title\":\"إنشاء حساب جديد\",\"subtitle\":\"أنشئ حسابك وابدأ إصدار وثيقتك بسهولة\",\"username\":\"اسم المستخدم\",\"usernamePlaceholder\":\"أدخل اسم المستخدم\",\"fullNameAr\":\"الاسم الكامل (عربي)\",\"fullNameArPlaceholder\":\"أدخل الاسم باللغة العربية\",\"fullNameEn\":\"الاسم الكامل (إنجليزي)\",\"fullNameEnPlaceholder\":\"Enter full name in English\",\"email\":\"البريد الإلكتروني\",\"emailPlaceholder\":\"example@domain.com\",\"mobileNumber\":\"رقم الجوال\",\"mobilePlaceholder\":\"5XXXXXXXX\",\"nationalId\":\"رقم الهوية / الإقامة\",\"nationalIdPlaceholder\":\"أدخل رقم الهوية أو الإقامة\",\"passportFormatHint\":\"صيغة الجواز: من 1 إلى 10 حروف وأرقام إنجليزية\",\"idFormatHint\":\"صيغة الهوية: من 1 إلى 20 رقماً\",\"password\":\"كلمة المرور\",\"passwordPlaceholder\":\"********\",\"confirmPassword\":\"تأكيد كلمة المرور\",\"confirmPasswordPlaceholder\":\"********\",\"submit\":\"إنشاء الحساب\",\"hasAccount\":\"لديك حساب بالفعل؟\",\"loginLink\":\"تسجيل الدخول\",\"successMessage\":\"تم إنشاء الحساب بنجاح\",\"successDesc\":\"أهلاً بك! حسابك جاهز الآن ويمكنك الاستفادة من جميع خدماتنا.\",\"fullName\":\"الاسم الكامل\",\"fullNamePlaceholder\":\"أدخل الاسم بالكامل\",\"errorMessage\":\"فشل إنشاء الحساب. يرجى المحاولة مرة أخرى.\",\"duplicateEmail\":\"عنوان البريد الإلكتروني هذا مسجل بالفعل\",\"duplicateMobile\":\"رقم الجوال مسجل مسبقاً\",\"fillRequiredFields\":\"تُميَّز جميع الحقول المطلوبة الفارغة برسائل تحقق واضحة\",\"validation\":{\"numberOnly\":\"يرجى إدخال أرقام فقط\",\"fullNameRequired\":\"الاسم الكامل مطلوب\",\"fullNameTriple\":\"يجب أن يكون الاسم ثلاثياً\",\"usernameMin\":\"اسم المستخدم يجب أن يكون 3 أحرف على الأقل\",\"usernameInvalid\":\"يجب أن يحتوي على حروف إنجليزية وأرقام فقط وبدون مسافات\",\"emailInvalid\":\"الرجاء إدخال عنوان بريد إلكتروني صحيح\",\"mobileMin\":\"الرجاء إدخال رقم جوال صحيح\",\"passwordMin\":\"كلمة المرور يجب أن تكون 8 أحرف على الأقل\",\"passwordUppercase\":\"يجب أن تحتوي على حرف كبير واحد على الأقل\",\"passwordNumber\":\"يجب أن تحتوي على رقم واحد على الأقل\",\"passwordsMatch\":\"كلمتا المرور غير متطابقتين\",\"required\":\"هذا الحقل مطلوب\",\"invalidPassport\":\"صيغة غير صحيحة. يجب أن يحتوي الجواز على 1 إلى 10 حروف وأرقام إنجليزية فقط\",\"invalidId\":\"صيغة غير صحيحة. يجب أن تتكون الهوية من 1 إلى 20 رقماً فقط\"}},\"otp\":{\"title\":\" أدخل رمز التحقق \",\"subtitle\":\"أرسلنا رمز تحقق مكون من 6 أرقام إلى\",\"timer_text\":\" إعادة الإرسال بعد {timer} ثانية\",\"resend_btn\":\"إعادة إرسال الرمز\",\"confirm_btn\":\"تأكيد الرمز\",\"hasAccount\":\"لديك حساب بالفعل؟\",\"loginLink\":\"تسجيل الدخول\",\"back_btn\":\"العودة للخلف\",\"verification_sent\":\"كود التحقق أرسل إلى {phone}\",\"resend_success\":\"تم إعادة إرسال الرمز بنجاح\",\"resend_error\":\"حدث خطأ أثناء إعادة إرسال الرمز\",\"error_incomplete\":\"يرجى إدخال رمز التحقق كاملاً\",\"success_verified\":\"تم التحقق بنجاح\"},\"ForgetPassword\":{\"title\":\"استعادة كلمة المرور\",\"subtitle\":\"أدخل رقم الجوال المسجل وسنرسل لك رمز التحقق لإعادة تعيين كلمة المرور.\",\"phoneLabel\":\"رقم الجوال\",\"phonePlaceholder\":\"5XXXXXXXX\",\"submit_btn\":\"إرسال رمز التحقق\",\"back_to_login\":\"العودة لتسجيل الدخول\",\"errorMin\":\"رقم الجوال يجب أن يكون 9 أرقام على الأقل\",\"errorInvalid\":\"رقم الجوال غير صحيح\"},\"Welcome\":{\"title\":\"أهلاً بك في منافذ!\",\"subtitle\":\"كل ما تحتاجه لتأمين مركبتك قبل دخول المملكة في مكان واحد.\",\"loginBtn\":\"تسجيل الدخول\",\"guestBtn\":\"متابعه كزائر\",\"buyPolicyBtn\":\"شراء وثيقة\"},\"Header\":{\"notifications\":\"التنبيهات\",\"mark_all_read\":\"تعليم الكل كمقروء\",\"view_all\":\"مشاهدة الكل\",\"noNotifications\":\"لا توجد تنبيهات جديدة\",\"noNotificationsSubtitle\":\"سيتم إشعارك هنا عند تحديث حالة وثائقك أو طلباتك.\",\"all\":\"الكل\",\"unread\":\"غير مقروءة\",\"login\":\"تسجيل الدخول\",\"buy_new_policy\":\"شراء وثيقة جديدة\",\"dashboard\":\"لوحة التحكم\",\"policies_terms\":\"السياسات والاشتراطات\",\"partners\":\"شركاؤنا\",\"contact_us\":\"تواصل معنا\",\"documents\":\"الوثائق\",\"outlets\":\"المنافذ\",\"about\":\"عن منافذ\",\"home\":\"الرئيسية\",\"payments\":\"طلبات الدفع\",\"users\":\"إدارة المستخدمين\",\"profile\":\"الملف الشخصي\",\"logout\":\"تسجيل الخروج\",\"my_vehicles\":\"مركباتي\",\"language\":\"اللغة\"},\"Footer\":{\"description\":\"شركة منافذ لخدمات التأمين، مرخصة من هيئة التأمين، تقدم خدمة إصدار وثائق التأمين للمركبات الأجنبية العابرة لأراضي المملكة العربية السعودية عبر منصة رقمية متكاملة وسلسة.\",\"services\":\"الخدمات\",\"support\":\"الدعم\",\"about_us\":\"عنا\",\"request_policy\":\"طلب وثيقة\",\"my_documents\":\"وثائقي\",\"my_vehicles\":\"مركباتي\",\"ports\":\"المنافذ\",\"smart_assistant\":\"المساعد الذكي\",\"help_center\":\"الدعم والمساعدة\",\"privacy_policy\":\"سياسة الخصوصية\",\"data_protection\":\"حماية البيانات\",\"download_app\":\"حمل تطبيق منافذ\",\"app_description\":\"إدارة وثائقك ومركباتك بسهولة من أي مكان\",\"home\":\"الرئيسية\",\"about_manafith\":\"عن منافذ\",\"legal_company\":\"شركة شخص واحد مساهمة مقفلة رأس المال 11,000,000 ريال مدفوع بالكامل\",\"legal_cr\":\"السجل التجاري: 1010833460\",\"legal_license\":\"ترخيص رقم: و ك ل / ش / 101 / 202305\",\"legal_address\":\"حي الملقا، 2769، الرياض 13523\",\"legal_supervision\":\"الشركة خاضعة لرقابة وإشراف هيئة التأمين\",\"copyright\":\"جميع الحقوق محفوظة لشركة منافذ لخدمات التأمين 2026\",\"download_from\":\"حمله من\",\"get_it_on\":\"حمله من\",\"google_play\":\"Google Play\",\"download_on\":\"حمله من\",\"app_store\":\"App Store\"},\"reset\":{\"title\":\"إنشاء كلمة مرور جديدة\",\"description\":\"اختر كلمة مرور قوية تتكون من 8 أحرف على الأقل.\",\"password_label\":\"كلمة المرور\",\"confirm_password_label\":\"تأكيد كلمة المرور\",\"submit_btn\":\"تعيين كلمة مرور\",\"success_title\":\"تم تعيين كلمة المرور بنجاح!\",\"success_message\":\"سيتم تحويلك إلى صفحة تسجيل الدخول خلال لحظات...\"},\"Documents\":{\"pageTitle\":\"وثائقي\",\"searchPlaceholder\":\"ابحث برقم الوثيقة أو اسم المنفذ\",\"filters\":{\"all\":\"الكل\",\"active\":\"سارية\",\"pending\":\"قيد الانتظار\",\"expired\":\"منتهية\"},\"duration\":\"المدة:\",\"expiresIn\":\"تنتهي في:\",\"downloadPDF\":\"تحميل PDF\",\"renewNow\":\"تجديد الآن\",\"issueNew\":\"إصدار وثيقة جديدة\",\"noDocuments\":\"لا توجد وثائق حالياً\",\"noSearchResults\":\"لا توجد نتائج تطابق بحثك، جرب البحث بكلمات أخرى.\",\"emptyStateDesc\":\"أنشئ طلب وثيقة جديد لمركبتك وابدأ رحلتك بأمان.\",\"buyPolicy\":\"شراء وثيقة تأمين\",\"loading\":\"جاري تحميل وثائقك...\",\"draft\":\"مسودة\",\"unknown\":\"غير معروف\",\"waitingForPay\":\"في انتظار الدفع\"},\"DocumentDetails\":{\"loading\":\"جاري تحميل تفاصيل الوثيقة...\",\"notFound\":\"عذراً، لم يتم العثور على الوثيقة المطلوبة.\",\"goBack\":\"العودة للخلف\",\"breadcrumbs\":{\"home\":\"الرئيسية\",\"documents\":\"وثائقي\",\"details\":\"تفاصيل الوثيقة\"},\"status\":{\"active\":\"سارية\",\"expired\":\"منتهية\",\"pending\":\"قيد الانتظار\",\"unknown\":\"غير معروف\"},\"duration\":\"المدة\",\"issueDate\":\"تاريخ الإصدار\",\"expiryDate\":\"تاريخ الانتهاء\",\"share\":\"مشاركة\",\"downloadPDF\":\"تحميل PDF\",\"renew\":\"تجديد\",\"qrVerification\":\"للتحقق عند المنفذ QR\",\"vehicleData\":\"بيانات المركبة\",\"plateNumber\":\"رقم اللوحة\",\"vehicleType\":\"نوع المركبة\",\"manufacturer\":\"الشركة المصنعة\",\"model\":\"الموديل\",\"manufacturingYear\":\"سنة الصنع\",\"color\":\"اللون\",\"ownerData\":\"بيانات المالك\",\"name\":\"الاسم\",\"idType\":\"نوع الهوية\",\"chassisType\":\"نوع الشاسيه\",\"chassisNumber\":\"رقم الشاسيه\",\"idNumber\":\"رقم الهوية\",\"phoneNumber\":\"رقم الجوال\",\"insuranceData\":\"بيانات التأمين\",\"insuranceDuration\":\"مدة التأمين\",\"startDate\":\"تاريخ البدء\",\"endDate\":\"تاريخ الانتهاء\",\"costSummary\":\"ملخص التكلفة\",\"basicPremium\":\"قسط التأمين الأساسي\",\"adminFees\":\"رسوم إضافية / إدارية\",\"vat\":\"ضريبة القيمة المضافة (15%)\",\"totalAmount\":\"المجموع الكلي\",\"sar\":\"ر.س\",\"sidebar\":{\"summary\":\"ملخص الوثيقة\",\"statusLabel\":\"الحالة\",\"days\":\"أيام\",\"daysRemaining\":\"أيام متبقية\",\"consumed\":\"{progress}% من مدة الوثيقة استهلكت\",\"outlet\":\"المنفذ\",\"country\":\"الدولة\"},\"reportAccident\":{\"title\":\"الإبلاغ عن حادث\",\"desc\":\"ابدأ الآن بالإبلاغ لاتخاذ الإجراءات اللازمة\",\"button\":\"الإبلاغ الآن\",\"call\":\"اتصل\"},\"relatedDocs\":{\"title\":\"وثائق ذات صلة\",\"previousDoc\":\"وثيقة سابقة\",\"helpSystem\":\"نظام المساعدة\",\"historic\":\"تاريخي\"},\"pay\":\"ادفع الان\"},\"Vehicle\":{\"pageTitle\":\"مركباتي\",\"searchPlaceholder\":\"ابحث برقم الوثيقة أو رقم اللوحة\",\"filters\":{\"all\":\"الكل\",\"insured\":\"مؤمنة\",\"expiringSoon\":\"قريبة الانتهاء\",\"expired\":\"منتهية\"},\"loading\":\"جاري تحميل مركباتك...\",\"local\":\"محلي\",\"model\":\"موديل\",\"chassisNumber\":\"رقم الهيكل:\",\"type\":\"النوع:\",\"foreign\":\"أجنبية\",\"national\":\"وطنية\",\"foreignVehicle\":\"مركبة أجنبية\",\"nationalVehicle\":\"مركبة وطنية\",\"viewDetails\":\"عرض التفاصيل\",\"noVehicles\":\"لا توجد مركبات حالياً\",\"noSearchResults\":\"لم نجد مركبات تطابق رقم اللوحة أو الوثيقة المدخل.\",\"emptyStateDesc\":\"ابدأ بإضافة مركبتك الآن لتتمكن من إصدار وثيقة بسهولة.\",\"addNewVehicle\":\"إضافة مركبة جديدة\",\"addNewDriver\":\"إضافة سائق جديد\",\"port\":\"المنفذ\",\"document\":\"وثيقة\",\"expiresAt\":\"تنتهي في\",\"expiredAt\":\"انتهت في\"},\"DashboardPage\":{\"borderPort\":\"منفذ حدودي\",\"portCode\":\"كود المنفذ:\",\"minute\":\"دقيقة\",\"ready\":\"جاهز\",\"currentlyActive\":\"نشط حالياً\",\"active\":\"نشط\",\"inactive\":\"غير نشط\",\"statusActive\":\"نشط\",\"statusPending\":\"قيد الانتظار\",\"statusExpired\":\"منتهية\",\"statusDraft\":\"مسودة\",\"statusUnknown\":\"غير معروف\",\"loading\":\"جاري تحميل البيانات...\",\"valid\":\"سارية\",\"days\":\"يوم\",\"duration\":\"المدة\",\"expiry\":\"الإنتهاء\",\"viewDetails\":\"عرض التفاصيل\",\"downloadPDF\":\"تحميل PDF\",\"insureVehicle\":\"أمّن على مركبتك\",\"insureVehicleDesc\":\"ابدأ الآن بإصدار وثيقة جديدة خلال خطوات بسيطة وسريعة.\",\"buyInsurance\":\"شراء وثيقة تأمين\",\"renewalReminder\":\"تذكر بالتجديد\",\"renewalReminderDesc\":\"لديك وثائق منتهية تحتاج للتجديد\",\"renew\":\"تجديد\",\"latestPolicies\":\"آخر الوثائق\",\"viewAll\":\"عرض الكل\",\"expiryLabel\":\"الانتهاء:\",\"durationLabel\":\"المدة:\",\"noPolicies\":\"لا توجد وثائق حالياً\",\"noPoliciesDesc\":\"أنشئ طلب وثيقة جديد لمركبتك وابدأ رحلتك بأمان.\",\"nearbyPlaces\":\"أماكن قريبة منك\",\"statistics\":\"إحصائيات\",\"totalPolicies\":\"إجمالي الوثائق\",\"expiringSoon\":\"تنتهي قريباً\",\"activePolicies\":\"وثائق نشطة\",\"nearbyPorts\":\"المنافذ القريبة\",\"waitingTime\":\"وقت الإنتظار\",\"distance\":\"يبعد عنك\",\"directionsOnMap\":\"الإتجاهات على الخريطة\",\"noNearbyPorts\":\"لا توجد منافذ قريبة متاحة حالياً\",\"quickActions\":\"إجراءات سريعة\",\"requestNewPolicy\":\"طلب وثيقة جديدة\",\"renewPolicy\":\"تجديد وثيقة\"},\"outlets\":{\"pageTitle\":\"المنافذ البرية للمملكة العربية السعودية\",\"pageTitleShort\":\"المنافذ\",\"subtitlePart1\":\"اختر الدولة للتعرف على منافذها البرية مع المملكة\",\"subtitlePart2\":\"منافذ\",\"searchPlaceholder\":\"ابحث باسم المنفذ أو المدينة\",\"filters\":{\"all\":\"الكل\",\"uae\":\"الإمارات\",\"jordan\":\"الأردن\",\"oman\":\"عمان\",\"iraq\":\"العراق\",\"kuwait\":\"الكويت\",\"qatar\":\"قطر\",\"lessWait\":\"أقل انتظار\",\"nearest\":\"الأقرب\",\"opened\":\"مفتوح\"},\"loadingData\":\"جاري تحميل المنشآت والخدمات...\",\"loadingPorts\":\"جاري تحميل بيانات المنافذ...\",\"waitLabel\":\"الانتظار:\",\"waitTimeCard\":\"وقت الانتظار\",\"minute\":\"دقيقة\",\"closedCurrently\":\"المنفذ مغلق حالياً\",\"inactive\":\"متوقف\",\"active\":\"نشط\",\"code\":\"كود:\",\"status\":\"الحالة\",\"stable\":\"مستقر\",\"directions\":\"الاتجاهات على الخريطة\",\"noResults\":\"لا يوجد نتائج لبحثك\",\"noResultsMatch\":\"لا توجد نتائج مطابقة لبحثك\"},\"ProfilePage\":{\"breadcrumb\":{\"home\":\"الرئيسية\",\"profile\":\"الملف الشخصي\"},\"tabs\":{\"view\":\"الملف الشخصي\",\"edit\":\"تعديل الملف الشخصي\",\"settings\":\"الإعدادات\",\"about\":\"عن منافذ\",\"privacy\":\"سياسة الخصوصية\",\"data\":\"حماية البيانات\",\"support\":\"الدعم والمساعدة\"},\"ProfileSidebar\":{\"accountSection\":\"الحساب\",\"infoSection\":\"المعلومات\",\"defaultUser\":\"مستخدم\",\"links\":{\"myProfile\":\"ملفي الشخصي\",\"editProfile\":\"تعديل الملف الشخصي\",\"settings\":\"الإعدادات\",\"about\":\"عن منافذ\",\"privacy\":\"سياسة الخصوصية\",\"dataProtection\":\"حماية البيانات\",\"support\":\"الدعم والمساعدة\"},\"logout\":\"تسجيل الخروج\"},\"ProfileView\":{\"headerAlt\":\"صورة الغلاف الشخصي\",\"defaultInitial\":\"م\",\"loading\":\"جاري التحميل...\",\"personalData\":{\"title\":\"البيانات الشخصية\",\"editBtn\":\"تعديل\",\"fullName\":\"الاسم الكامل\",\"nationalId\":\"رقم الهوية / الإقامة\",\"mobile\":\"رقم الجوال\",\"nationality\":\"الجنسية\",\"email\":\"البريد الإلكتروني\",\"saudi\":\"سعودي\",\"nonSaudi\":\"غير سعودي\"},\"security\":{\"title\":\"الحساب والأمان\",\"changePassword\":\"تغيير كلمة المرور\",\"manageNotifications\":\"إدارة الإشعارات والتنبيهات\"}},\"EditProfileForm\":{\"fullName\":\"الاسم الكامل\",\"fullNameRequired\":\"الاسم مطلوب\",\"fullNameTriple\":\"يجب أن يكون الاسم ثلاثياً (مسافتان على الأقل)\",\"email\":\"البريد الإلكتروني\",\"mobile\":\"رقم الجوال\",\"nationalId\":\"رقم الهوية\",\"saveBtn\":\"حفظ التعديلات\",\"savingBtn\":\"جاري الحفظ...\",\"cancelBtn\":\"إلغاء\",\"errorSaving\":\"حدث خطأ أثناء حفظ البيانات.\",\"uploadPhoto\":\"تحميل صورة\",\"changePhoto\":\"تغيير الصورة\",\"removePhoto\":\"حذف الصورة\",\"Profile updated successfully\":\"تم تحديث البيانات بنجاح\"},\"AccountSummary\":{\"title\":\"ملخص الحساب\",\"totalDocs\":\"إجمالي الوثائق\",\"expiringSoon\":\"تنتهي قريباً\",\"activeDocs\":\"وثائق نشطة\",\"HelpCard\":{\"title\":\"تحتاج مساعدة؟\",\"subtitle\":\"راسل الدعم أو اسأل مساعدك الذكي\",\"supportBtn\":\"الدعم والمساعدة\"}},\"LogoutModal\":{\"title\":\"تسجيل خروج\",\"message\":\"هل أنت متأكد من تسجيل خروجك من التطبيق؟\",\"cancelBtn\":\"الرجوع\",\"confirmBtn\":\"تسجيل خروج\"},\"AboutView\":{\"title\":\"عن منافذ\",\"description1\":\"شركة منافذ لخدمات التأمين، مرخصة من هيئة التأمين، تقدم خدمة إصدار وثائق التأمين للمركبات الأجنبية العابرة لأراضي المملكة العربية السعودية عبر منصة رقمية متكاملة وسلسة.\",\"description2\":\"يوفر التطبيق خدمة إصدار الوثائق خلال 60 ثانية فقط، مع إمكانية تحميل الوثيقة صيغة PDF مباشرة من التطبيق ومشاركتها.\",\"description3\":\"نسعى لتقديم تجربة استخدام سلسة وآمنة للمساعدين من مختلف الجنسيات.\",\"featuresTitle\":\"المميزات الرئيسية\",\"features\":{\"fastIssuance\":{\"title\":\"إصدار سريع\",\"desc\":\"احصل على وثيقتك خلال 60 ثانية\"},\"downloadShare\":{\"title\":\"تحميل ومشاركة\",\"desc\":\"وثيقة PDF جاهزة للتحميل والمشاركة\"},\"instantAlerts\":{\"title\":\"تنبيهات فورية\",\"desc\":\"تنبيهات بحل الحجوزات والحالات\"},\"multiLanguage\":{\"title\":\"دعم متعدد اللغات\",\"desc\":\"دعم اللغتين العربية والإنجليزية\"}},\"contactTitle\":\"تواصل معنا\",\"contacts\":{\"phone\":{\"label\":\"الهاتف\",\"value\":\"+966 11 123 4567\"},\"email\":{\"label\":\"البريد الإلكتروني\",\"value\":\"support@manafez.sa\"},\"website\":{\"label\":\"الموقع الإلكتروني\",\"value\":\"www.manafez.sa\"},\"address\":{\"label\":\"العنوان\",\"value\":\"الرياض، المملكة العربية السعودية\"}}},\"PrivacyView\":{\"title\":\"سياسة الخصوصية\",\"sections\":{\"1\":{\"title\":\"المقدمة\",\"content\":\"نحن في منافذ نلتزم بحماية خصوصيتك وبياناتك الشخصية. توضح هذه السياسة كيفية جمع واستخدام وحماية معلوماتك الشخصية عند استخدامك لتطبيق منافذ.\"},\"2\":{\"title\":\"البيانات التي نجمعها\",\"content\":\"نقوم بجمع المعلومات التالية: الاسم الكامل، رقم الهوية، الجنسية، البريد الإلكتروني، رقم الجوال، معلومات المركبة ومعلومات الموقع الجغرافي عند الحاجة.\"},\"3\":{\"title\":\"كيفية استخدام البيانات\",\"content\":\"نستخدم بياناتك لإصدار وثائق التأمين، معالجة الطلبات، التواصل معك، تحسين خدماتنا، والامتثال للمتطلبات القانونية والتنظيمية.\"},\"4\":{\"title\":\"مشاركة البيانات\",\"content\":\"لا نشارك بياناتك الشخصية مع أطراف ثالثة إلا في حالات ضرورية مثل الجهات الحكومية المختصة، شركات التأمين المعتمدة، أو بناءً على متطلبات قانونية.\"},\"5\":{\"title\":\"أمان البيانات\",\"content\":\"نستخدم أحدث التقنيات والإجراءات الأمنية لحماية بياناتك من الوصول غير المصرح به، التعديل، الإفصاح، أو الإتلاف. يتم تشفير جميع البيانات أثناء النقل والتخزين.\"},\"6\":{\"title\":\"حقوقك\",\"content\":\"لديك الحق في الوصول إلى بياناتك، تصحيحها، حذفها، أو الاعتراض على معالجتها. يمكنك أيضاً سحب موافقتك في أي وقت عن طريق التواصل معنا.\"},\"7\":{\"title\":\"الاحتفاظ بالبيانات\",\"content\":\"نحتفظ ببياناتك الشخصية للمدة اللازمة لتقديم الخدمات أو حسب المتطلبات القانونية، بعد ذلك يتم حذف البيانات بشكل آمن.\"},\"8\":{\"title\":\"ملفات تعريف الارتباط (Cookies)\",\"content\":\"نستخدم ملفات تعريف الارتباط والتقنيات المماثلة لتحسين تجربتك في استخدام التطبيق وتحليل الأداء.\"},\"9\":{\"title\":\"التحديثات على السياسة\",\"content\":\"قد نقوم بتحديث هذه السياسة من وقت لآخر. سيتم إشعارك بأي تغييرات جوهرية عبر التطبيق أو البريد الإلكتروني.\"},\"10\":{\"title\":\"التواصل\",\"content\":\"للاستفسارات أو الشكاوى المتعلقة بالخصوصية، يرجى التواصل معنا عبر: privacy@manafez.sa أو الاتصال على: 8001234567\"}},\"termsTitle\":\"شروط الاستخدام\",\"termsIntro\":\"باستخدامك لتطبيق منافذ، فإنك توافق على \u003cbold\u003eالالتزام بشروط الاستخدام التالية:\u003c/bold\u003e\",\"usageRules\":{\"1\":\"تقديم معلومات صحيحة ودقيقة عند التسجيل والاستخدام\",\"2\":\"عدم استخدام التطبيق لأي أغراض غير قانونية أو احتيالية\",\"3\":\"الحفاظ على سرية بيانات حسابك وعدم مشاركتها مع الآخرين\",\"4\":\"الالتزام بجميع القوانين والأنظمة المعمول بها في المملكة\"}},\"DataProtectionView\":{\"title\":\"حماية البيانات\",\"proceduresTitle\":\"إجراءات الحماية\",\"protections\":{\"disclosure\":{\"title\":\" الإبلاغ عن الانتهاكات \",\"content\":\"في حالة وقوع أي انتهاك أمني، سيتم إبلاغ المستخدمين المتأثرين والجهات المختصة فوراً وفقاً للإجراءات القانونية.\"},\"encryption\":{\"title\":\"التشفير والأمان\",\"content\":\"نستخدم بروتوكولات التشفير المتقدمة (AES-256) لحماية جميع البيانات الشخصية أثناء النقل والتخزين. جميع الاتصالات مؤمنة باستخدام SSL/TLS.\"},\"limitedAccess\":{\"title\":\"الوصول المحدود\",\"content\":\"يتم منح الوصول إلى البيانات الشخصية فقط للموظفين المصرح لهم والذين يحتاجونها لأداء مهامهم. جميع الوصولات مراقبة ومسجلة.\"},\"secureStorage\":{\"title\":\"تخزين آمن\",\"content\":\"تُخزن جميع البيانات في خوادم آمنة موجودة داخل المملكة العربية السعودية وفقاً لمتطلبات الأمن السيبراني المحلية والدولية.\"},\"identityVerification\":{\"title\":\"التحقق من الهوية\",\"content\":\"نستخدم أنظمة تحقق متعددة المستويات للتأكد من هوية المستخدمين ومنع الوصول غير المصرح به إلى الحسابات.\"},\"legalCompliance\":{\"title\":\"الامتثال القانوني\",\"content\":\"نلتزم بجميع القوانين والأنظمة المتعلقة بحماية البيانات الشخصية في المملكة العربية السعودية، بما في ذلك نظام حماية البيانات الشخصية.\"}},\"rightsTitle\":\"حقوقك\",\"rights\":{\"know\":{\"title\":\"الحق في المعرفة\",\"desc\":\"معرفة البيانات التي نجمعها وكيفية استخدامها\"},\"access\":{\"title\":\"الحق في الوصول\",\"desc\":\"الحصول على نسخة من بياناتك الشخصية\"},\"correct\":{\"title\":\"الحق في التصحيح\",\"desc\":\"تصحيح أي بيانات غير صحيحة أو غير كاملة\"},\"delete\":{\"title\":\"الحق في الحذف\",\"desc\":\"طلب حذف بياناتك الشخصية في ظروف معينة\"},\"object\":{\"title\":\"الحق في الاعتراض\",\"desc\":\"الاعتراض على معالجة بياناتك لأغراض معينة.\"},\"portability\":{\"title\":\"الحق في نقل البيانات\",\"desc\":\"الحصول على بياناتك بصيغة قابلة للنقل\"}},\"exerciseTitle\":\"كيفية ممارسة حقوقك\",\"exerciseIntro\":\"لممارسة أي من حقوقك المذكورة أعلاه، يمكنك التواصل معنا عبر:\",\"emailLabel\":\"البريد الإلكتروني:\",\"phoneLabel\":\"الهاتف:\",\"responseNote\":\"سنقوم بالرد على طلبك خلال 30 يوماً كحد أقصى.\"},\"SettingsView\":{\"title\":\"الحساب والأمان\",\"languageSection\":\"اللغة\",\"appLanguage\":\"لغة التطبيق\",\"currentLanguage\":\"العربية\",\"switchLanguageBtn\":\"English\",\"notificationsSection\":\"التنبيهات\",\"pushNotifications\":{\"label\":\"الإشعارات الفورية\",\"sub\":\"تلقي تنبيهات داخل التطبيق\"},\"emailNotifications\":{\"label\":\"تنبيهات البريد الإلكتروني\",\"sub\":\"تلقي تنبيهات عبر البريد\"},\"smsNotifications\":{\"label\":\"رسائل نصية (SMS)\",\"sub\":\"تلقي رسائل نصية\"},\"securitySection\":\"الأمان\",\"biometrics\":{\"label\":\"البصمة / التعرف على الوجه\",\"sub\":\"تسجيل الدخول بالبصمة\"},\"changePassword\":\"تغيير كلمة المرور\",\"PasswordView\":{\"title\":\"الحساب والأمان\",\"currentPassword\":\"كلمة المرور الحالية\",\"newPassword\":\"كلمة المرور الجديدة\",\"confirmPassword\":\"تأكيد كلمة المرور الجديدة\",\"placeholder\":\"********\",\"requirementsTitle\":\"متطلبات كلمة المرور:\",\"req8Chars\":\"8 أحرف على الأقل\",\"reqMatch\":\"تطابق كلمتي المرور\",\"reqUppercase\":\"حرف كبير واحد على الأقل\",\"reqNumber\":\"رقم واحد على الأقل\",\"otpNotice\":\"سنرسل لك رمز التحقق على رسائل رقم الجوال\",\"submitBtn\":\"تعديل كلمة المرور\"}},\"SupportView\":{\"title\":\"الدعم والمساعدة\",\"supportTypeLabel\":\"نوع الدعم\",\"requestTypes\":{\"complaint\":\"شكوى\",\"inquiry\":\"استفسار\",\"suggestion\":\"اقتراح\",\"request\":\"طلب\"},\"nameLabel\":\"الاسم\",\"namePlaceholder\":\"أدخل الاسم الكامل\",\"identityTypeLabel\":\"نوع الهوية\",\"identityTypePlaceholder\":\"اختر نوع الهوية\",\"idNumberLabel\":\"رقم الهوية\",\"idNumberPlaceholder\":\"أدخل رقم الهوية\",\"categoryLabel\":\"نوع الفئة\",\"categoryPlaceholder\":\"اختر نوع الفئة\",\"categories\":{\"borderService\":\"خدمة المنفذ\",\"employeeBehavior\":\"سلوك الموظف\",\"policyIssue\":\"مشكلة في الوثيقة\",\"systemError\":\"خطأ في النظام\",\"other\":\"أخرى\"},\"categoryDateLabel\":\"تاريخ الفئة\",\"categoryDatePlaceholder\":\"اختر رقم الفئة\",\"mobileLabel\":\"رقم الجوال\",\"emailLabel\":\"البريد الإلكتروني\",\"emailPlaceholder\":\"أدخل البريد الإلكتروني\",\"messageLabel\":\"نص الرسالة\",\"messagePlaceholder\":\"أدخل نص الرسالة\",\"sendBtn\":\"إرسال الرسالة\",\"successAlert\":\"تم إرسال طلبك بنجاح!\"},\"ProfilePage\":{\"ProfileSidebar\":{\"logout\":\"تسجيل الخروج\"}}},\"BuyInsurance\":{\"stepProgress\":\"الخطوة {current} من {total}\",\"breadcrumb\":{\"home\":\"الرئيسية\",\"request\":\"طلب وثيقة\",\"issue\":\"إصدار وثيقة التأمين\"},\"sidebar\":{\"stepsTitle\":\"خطوات إصدار وثيقة التأمين\",\"steps\":{\"1\":\"حدد دولة القدوم\",\"2\":\"اختر منفذ الدخول\",\"3\":\"حدد نوع المركبة\",\"4\":\"اختر جنسية المركبة\",\"5\":\"أدخل تفاصيل المركبة\",\"6\":\"أدخل بيانات المالك والسائق\",\"7\":\"اختر مدة التأمين\",\"8\":\"راجع بيانات الطلب\"},\"helpCard\":{\"title\":\"تحتاج مساعدة؟\",\"subtitle\":\"راسل الدعم أو اسأل مساعدك الذكي\",\"btn\":\"الدعم والمساعدة\"}},\"stepTitles\":{\"1\":\"من أي دولة قادم؟\",\"2\":\"اختر منفذ الدخول\",\"3\":\"اختر نوع المركبة\",\"4\":\"اختر جنسية المركبة\",\"5\":\"ادخل تفاصيل المركبة\",\"6\":\"ادخل بيانات المالك والسائق\",\"7\":\"اختر مدة التأمين\",\"8\":\"مراجعة الطلب\",\"9\":\"اختر طريقة الدفع\"},\"stepSubtitles\":{\"1\":\"يرجى اختيار دولة القدوم الخاصة بك\",\"2\":\"يرجى اختيار منفذ الدخول المناسب\",\"3\":\"يرجى اختيار نوع المركبة\",\"4\":\"يرجى اختيار جنسية المركبة الخاصة بك\",\"5\":\"يرجى إدخال تفاصيل المركبة بدقة\",\"6\":\"يرجى إدخال بيانات المالك والسائق\",\"7\":\"يرجى اختيار مدة التأمين المناسبة\",\"8\":\"راجع بيانات الطلب قبل التأكيد\"},\"nav\":{\"warningMsg\":\"الاختيار يؤثر على الخطوات اللاحقة يرجى مراجعة صحة البيانات\",\"confirmBtn\":\"تأكيد وإصدار الوثيقة\",\"nextBtn\":\"المتابعة\",\"backBtn\":\"الرجوع\"},\"CountrySelectionStep\":{\"searchPlaceholder\":\"ابحث عن اسم الدولة\",\"loadError\":\"حدث خطأ في تحميل البيانات\",\"retryBtn\":\"إعادة التحميل\",\"noResults\":\"لا يوجد نتائج لهذا البحث\",\"resultsCount\":\"نتيجة\",\"clearSearch\":\"مسح البحث\",\"error\":\"حدث خطأ في تحميل البيانات\",\"reloadError\":\"إعادة التحميل\"},\"PortSelectionStep\":{\"searchPlaceholder\":\"ابحث عن اسم المنفذ...\",\"loadError\":\"حدث خطأ في تحميل المنافذ\",\"retryBtn\":\"إعادة المحاولة\",\"noResultsSearch\":\"لا توجد نتائج لهذا البحث\",\"noResultsGeneral\":\"لا توجد منافذ متاحة حالياً\",\"status\":{\"open\":\"مفتوح\",\"busy\":\"مزدحم\",\"closed\":\"مغلق\"},\"coords\":\"الإحداثيات\",\"waitTime\":\"وقت الانتظار\",\"minutes\":\"دقيقة\",\"detailsOnMap\":\"عرض التفاصيل على الخريطة\",\"showAll\":\"إظهار كافة المنافذ\",\"showFiltered\":\"إظهار منافذ الدولة فقط\"},\"VehicleTypeStep\":{\"error\":\"حدث خطأ أثناء تحميل أنواع المركبات\",\"loadError\":\"حدث خطأ أثناء تحميل أنواع المركبات\",\"busSeatsLabel\":\"عدد المقاعد في الحافلة\",\"busSeatsPlaceholder\":\"أدخل عدد المقاعد (مثلاً: 50)\",\"busSeatsInfo\":\"الرجاء إدخال عدد المقاعد الإجمالي للحافلة بما يشمل مقعد السائق.\"},\"VehicleDetailsStep\":{\"enteredPlate\":\"اللوحة المدخلة\",\"plateSection\":\"أدخل رقم اللوحة\",\"platePlaceholder\":\"123456\",\"plateInputLabel\":\"رقم اللوحة المدخل\",\"country\":\"الدولة\",\"chassisLabel\":\"رقم الشاسيه\",\"chassisPlaceholder\":\"أدخل رقم الشاسيه\",\"brandLabel\":\"نوع الماركة\",\"brandLoading\":\"جاري التحميل...\",\"brandPlaceholder\":\"اختر نوع الماركة\",\"brandError\":\"خطأ في تحميل الماركات\",\"bodyLabel\":\"نوع الهيكل\",\"bodyPlaceholder\":\"اختر نوع الهيكل\",\"modelLabel\":\"موديل المركبة\",\"modelSelectBrandFirst\":\"اختر الماركة أولاً\",\"modelLoading\":\"جاري التحميل...\",\"modelPlaceholder\":\"اختر موديل المركبة\",\"modelError\":\"خطأ في تحميل الموديلات\",\"yearLabel\":\"سنة الصنع\",\"yearPlaceholder\":\"اختر سنة الصنع\",\"chassisTypeLabel\":\"نوع الشاسيه\",\"chassisTypePlaceholder\":\"اختر نوع الشاسيه\",\"colorLabel\":\"لون المركبة\",\"colorLoading\":\"جاري التحميل...\",\"colorPlaceholder\":\"اختر لون المركبة\",\"colorError\":\"خطأ في تحميل الألوان\",\"seatsLabel\":\"عدد المقاعد\",\"seatsPlaceholder\":\"أدخل عدد المقاعد\"},\"SavedVehiclesPicker\":{\"title\":\"مركباتك المسجّلة\",\"subtitle\":\"اختر مركبة لملء البيانات تلقائياً\",\"loading\":\"جاري تحميل المركبات...\",\"empty\":\"لا توجد مركبات مسجّلة في حسابك\",\"fallbackName\":\"مركبة مسجّلة\",\"selectPlaceholder\":\"اختر مركبة من مركباتك\",\"nationalityMismatch\":\"لا يمكن اختيار هذه المركبة. جنسية المركبة المسجّلة ({vehicleCountry}) لا تطابق جنسية المركبة التي اخترتها في الخطوة السابقة ({selectedCountry}).\",\"nationalityUnknown\":\"لا يمكن اختيار هذه المركبة. لم تُحدَّد جنسية المركبة في سجلّك، بينما اخترت ({selectedCountry}) كجنسية للمركبة في الخطوة السابقة.\"},\"OwnerDriverStep\":{\"ownerSimilarQuestion\":\"هل المالك هو السائق؟\",\"selectSavedDriverLabel\":\"اختر من سائقيك\",\"selectSavedDriverPlaceholder\":\"اختر سائقاً محفوظاً\",\"no\":\"لا\",\"yes\":\"نعم\",\"ownerSection\":\"تفاصيل مالك المركبة\",\"ownerNameLabel\":\"إسم المالك\",\"ownerNamePlaceholder\":\"أدخل الاسم الثلاثي\",\"ownerNationalityLabel\":\"جنسية المالك\",\"ownerNationalityPlaceholder\":\"اختر جنسية المالك\",\"ownerIdTypeLabel\":\"نوع الهوية\",\"ownerIdTypePlaceholder\":\"اختر نوع الهوية\",\"ownerIdLabel\":\"رقم هوية المالك\",\"ownerIdPlaceholder\":\"أدخل رقم الهوية\",\"driverQuestion\":\"هل السائق هو المالك؟\",\"driverIsOwner\":\"نعم، المالك هو السائق\",\"driverIsOther\":\"لا، سائق آخر\",\"driverSection\":\"تفاصيل سائق المركبة\",\"driverNameLabel\":\"إسم السائق\",\"driverNamePlaceholder\":\"أدخل الاسم الثلاثي للسائق\",\"driverNationalityLabel\":\"جنسية السائق\",\"driverNationalityPlaceholder\":\"اختر جنسية السائق\",\"driverIdTypeLabel\":\"نوع هوية السائق\",\"driverIdTypePlaceholder\":\"اختر نوع هوية السائق\",\"driverIdLabel\":\"رقم هوية السائق\",\"driverIdPlaceholder\":\"أدخل رقم هوية السائق\",\"contactSection\":\"بيانات التواصل\",\"emailLabel\":\"البريد الإلكتروني\",\"phoneLabel\":\"رقم الهاتف\"},\"DurationStep\":{\"startDateLabel\":\"تاريخ بدء الوثيقة\",\"endDateLabel\":\"تاريخ نهاية الوثيقة\"},\"ReviewStep\":{\"ownerTitle\":\"بيانات المالك\",\"driverTitle\":\"بيانات السائق\",\"vehicleTitle\":\"بيانات المركبة\",\"costTitle\":\"ملخص التكلفة\",\"insuranceTitle\":\"بيانات التأمين\",\"labels\":{\"name\":\"الاسم\",\"idType\":\"نوع الهوية\",\"idNumber\":\"رقم الهوية\",\"phone\":\"رقم الهاتف\",\"nationality\":\"الجنسية\",\"plate\":\"اللوحة\",\"type\":\"نوع المركبة\",\"brand\":\"الماركة\",\"model\":\"الموديل\",\"year\":\"سنة الصنع\",\"seats\":\"عدد المقاعد\",\"color\":\"اللون\",\"bodyType\":\"نوع الهيكل\",\"chassisType\":\"نوع الشاسيه\",\"insurance\":\"التأمين\",\"vat\":\"ضريبة القيمة المضافة (15%)\",\"total\":\"المجموع الكلي\",\"startDate\":\"تاريخ البدء\",\"endDate\":\"تاريخ الانتهاء\",\"notAvailable\":\"---\"},\"editOwner\":\"تعديل بيانات المالك\",\"editDriver\":\"تعديل بيانات السائق\",\"editVehicle\":\"تعديل بيانات المركبة\",\"editCost\":\"تعديل تفاصيل السعر\",\"editInsurance\":\"تعديل بيانات التأمين\",\"currency\":\"ر.س\",\"agreeTerms\":\"أوافق على \u003cterms\u003eالشروط والأحكام\u003c/terms\u003e\",\"termsLink\":\"الشروط والأحكام\",\"accuracyAck\":\"أقر بصحة جميع البيانات المدخلة\"},\"payment\":{\"gatewayTitle\":\"بوابة الدفع الآمنة\",\"openNewWindow\":\"فتح في نافذة جديدة\",\"verifyingStatus\":\"جاري التحقق من حالة الدفع...\",\"completedPaymentQuestion\":\"هل أكملت عملية الدفع؟\",\"redirectInfo\":\"إذا لم يتم تحويلك تلقائياً، يرجى الضغط على زر التحقق\",\"verifyBtn\":\"التحقق من حالة الدفع\",\"importantNote\":\"ملاحظة هامة\",\"noteText\":\"يرجى عدم إغلاق هذه الصفحة حتى تكتمل عملية الدفع وتظهر لك رسالة النجاح. في حال واجهت أي مشكلة، يرجى تزويدنا برقم الوثيقة:\",\"methods\":{\"apple\":\"Apple Pay\",\"credit\":\"بطاقة ائتمانية\",\"debit\":\"بطاقة الخصم المباشر\"},\"summaryTitle\":\"ملخص الدفع\",\"insuranceFee\":\"رسوم التأمين\",\"vatLabel\":\"ضريبة القيمة المضافة (15%)\",\"totalLabel\":\"الإجمالي\",\"noHiddenFees\":\"بدون رسوم مخفية\"},\"success\":{\"title\":\"تم الدفع بنجاح!\",\"description\":\"تمت عملية الدفع بنجاح، وتم إصدار وثيقة التأمين الخاصة بك. يرجى الاحتفاظ بها وإبرازها عند الحاجة.\",\"policyNumber\":\"رقم الوثيقة\",\"downloadBtn\":\"تحميل الوثيقة PDF\",\"redirectHome\":\"سيتم نقلك للصفحة الرئيسية خلال {count} ثواني..\"}},\"places\":{\"breadcrumb_home\":\"الرئيسية\",\"breadcrumb_title\":\"الأماكن السياحية\",\"title\":\"الأماكن السياحية\",\"search_placeholder\":\"ابحث عن الأماكن السياحية...\",\"categories\":{\"all\":\"الكل\",\"landmarks\":\"معالم\",\"restaurants\":\"مطاعم\",\"cafes\":\"كافيه\"},\"no_results\":\"لا توجد أماكن مطابقة للبحث\",\"detail\":{\"not_found\":\"المكان غير موجود\",\"back_link\":\"العودة للأماكن\",\"overview\":\"لمحة عامة\",\"features\":\"المميزات\",\"planning_title\":\"تخطط للزيارة؟\",\"planning_desc\":\"احجز تصريح عبور المنافذ بسهولة وأمان\\nورحلتك بدون تأخر\",\"buy_policy_btn\":\"طلب شراء وثيقة جديدة\",\"nearby_title\":\"أماكن قريبة منك\",\"km\":\"كم\"}},\"places_list\":{\"mecca\":{\"name\":\"مكة المكرمة\",\"location\":\"مكة المكرمة\",\"description\":\"مكة المكرمة هي أقدس مدينة في الإسلام، وتضم المسجد الحرام والكعبة المشرفة، وتستقبل ملايين المسلمين سنوياً لأداء الحج والعمرة.\",\"landmarks_title\":\"أبرز المعالم\",\"landmark_1\":\"المسجد الحرام\",\"landmark_2\":\"الكعبة المشرفة\",\"landmark_3\":\"أبراج البيت\",\"landmark_4\":\"جبل النور وغار حراء\",\"events_title\":\"أبرز الفعاليات\",\"event_1\":\"موسم الحج\",\"event_2\":\"العمرة طوال العام\",\"event_3\":\"رمضان في الحرم\",\"event_4\":\"الإفطار الجماعي\"},\"medina\":{\"name\":\"المدينة المنورة\",\"location\":\"المدينة المنورة\",\"description\":\"المدينة المنورة ثاني أقدس مدينة في الإسلام، وتضم المسجد النبوي الشريف، وتتميز بالسكينة والروحانية.\",\"landmarks_title\":\"أبرز المعالم\",\"landmark_1\":\"المسجد النبوي\",\"landmark_2\":\"مسجد قباء\",\"landmark_3\":\"جبل أحد\",\"landmark_4\":\"مقبرة البقيع\",\"events_title\":\"أبرز الفعاليات\",\"event_1\":\"زيارة الروضة الشريفة\",\"event_2\":\"الصلاة في المسجد النبوي\",\"event_3\":\"الجولات الإسلامية\",\"event_4\":\"رمضان والعمرة\"},\"riyadh\":{\"name\":\"الرياض\",\"location\":\"الرياض\",\"description\":\"الرياض هي عاصمة المملكة العربية السعودية، وتمثل مركزاً حديثاً للأعمال والترفيه والثقافة.\",\"landmarks_title\":\"أبرز المعالم\",\"landmark_1\":\"بوليفارد رياض سيتي\",\"landmark_2\":\"الدرعية التاريخية\",\"landmark_3\":\"برج المملكة\",\"landmark_4\":\"واجهة الرياض\",\"events_title\":\"أبرز الفعاليات\",\"event_1\":\"موسم الرياض\",\"event_2\":\"الحفلات العالمية\",\"event_3\":\"فعاليات الألعاب الإلكترونية\",\"event_4\":\"عروض الدرون والألعاب النارية\"},\"abha\":{\"name\":\"أبها وعسير\",\"location\":\"أبها\",\"description\":\"أبها وعسير منطقة جبلية تتميز بالطقس البارد والطبيعة الخضراء والقرى التراثية.\",\"landmarks_title\":\"أبرز المعالم\",\"landmark_1\":\"قرية رجال ألمع\",\"landmark_2\":\"منتزه السودة\",\"landmark_3\":\"تلفريك أبها\",\"landmark_4\":\"منتزه عسير الوطني\",\"events_title\":\"أبرز الفعاليات\",\"event_1\":\"مهرجان أبها الصيفي\",\"event_2\":\"رحلات السفاري الجبلية\",\"event_3\":\"التخييم في السودة\",\"event_4\":\"الفعاليات التراثية\"},\"alula\":{\"name\":\"العُلا\",\"location\":\"العُلا\",\"description\":\"العُلا وجهة تاريخية وطبيعية عالمية تضم آثار مدائن صالح وتكوينات صخرية مذهلة وتجارب سياحية فريدة.\",\"landmarks_title\":\"أبرز المعالم\",\"landmark_1\":\"الحِجر (مدائن صالح)\",\"landmark_2\":\"صخرة الفيل\",\"landmark_3\":\"البلدة القديمة\",\"landmark_4\":\"وادي عِشار\",\"events_title\":\"أبرز الفعاليات\",\"event_1\":\"موسم شتاء طنطورة\",\"event_2\":\"حفلات موسيقية\",\"event_3\":\"جولات المناطيد\",\"event_4\":\"السفاري الصحراوي\"},\"PayNow\":\"ادفع الان\"},\"NewRequest\":{\"title\":\"طلب جديد\",\"quickStart\":\"ابدأ طلبك بسرعة\",\"quickStartDesc\":\"استخدم آخر بياناتك لإتمام الطلب خلال ثوانٍ\",\"recommended\":\"موصى به\",\"freshStart\":\"بدء طلب جديد\",\"freshStartDesc\":\"ابدأ طلب وثيقة جديدة بإدخال بيانات مختلفة\"},\"Validation\":{\"required\":\"هذا الحقل مطلوب\",\"invalidEmail\":\"البريد الإلكتروني غير صحيح\",\"invalidPhone\":\"رقم الهاتف غير صحيح\",\"minLength\":\"يجب أن يكون {count} أحرف على الأقل\",\"maxLength\":\"يجب أن يكون {count} أحرف على الأكثر\",\"numberOnly\":\"يجب إدخال أرقام فقط\",\"chassisLength\":\"رقم الشاسيه يجب أن يكون 17 حرفاً\",\"plateNumberLength\":\"رقم اللوحة يجب أن يكون بين 1 و 6 أرقام\",\"plateSymbolLength\":\"رمز اللوحة يجب أن يكون بين 1 و 4 حروف\",\"selectCountry\":\"يرجى اختيار بلد القدوم\",\"selectPort\":\"يرجى اختيار منفذ الدخول\",\"selectVehicleType\":\"يرجى اختيار نوع المركبة\",\"selectVehicleNationality\":\"يرجى اختيار جنسية المركبة\",\"plateNumberRequired\":\"رقم اللوحة مطلوب\",\"plateSymbolRequired\":\"رمز اللوحة مطلوب\",\"chassisNumberRequired\":\"رقم الشاسيه مطلوب\",\"vehicleBrandRequired\":\"ماركة المركبة مطلوبة\",\"bodyTypeRequired\":\"نوع الشاسيه مطلوب\",\"vehicleModelRequired\":\"موديل المركبة مطلوب\",\"manufactureYearRequired\":\"سنة الصنع مطلوبة\",\"chassisTypeRequired\":\"نوع المركبة مطلوب\",\"vehicleColorRequired\":\"لون المركبة مطلوب\",\"ownerSimilarRequired\":\"يرجى تحديد ما إذا كان المالك هو السائق\",\"nameRequired\":\"الاسم مطلوب\",\"nationalityRequired\":\"الجنسية مطلوبة\",\"idNumberRequired\":\"رقم الهوية مطلوب\",\"idTypeRequired\":\"نوع الهوية مطلوب\",\"driverTypeRequired\":\"يرجى تحديد نوع السائق\",\"selectDuration\":\"يرجى اختيار مدة التأمين\",\"selectPaymentMethod\":\"يرجى اختيار طريقة الدفع\",\"termsRequired\":\"يجب الموافقة على الشروط والأحكام\",\"vinLength\":\"رقم الشاسيه يجب أن يكون 17 حرفاً\",\"busSeatsRequired\":\"عدد المقاعد مطلوب للحافلات\",\"genericError\":\"يرجى إكمال جميع الحقول المطلوبة\",\"threeNamesRequired\":\"يرجى إدخال الاسم الثلاثي على الأقل (مثال: الاسم الأول الأب الجد)\",\"chassisNumberMax\":\"رقم الشاسيه لا يمكن أن يتجاوز 17 حرفاً\",\"invalidIdOrPassport\":\"صيغة غير صحيحة (الهوية: حتى 20 رقم، الجواز: حتى 10 أحرف وأرقام)\",\"driverIdSameAsOwner\":\"لا يمكن أن يكون رقم هوية السائق مطابقاً لرقم هوية المالك\"},\"Payment\":{\"title\":\"الدفع بأمان\",\"subtitle\":\"عملية دفع آمنة\",\"ref\":\"رقم المرجع\",\"status\":\"حالة الدفع\",\"total\":\"المبلغ الإجمالي\",\"note\":\"يرجى عدم إغلاق هذه الصفحة أو الرجوع للخلف حتى تكتمل العملية لضمان إصدار الوثيقة بشكل صحيح.\",\"payBtn\":\"ادفع الآن\",\"preparing\":\"جاري تجهيز بوابة الدفع...\",\"error\":\"حدث خطأ أثناء بدء عملية الدفع.\",\"retry\":\"إعادة المحاولة\",\"pending\":\"قيد الانتظار\",\"processing\":\"جاري المعالجة...\",\"closeBtn\":\"إغلاق ومتابعة\",\"initError\":\"عذراً، حدث خطأ في تهيئة بوابة الدفع، يرجى المحاولة لاحقاً\"},\"ComplaintForm\":{\"supportTypeLabel\":\"نوع الطلب\",\"requestTypes\":{\"complaint\":\"شكوى\",\"inquiry\":\"استفسار\",\"suggestion\":\"اقتراح\",\"request\":\"طلب\"},\"nameLabel\":\"الاسم الكامل\",\"namePlaceholder\":\"أدخل الاسم الكامل\",\"categoryLabel\":\"فئة الطلب\",\"categoryPlaceholder\":\"اختر الفئة\",\"categories\":{\"borderService\":\"خدمات المنفذ\",\"employeeBehavior\":\"سلوك الموظف\",\"policyIssue\":\"مشكلة في الوثيقة\",\"systemError\":\"خطأ في النظام\",\"other\":\"أخرى\"},\"identityTypeLabel\":\"نوع الهوية\",\"identityTypePlaceholder\":\"اختر نوع الهوية\",\"mobileLabel\":\"رقم الهاتف\",\"emailLabel\":\"البريد الإلكتروني\",\"emailPlaceholder\":\"أدخل البريد الإلكتروني\",\"messageLabel\":\"تفاصيل الطلب\",\"messagePlaceholder\":\"أدخل نص الرسالة\",\"sendBtn\":\"إرسال\",\"sending\":\"جاري الإرسال...\",\"idTypes\":{\"NATIONAL_ID\":\"هوية وطنية\",\"PASSPORT\":\"جواز سفر\",\"RESIDENCE\":\"إقامة\",\"GULF_ID\":\"هوية خليجية\",\"BORDER_NUMBER\":\"رقم حدود\",\"COMMERCIAL_REGISTER\":\"سجل تجاري\"},\"idNumberLabel\":\"رقم الهوية\",\"idNumberPlaceholder\":\"أدخل رقم الهوية\",\"supportTypePlaceholder\":\"اختر نوع الدعم\"},\"brandPlaceholder\":\"ادخل الماركة\"},\"children\":\"$L13\"}]}]}]\n14:I[44668,[\"/_next/static/chunks/396uyas8ufukz.js\",\"/_next/static/chunks/23-fku2f_1cze.js\",\"/_next/static/chunks/0zmvyptk783y8.js\",\"/_next/static/chunks/2yo9mwxvlff5-.js\",\"/_next/static/chunks/1i0syfp1a54l4.js\",\"/_next/static/chunks/1vt6jtyzciahi.js\",\"/_next/static/chunks/2w1t2hyxg4szp.js\"],\"default\"]\n15:I[92370,[\"/_next/static/chunks/396uyas8ufukz.js\",\"/_next/static/chunks/23-fku2f_1cze.js\",\"/_next/static/chunks/0zmvyptk783y8.js\",\"/_next/static/chunks/2yo9mwxvlff5-.js\",\"/_next/static/chunks/1i0syfp1a54l4.js\",\"/_next/static/chunks/1is5g5en5fnyz.js\",\"/_next/static/chunks/2w1t2hyxg4szp.js\"],\"default\"]\n13:[\"$\",\"div\",null,{\"className\":\"w-full min-h-screen flex flex-col transition-colors duration-300\",\"children\":[\"$\",\"main\",null,{\"className\":\"flex-1 w-full\",\"children\":[\"$\",\"$L2\",null,{\"parallelRouterKey\":\"children\",\"error\":\"$14\",\"errorStyles\":[],\"errorScripts\":[[\"$\",\"script\",\"script-0\",{\"src\":\"/_next/static/chunks/1vt6jtyzciahi.js\",\"async\":true}],[\"$\",\"script\",\"script-1\",{\"src\":\"/_next/static/chunks/2w1t2hyxg4szp.js\",\"async\":true}]],\"template\":[\"$\",\"$L3\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":[[\"$\",\"$L15\",null,{}],[]],\"forbidden\":\"$undefined\",\"unauthorized\":\"$undefined\"}]}]}]\ne:[[\"$\",\"meta\",\"0\",{\"charSet\":\"utf-8\"}],[\"$\",\"meta\",\"1\",{\"name\":\"viewport\",\"content\":\"width=device-width, initial-scale=1\"}]]\n16:I[27201,[\"/_next/static/chunks/0h2qsuyze9ds1.js\"],\"IconMark\"]\nb:null\n10:[[\"$\",\"title\",\"0\",{\"children\":\"منصة منافذ - Manafith\"}],[\"$\",\"meta\",\"1\",{\"name\":\"description\",\"content\":\"المنصة الرسمية لبيع وثائق التأمين على المركبات الأجنبية القادمة عبر المنافذ الحدودية السعودية. Manafith is the official platform for selling insurance policies for foreign vehicles arriving via Saudi border crossings.\"}],[\"$\",\"meta\",\"2\",{\"name\":\"author\",\"content\":\"Manafith Platform\"}],[\"$\",\"meta\",\"3\",{\"name\":\"keywords\",\"content\":\"منافذ,تأمين مركبات,تأمين المنافذ,Manafith,Vehicle Insurance,Border Insurance,السعودية,Saudi Arabia,تأمين حدود\"}],[\"$\",\"meta\",\"4\",{\"name\":\"creator\",\"content\":\"Manafith\"}],[\"$\",\"meta\",\"5\",{\"name\":\"publisher\",\"content\":\"Manafith\"}],[\"$\",\"meta\",\"6\",{\"name\":\"robots\",\"content\":\"index, follow\"}],[\"$\",\"meta\",\"7\",{\"name\":\"googlebot\",\"content\":\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"}],[\"$\",\"meta\",\"8\",{\"name\":\"format-detection\",\"content\":\"telephone=no, address=no, email=no\"}],[\"$\",\"meta\",\"9\",{\"property\":\"og:title\",\"content\":\"منصة منافذ - Manafith\"}],[\"$\",\"meta\",\"10\",{\"property\":\"og:description\",\"content\":\"المنصة الرسمية لبيع وثائق التأمين على المركبات الأجنبية القادمة عبر المنافذ الحدودية السعودية.\"}],[\"$\",\"meta\",\"11\",{\"property\":\"og:site_name\",\"content\":\"منصة منافذ - Manafith\"}],[\"$\",\"meta\",\"12\",{\"property\":\"og:locale\",\"content\":\"ar_SA\"}],[\"$\",\"meta\",\"13\",{\"property\":\"og:image\",\"content\":\"http://localhost:3000/images/Logo.png\"}],[\"$\",\"meta\",\"14\",{\"property\":\"og:image:width\",\"content\":\"1200\"}],[\"$\",\"meta\",\"15\",{\"property\":\"og:image:height\",\"content\":\"630\"}],[\"$\",\"meta\",\"16\",{\"property\":\"og:image:alt\",\"content\":\"منصة منافذ - Manafith Platform\"}],[\"$\",\"meta\",\"17\",{\"property\":\"og:locale:alternate\",\"content\":\"en_US\"}],[\"$\",\"meta\",\"18\",{\"property\":\"og:type\",\"content\":\"website\"}],[\"$\",\"meta\",\"19\",{\"name\":\"twitter:card\",\"content\":\"summary_large_image\"}],[\"$\",\"meta\",\"20\",{\"name\":\"twitter:title\",\"content\":\"منصة منافذ - Manafith\"}],[\"$\",\"meta\",\"21\",{\"name\":\"twitter:description\",\"content\":\"المنصة الرسمية لبيع وثائق التأمين على المركبات الأجنبية القادمة عبر المنافذ الحدودية السعودية.\"}],[\"$\",\"meta\",\"22\",{\"name\":\"twitter:image\",\"content\":\"http://localhost:3000/images/Logo.png\"}],[\"$\",\"link\",\"23\",{\"rel\":\"icon\",\"href\":\"/favicon/favicon.ico\"}],[\"$\",\"link\",\"24\",{\"rel\":\"icon\",\"href\":\"/favicon/favicon-32x32.png\",\"sizes\":\"32x32\",\"type\":\"image/png\"}],[\"$\",\"link\",\"25\",{\"rel\":\"icon\",\"href\":\"/favicon/favicon-16x16.png\",\"sizes\":\"16x16\",\"type\":\"image/png\"}],[\"$\",\"link\",\"26\",{\"rel\":\"apple-touch-icon\",\"href\":\"/favicon/apple-touch-icon.png\"}],[\"$\",\"$L16\",\"27\",{}]]\n"])</script><div hidden=""></div><div class="w-full min-h-screen flex flex-col transition-colors duration-300"><main class="flex-1 w-full"><div class="min-h-screen w-full flex flex-col bg-[#F8F9FA] relative" dir="rtl"><div class="absolute inset-0 z-0 opacity-[26%] pointer-events-none flex items-center justify-center transition-opacity duration-700"><div class="w-full h-full bg-[linear-gradient(180deg,#FEF7EF_34%,#F5F3F0_100%)] bg-cover bg-center opacity-56" id="el_elbcos" style="background-image: url(&quot;/images/imageBg.png&quot;);"></div><div class="absolute inset-0 bg-white/20 z-0"></div></div><header class="fixed top-0 left-0 right-0 z-[100] bg-white/60  px-6 sm:px-8 py-3.5 flex items-center justify-between w-full border-b border-gray-100"><div class="flex items-center gap-10"><a class="shrink-0 block transition-transform hover:scale-105 active:scale-95" href="javascript:void(0);" data-original-href="/ar/home"><img alt="Logo" class="w-24 sm:w-28 md:w-30 h-auto object-contain cursor-pointer" src="/images/Logo.png"></a><nav class="hidden lg:flex items-center gap-6"><a class="font-bold text-[14px] py-1 text-[#818181] hover:text-[#1a1a1a]" href="javascript:void(0);" data-original-href="/ar/home">الرئيسية</a><a class="font-bold text-[14px] py-1 text-[#818181] hover:text-[#1a1a1a]" href="javascript:void(0);" data-original-href="/ar/about">عن منافذ</a><a class="font-bold text-[14px] py-1 text-[#818181] hover:text-[#1a1a1a]" href="javascript:void(0);" data-original-href="/ar/partners">شركاؤنا</a><a class="font-bold text-[14px] py-1 text-[#818181] hover:text-[#1a1a1a]" href="javascript:void(0);" data-original-href="/ar/contact">تواصل معنا</a><a class="font-bold text-[14px] py-1 text-[#818181] hover:text-[#1a1a1a]" href="javascript:void(0);" data-original-href="/ar/policies">السياسات والاشتراطات</a></nav></div><div class="hidden lg:flex items-center gap-4"><div class="flex items-center gap-4 "><button class="w-10 h-10 flex items-center justify-center text-[#818181] hover:text-primary-500 transition-colors bg-white hover:bg-primary-50 rounded-full border border-gray-100/50 font-bold" title="Switch to English"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-globe w-4 h-4"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg></button><a class="bg-[#E5E7EB] px-6 py-2.5 text-[12px] font-bold text-[#364153] transition-colors hover:bg-primary-50 hover:text-primary-500 rounded-xl border border-gray-100/50" href="javascript:void(0);" data-original-href="/ar/login">تسجيل الدخول</a><button class="inline-flex items-center justify-center font-medium transition-all duration-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-[0.97] bg-primary-500 hover:bg-primary-600 text-white shadow-sm shadow-primary/20 hover:shadow-md focus:ring-primary px-5 py-2 text-sm  bg-primary hover:bg-[var(--primary-hover)] py-[14px] px-4 rounded-[16px] text-sm font-bold h-auto "><span class="mx-1.5 shrink-0"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus w-4 h-4"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg></span>شراء وثيقة جديدة</button></div></div><div class="flex lg:hidden items-center gap-3"><button class="p-2 hover:bg-[var(--primary-hover)] rounded-xl transition-colors text-gray-600"><img alt="Menu" class="w-6 h-6" src="/images/menuIcon.svg"></button></div></header><main class="flex-1 relative z-10 pt-[72px] pb-24 lg:pb-0 flex flex-col min-h-0"><div class="flex flex-col flex-1 min-h-0 bg-[#F6F3EF] font-cairo" dir="rtl"><div class="flex flex-1 flex-col md:flex-row relative min-h-0" dir="ltr"><div class="absolute inset-0 z-0 pointer-events-none flex items-center justify-center"><div class="w-full h-full bg-cover bg-center opacity-[0.12]" id="el_fdmpk2" style="background-image: url(&quot;/images/imageBg.png&quot;);"></div></div><div class="hidden md:flex w-[25%] px-5 bg-white border-l border-gray-100 z-10 flex-col py-10 shadow-[0_0_40px_rgba(0,0,0,0.02)] self-stretch min-h-full shrink-0"><h2 class="text-sm font-black text-gray-900 mb-6 text-start" dir="rtl">خطوات إصدار وثيقة التأمين</h2><div class="flex-1 flex flex-col space-y-2.5" dir="rtl"><div class="flex items-center gap-4 p-3 rounded-xl transition-all duration-300 bg-[#EAF5F2] shadow-sm"><div class="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 transition-colors bg-[#016B6A] text-white">1</div><span class="text-[13px] font-bold leading-normal text-[var(--color-brand-500)]">حدد دولة القدوم</span></div><div class="flex items-center gap-4 p-3 rounded-xl transition-all duration-300 "><div class="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 transition-colors bg-[#F7F4EF] text-gray-500">2</div><span class="text-[13px] font-bold leading-normal text-gray-500">اختر منفذ الدخول</span></div><div class="flex items-center gap-4 p-3 rounded-xl transition-all duration-300 "><div class="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 transition-colors bg-[#F7F4EF] text-gray-500">3</div><span class="text-[13px] font-bold leading-normal text-gray-500">اختر جنسية المركبة</span></div><div class="flex items-center gap-4 p-3 rounded-xl transition-all duration-300 "><div class="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 transition-colors bg-[#F7F4EF] text-gray-500">4</div><span class="text-[13px] font-bold leading-normal text-gray-500">أدخل تفاصيل المركبة</span></div><div class="flex items-center gap-4 p-3 rounded-xl transition-all duration-300 "><div class="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 transition-colors bg-[#F7F4EF] text-gray-500">5</div><span class="text-[13px] font-bold leading-normal text-gray-500">أدخل بيانات المالك والسائق</span></div><div class="flex items-center gap-4 p-3 rounded-xl transition-all duration-300 "><div class="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 transition-colors bg-[#F7F4EF] text-gray-500">6</div><span class="text-[13px] font-bold leading-normal text-gray-500">اختر مدة التأمين</span></div><div class="flex items-center gap-4 p-3 rounded-xl transition-all duration-300 "><div class="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 transition-colors bg-[#F7F4EF] text-gray-500">7</div><span class="text-[13px] font-bold leading-normal text-gray-500">راجع بيانات الطلب</span></div></div><div class="mt-auto bg-[#F5F4ED] rounded-[24px] p-6 relative overflow-hidden shrink-0" dir="rtl"><div class="absolute -top-16 w-44 h-44 bg-[#EBEADF] rounded-full -left-16"></div><div class="relative z-10 flex flex-col items-start w-full"><div class="flex items-center justify-between mb-3 w-full"><h3 class="text-[16px] font-black text-gray-900 flex items-center gap-4"><div class="w-9 h-9 rounded-[10px] bg-[#EAE8DB] flex items-center justify-center shrink-0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-gray-800"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><path d="M12 17h.01"></path></svg></div>تحتاج مساعدة؟</h3></div><p class="text-[13.5px] text-gray-500 font-bold mb-4 text-start leading-relaxed max-w-[90%]">راسل الدعم أو اسأل مساعدك الذكي</p><button class="text-[15px] font-black text-[#7b2cbf] flex items-center gap-1.5 hover:text-[#5a1e8c] transition-colors w-full justify-start mt-1">الدعم والمساعدة<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left w-4 h-4"><path d="m15 18-6-6 6-6"></path></svg></button></div></div></div><div class="flex-1 flex flex-col relative z-20 min-h-full bg-transparent" dir="rtl"><div class="flex-1 overflow-y-auto p-4 sm:p-6 md:p-10 pb-40 md:pb-32 no-scrollbar"><div class="max-w-4xl mx-auto"><div class="flex items-center gap-2 text-[10px] font-bold text-gray-400 mb-6"><button class="hover:text-[#7b2cbf] transition-colors">الرئيسية</button><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left w-3 h-3 rtl:rotate-0 ltr:rotate-180"><path d="m15 18-6-6 6-6"></path></svg><span>طلب وثيقة</span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left w-3 h-3 rtl:rotate-0 ltr:rotate-180"><path d="m15 18-6-6 6-6"></path></svg><span class="text-[#7b2cbf]">إصدار وثيقة التأمين</span></div><div class="flex items-start gap-3 mb-2"><div class="flex-1 min-w-0"><h1 class="text-2xl md:text-[28px] font-black text-[#001533] leading-tight" id="h1_qnb8">من أي دولة قادم؟</h1><p class="text-[13px] text-gray-500 font-medium mt-1.5">يرجى اختيار دولة القدوم الخاصة بك</p></div></div><div class="mb-8 w-full"><div class="flex items-center gap-4"><div class="flex-1 flex items-center gap-2.5"><div class="h-[4px] flex-1 rounded-full transition-all duration-500 ease-out bg-[#006666]"></div><div class="h-[4px] flex-1 rounded-full transition-all duration-500 ease-out bg-[#E2E8F0]"></div><div class="h-[4px] flex-1 rounded-full transition-all duration-500 ease-out bg-[#E2E8F0]"></div><div class="h-[4px] flex-1 rounded-full transition-all duration-500 ease-out bg-[#E2E8F0]"></div><div class="h-[4px] flex-1 rounded-full transition-all duration-500 ease-out bg-[#E2E8F0]"></div><div class="h-[4px] flex-1 rounded-full transition-all duration-500 ease-out bg-[#E2E8F0]"></div><div class="h-[4px] flex-1 rounded-full transition-all duration-500 ease-out bg-[#E2E8F0]"></div></div><span class="text-[12px] font-black text-[#64748B] tabular-nums shrink-0 min-w-[32px] text-end">1/7</span></div></div><div id="el_t8a638" style="opacity: 1; transform: none;"><div class="space-y-4"><div class="relative -mt-4"><div><div class="w-full gap-1.5 flex flex-col"><div class="relative group flex-1"><div class="absolute inset-y-0 inset-inline-start-0 ps-3.5 flex items-center pointer-events-none text-gray-400 group-focus-within:text-primary transition-colors duration-300"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search w-4 h-4 text-gray-400"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg></div><input class="block font-bold w-full bg-white border px-4 placeholder:text-gray-400 text-gray-900 focus:ring-0 focus:border-gray-200 hover:border-primary/30 transition-all duration-300 ps-11 py-3.5 h-auto rounded-2xl text-sm border-gray-100 shadow-sm" placeholder="ابحث عن اسم الدولة" type="text" value=""></div></div></div></div><div class="bg-[#F6F3EF]/72 p-5 sm:p-6 rounded-2xl shadow-sm border border-gray-100 min-h-[280px] transition-all " id="div_sjrc" data-form-bind="form_0r4q36" data-form-name="متعدد" data-each-step-card="true"><div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-6"><button type="button" class="p-4 rounded-xl flex items-center justify-between gap-2 transition-all border-2 min-h-[72px] bg-[#FFFFFF]/60 border-transparent shadow-sm hover:shadow-md hover:border-gray-300"><span class="text-[13px] font-bold text-[#001533] text-start leading-tight">الإمارات</span><img class="shrink-0" src="https://cdn.jsdelivr.net/gh/lipis/flag-icons/flags/4x3/ae.svg" id="el_rkl3zo" style="display: inline-block; width: 1.75em; height: 1.25em; vertical-align: middle; border-radius: 3px; object-fit: cover;"></button><button type="button" class="p-4 rounded-xl flex items-center justify-between gap-2 transition-all border-2 min-h-[72px] bg-[#FFFFFF]/60 border-transparent shadow-sm hover:shadow-md hover:border-gray-300"><span class="text-[13px] font-bold text-[#001533] text-start leading-tight">الكويت</span><img class="shrink-0" src="https://cdn.jsdelivr.net/gh/lipis/flag-icons/flags/4x3/kw.svg" id="el_4wh17v" style="display: inline-block; width: 1.75em; height: 1.25em; vertical-align: middle; border-radius: 3px; object-fit: cover;"></button><button type="button" class="p-4 rounded-xl flex items-center justify-between gap-2 transition-all border-2 min-h-[72px] bg-[#FFFFFF]/60 border-transparent shadow-sm hover:shadow-md hover:border-gray-300"><span class="text-[13px] font-bold text-[#001533] text-start leading-tight">قطر</span><img class="shrink-0" src="https://cdn.jsdelivr.net/gh/lipis/flag-icons/flags/4x3/qa.svg" id="el_vpdzm5" style="display: inline-block; width: 1.75em; height: 1.25em; vertical-align: middle; border-radius: 3px; object-fit: cover;"></button><button type="button" class="p-4 rounded-xl flex items-center justify-between gap-2 transition-all border-2 min-h-[72px] bg-[#FFFFFF]/60 border-transparent shadow-sm hover:shadow-md hover:border-gray-300"><span class="text-[13px] font-bold text-[#001533] text-start leading-tight">البحرين</span><img class="shrink-0" src="https://cdn.jsdelivr.net/gh/lipis/flag-icons/flags/4x3/bh.svg" id="el_xmtqft" style="display: inline-block; width: 1.75em; height: 1.25em; vertical-align: middle; border-radius: 3px; object-fit: cover;"></button><button type="button" class="p-4 rounded-xl flex items-center justify-between gap-2 transition-all border-2 min-h-[72px] bg-[#FFFFFF]/60 border-transparent shadow-sm hover:shadow-md hover:border-gray-300"><span class="text-[13px] font-bold text-[#001533] text-start leading-tight">عمان</span><img class="shrink-0" src="https://cdn.jsdelivr.net/gh/lipis/flag-icons/flags/4x3/om.svg" id="el_4kfa3b" style="display: inline-block; width: 1.75em; height: 1.25em; vertical-align: middle; border-radius: 3px; object-fit: cover;"></button><button type="button" class="p-4 rounded-xl flex items-center justify-between gap-2 transition-all border-2 min-h-[72px] bg-[#FFFFFF]/60 border-transparent shadow-sm hover:shadow-md hover:border-gray-300"><span class="text-[13px] font-bold text-[#001533] text-start leading-tight">الأردن</span><img class="shrink-0" src="https://cdn.jsdelivr.net/gh/lipis/flag-icons/flags/4x3/jo.svg" id="el_hmd38r" style="display: inline-block; width: 1.75em; height: 1.25em; vertical-align: middle; border-radius: 3px; object-fit: cover;"></button><button type="button" class="p-4 rounded-xl flex items-center justify-between gap-2 transition-all border-2 min-h-[72px] bg-[#FFFFFF]/60 border-transparent shadow-sm hover:shadow-md hover:border-gray-300"><span class="text-[13px] font-bold text-[#001533] text-start leading-tight">العراق</span><img class="shrink-0" src="https://cdn.jsdelivr.net/gh/lipis/flag-icons/flags/4x3/iq.svg" id="el_n0i5zb" style="display: inline-block; width: 1.75em; height: 1.25em; vertical-align: middle; border-radius: 3px; object-fit: cover;"></button><button type="button" class="p-4 rounded-xl flex items-center justify-between gap-2 transition-all border-2 min-h-[72px] bg-[#FFFFFF]/60 border-transparent shadow-sm hover:shadow-md hover:border-gray-300"><span class="text-[13px] font-bold text-[#001533] text-start leading-tight">سوريا</span><img class="shrink-0" src="https://cdn.jsdelivr.net/gh/lipis/flag-icons/flags/4x3/sy.svg" id="el_0jb1l4" style="display: inline-block; width: 1.75em; height: 1.25em; vertical-align: middle; border-radius: 3px; object-fit: cover;"></button><button type="button" class="p-4 rounded-xl flex items-center justify-between gap-2 transition-all border-2 min-h-[72px] bg-[#FFFFFF]/60 border-transparent shadow-sm hover:shadow-md hover:border-gray-300"><span class="text-[13px] font-bold text-[#001533] text-start leading-tight">لبنان</span><img class="shrink-0" src="https://cdn.jsdelivr.net/gh/lipis/flag-icons/flags/4x3/lb.svg" id="el_pkzszz" style="display: inline-block; width: 1.75em; height: 1.25em; vertical-align: middle; border-radius: 3px; object-fit: cover;"></button><button type="button" class="p-4 rounded-xl flex items-center justify-between gap-2 transition-all border-2 min-h-[72px] bg-[#FFFFFF]/60 border-transparent shadow-sm hover:shadow-md hover:border-gray-300"><span class="text-[13px] font-bold text-[#001533] text-start leading-tight">اليمن</span><img class="shrink-0" src="https://cdn.jsdelivr.net/gh/lipis/flag-icons/flags/4x3/ye.svg" id="el_b0hw3c" style="display: inline-block; width: 1.75em; height: 1.25em; vertical-align: middle; border-radius: 3px; object-fit: cover;"></button><button type="button" class="p-4 rounded-xl flex items-center justify-between gap-2 transition-all border-2 min-h-[72px] bg-[#FFFFFF]/60 border-transparent shadow-sm hover:shadow-md hover:border-gray-300"><span class="text-[13px] font-bold text-[#001533] text-start leading-tight">مصر</span><img class="shrink-0" src="https://cdn.jsdelivr.net/gh/lipis/flag-icons/flags/4x3/eg.svg" id="el_xija62" style="display: inline-block; width: 1.75em; height: 1.25em; vertical-align: middle; border-radius: 3px; object-fit: cover;"></button><button type="button" class="p-4 rounded-xl flex items-center justify-between gap-2 transition-all border-2 min-h-[72px] bg-[#FFFFFF]/60 border-transparent shadow-sm hover:shadow-md hover:border-gray-300"><span class="text-[13px] font-bold text-[#001533] text-start leading-tight">تونس</span><img class="shrink-0" src="https://cdn.jsdelivr.net/gh/lipis/flag-icons/flags/4x3/tn.svg" id="el_0oqdd0" style="display: inline-block; width: 1.75em; height: 1.25em; vertical-align: middle; border-radius: 3px; object-fit: cover;"></button></div><div class="flex items-center justify-center gap-3 mt-6" dir="ltr"><button type="button" disabled="" class="w-9 h-9 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-100 text-gray-500 hover:text-[#7b2cbf] hover:border-[#7b2cbf]/30 disabled:opacity-40 disabled:cursor-not-allowed transition-all"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left w-4 h-4"><path d="m15 18-6-6 6-6"></path></svg></button><div class="flex items-center gap-1"><button type="button" class="w-8 h-8 rounded-full text-xs font-bold transition-all bg-[#7b2cbf] text-white shadow-sm">1</button><button type="button" class="w-8 h-8 rounded-full text-xs font-bold transition-all text-gray-500 hover:text-[#7b2cbf]">2</button><span class="w-8 text-center text-xs text-gray-400 font-bold">···</span><button type="button" class="w-8 h-8 rounded-full text-xs font-bold transition-all text-gray-500 hover:text-[#7b2cbf]">21</button></div><button type="button" class="w-9 h-9 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-100 text-gray-500 hover:text-[#7b2cbf] hover:border-[#7b2cbf]/30 disabled:opacity-40 disabled:cursor-not-allowed transition-all"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right w-4 h-4"><path d="m9 18 6-6-6-6"></path></svg></button></div></div></div></div></div></div><div class="absolute bottom-0 inset-x-0 bg-white border-t border-gray-100 px-4 py-4 md:px-6 md:py-6 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 md:gap-4 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] z-30"><div class="flex items-start md:items-center gap-2 text-[#4D3C02] md:px-4 md:py-2 rounded-lg w-full md:w-auto md:flex-1 min-w-0"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-triangle-alert w-5 h-5 shrink-0 text-[#D1A000] mt-0.5 md:mt-0"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg><span class="text-[11px] md:text-[12px] font-bold leading-relaxed text-start">الاختيار يؤثر على الخطوات اللاحقة يرجى مراجعة صحة البيانات</span></div><div class="flex gap-3 w-full md:w-auto shrink-0"><button disabled="" class="flex-1 py-4 px-6 rounded-2xl flex items-center justify-center gap-2 font-bold text-sm transition-all shadow-lg active:scale-95 bg-gray-200 text-gray-400 cursor-not-allowed shadow-none"><span>المتابعة</span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left w-4 h-4"><path d="m15 18-6-6 6-6"></path></svg></button></div></div></div></div></div></main><footer class="text-white flex flex-col border-t-4 border-[#7b2cbf] z-50"><div class="w-full mx-auto px-8 max-w-[110%] grid grid-cols-1 md:grid-cols-12 gap-8 pb-12 bg-[#00051F] pt-16"><div class="md:col-span-4 flex flex-col items-start text-start"><div class="shrink-0 pb-4"><img alt="Logo" class="h-[82px] min-h-[82px] w-[282px] min-w-[282px] max-w-full object-contain" src="/images/Footer-logo.png"></div><p class="mb-3 max-w-[360px] text-[14px] font-normal leading-relaxed text-[#FFFFFF]">شركة منافذ لخدمات التأمين، مرخصة من هيئة التأمين، تقدم خدمة إصدار وثائق التأمين للمركبات الأجنبية العابرة لأراضي المملكة العربية السعودية عبر منصة رقمية متكاملة وسلسة.</p><div class="mb-6 flex max-w-[360px] flex-col gap-1 text-[11px] font-normal leading-relaxed text-gray-400"><p>شركة شخص واحد مساهمة مقفلة رأس المال 11,000,000 ريال مدفوع بالكامل</p><div class="flex flex-wrap items-center gap-x-2 gap-y-0.5"><span>السجل التجاري: 1010833460</span><span class="text-gray-600" aria-hidden="true">|</span><span>ترخيص رقم: و ك ل / ش / 101 / 202305</span></div><p>حي الملقا، 2769، الرياض 13523</p><p>الشركة خاضعة لرقابة وإشراف هيئة التأمين</p></div><div class="flex items-center gap-3"><a href="javascript:void(0);" aria-label="Facebook" target="_blank" class="group relative block h-9 w-9" data-original-href="https://www.facebook.com/people/Manafith-sa/61572230857957/?mibextid=wwXIfr&amp;rdid=j4tTrNfUdKm7G4jK&amp;share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1H4MoAuLAA%2F"><img alt="Facebook" loading="lazy" width="36" height="36" decoding="async" data-nimg="1" class="h-9 w-9 transition-opacity duration-200 group-hover:opacity-0" src="/images/svg/facebook.svg" style="color: transparent;" id="el_etc122"><img alt="" aria-hidden="true" loading="lazy" width="36" height="36" decoding="async" data-nimg="1" class="absolute inset-0 h-9 w-9 opacity-0 transition-opacity duration-200 group-hover:opacity-100" src="/images/svg/facebook-hover.svg" style="color: transparent;" id="el_epno5u"></a><a href="javascript:void(0);" aria-label="LinkedIn" target="_blank" class="group relative block h-9 w-9" data-original-href="https://www.linkedin.com/company/manafith-insurance-services-company/"><img alt="LinkedIn" loading="lazy" width="36" height="36" decoding="async" data-nimg="1" class="h-9 w-9 transition-opacity duration-200 group-hover:opacity-0" src="/images/svg/linkedin.svg" style="color: transparent;" id="el_h7shc9"><img alt="" aria-hidden="true" loading="lazy" width="36" height="36" decoding="async" data-nimg="1" class="absolute inset-0 h-9 w-9 opacity-0 transition-opacity duration-200 group-hover:opacity-100" src="/images/svg/linkedin-hover.svg" style="color: transparent;" id="el_c444ls"></a><a href="javascript:void(0);" aria-label="Snapchat" target="_blank" class="group relative block h-9 w-9" data-original-href="https://www.snapchat.com/@manafith.sa?sid=e53f113b658948a9888f8ac44f7ca279&amp;share_id=_Jty_cEZStetN6VHlIidOg&amp;invite_id=snhzW-xL"><img alt="Snapchat" loading="lazy" width="36" height="36" decoding="async" data-nimg="1" class="h-9 w-9 transition-opacity duration-200 group-hover:opacity-0" src="/images/svg/snap.svg" style="color: transparent;" id="el_hi6iac"><img alt="" aria-hidden="true" loading="lazy" width="36" height="36" decoding="async" data-nimg="1" class="absolute inset-0 h-9 w-9 opacity-0 transition-opacity duration-200 group-hover:opacity-100" src="/images/svg/snap-hover.svg" style="color: transparent;" id="el_izzc9f"></a><a href="javascript:void(0);" aria-label="Instagram" target="_blank" class="group relative block h-9 w-9" data-original-href="https://www.instagram.com/maanafith.sa?igsh=OGVmdWRwaHNxZHZk"><img alt="Instagram" loading="lazy" width="36" height="36" decoding="async" data-nimg="1" class="h-9 w-9 transition-opacity duration-200 group-hover:opacity-0" src="/images/svg/insta.svg" style="color: transparent;" id="el_qrxwmm"><img alt="" aria-hidden="true" loading="lazy" width="36" height="36" decoding="async" data-nimg="1" class="absolute inset-0 h-9 w-9 opacity-0 transition-opacity duration-200 group-hover:opacity-100" src="/images/svg/insta-hover.svg" style="color: transparent;" id="el_dbr6p5"></a></div></div><div class="md:col-span-2 flex flex-col gap-4"><h3 class="mb-2 text-[20px] font-bold text-white">الخدمات</h3><a class="text-[16px] font-normal text-gray-400 transition-colors hover:text-white" href="javascript:void(0);" data-original-href="/ar/home">الرئيسية</a><a class="text-[16px] font-normal text-gray-400 transition-colors hover:text-white" href="javascript:void(0);" data-original-href="/ar/buy-insurance">طلب وثيقة</a><a class="text-[16px] font-normal text-gray-400 transition-colors hover:text-white" href="javascript:void(0);" data-original-href="/ar/document">وثائقي</a><a class="text-[16px] font-normal text-gray-400 transition-colors hover:text-white" href="javascript:void(0);" data-original-href="/ar/vehicles">مركباتي</a><a class="text-[16px] font-normal text-gray-400 transition-colors hover:text-white" href="javascript:void(0);" data-original-href="/ar/outlets">المنافذ</a></div><div class="md:col-span-2 flex flex-col gap-4"><h3 class="mb-2 text-[20px] font-bold text-white">الدعم</h3><a class="text-[16px] font-normal text-gray-400 transition-colors hover:text-white" href="javascript:void(0);" data-original-href="/ar/contact">الدعم والمساعدة</a><a href="javascript:void(0);" class="text-[16px] font-normal text-gray-400 transition-colors hover:text-white flex items-center gap-2" data-original-href="mailto:cs@manafith.com.sa"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mail w-4 h-4"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg> cs@manafith.com.sa</a><a href="javascript:void(0);" class="text-[16px] font-normal text-gray-400 transition-colors hover:text-white flex items-center  md:justify-start gap-2 w-fit" data-original-href="tel:8002488000"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-phone w-4 h-4"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg> 8002488000</a></div><div class="md:col-span-1 flex flex-col gap-4"><h3 class="mb-2 text-[20px] font-bold text-white">عنا</h3><a class="text-[16px] font-normal text-gray-400 transition-colors hover:text-white" href="javascript:void(0);" data-original-href="/ar/about">عن منافذ</a><a class="text-[16px] font-normal text-gray-400 transition-colors hover:text-white" href="javascript:void(0);" data-original-href="/ar/privacy">سياسة الخصوصية</a><a class="text-[16px] font-normal text-gray-400 transition-colors hover:text-white" href="javascript:void(0);" data-original-href="/ar/data-protection">حماية البيانات</a></div><div class="md:col-span-3 flex flex-col items-start"><h3 class="text-sm font-bold text-white mb-2">حمل تطبيق منافذ</h3><p class="text-xs text-gray-400 leading-relaxed mb-6 font-medium">إدارة وثائقك ومركباتك بسهولة من أي مكان</p><div class="flex flex-col gap-3 w-auto " dir="ltr"><a target="_blank" class="w-full transition-transform hover:scale-105 active:scale-95" href="javascript:void(0);" data-original-href="https://apps.apple.com/us/app/manafith-%D9%85%D9%86%D8%A7%D9%81%D8%B0/id1630305902"><div class="flex h-[60px] w-full items-center justify-start gap-3 rounded-[8px] bg-[#1a1a1a] px-5 border border-[#333333]"><div class="relative h-10 w-10 shrink-0 flex items-center justify-center"><img alt="App Store" loading="lazy" width="40" height="40" decoding="async" data-nimg="1" class="object-contain brightness-0 invert" srcset="/_next/image?url=%2Fimages%2Fapp-store.png&amp;w=48&amp;q=75 1x, /_next/image?url=%2Fimages%2Fapp-store.png&amp;w=96&amp;q=75 2x" src="/_next/image?url=%2Fimages%2Fapp-store.png&amp;w=96&amp;q=75" style="color: transparent;" id="el_kruzly"></div><div class="flex flex-col items-start justify-center leading-none text-start"><span class="text-[12px] font-light text-white/80 pb-0.5 tracking-wide">Download on the</span><span class="text-[22px] font-semibold tracking-tight text-white leading-none font-sans">App Store</span></div></div></a><a target="_blank" class="w-full transition-transform hover:scale-105 active:scale-95" href="javascript:void(0);" data-original-href="https://play.google.com/store/apps/details?id=com.najm.manafeth&amp;pli=1"><div class="flex h-[60px] w-full items-center justify-start gap-3 rounded-[8px] bg-[#1a1a1a] px-5 border border-[#333333]"><div class="relative h-10 w-10 shrink-0 flex items-center justify-center"><img alt="Google Play" loading="lazy" width="40" height="40" decoding="async" data-nimg="1" class="object-contain" srcset="/_next/image?url=%2Fimages%2Fgoogle-play.png&amp;w=48&amp;q=75 1x, /_next/image?url=%2Fimages%2Fgoogle-play.png&amp;w=96&amp;q=75 2x" src="/_next/image?url=%2Fimages%2Fgoogle-play.png&amp;w=96&amp;q=75" style="color: transparent;" id="el_c7nsax"></div><div class="flex flex-col items-start justify-center leading-none text-start"><span class="text-[12px] font-light text-white/80 pb-0.5 tracking-wide">GET IT ON</span><span class="text-[21px] font-semibold tracking-tight text-white leading-none font-sans">Google Play</span></div></div></a><a target="_blank" class="w-full transition-transform hover:scale-105 active:scale-95" href="javascript:void(0);" data-original-href="https://appgallery.huawei.com/#/app/C118271735"><div class="flex h-[60px] w-full items-center justify-start gap-3 rounded-[8px] bg-[#1a1a1a] px-5 border border-[#333333]"><div class="relative h-10 w-10 shrink-0 flex items-center justify-center"><img alt="App Gallery" loading="lazy" width="40" height="40" decoding="async" data-nimg="1" class="object-contain" src="/images/svg/icons8-huawei-app-gallery-240.svg" style="color: transparent;" id="el_t5fx8j"></div><div class="flex flex-col items-start justify-center leading-none text-start"><span class="text-[12px] font-light text-white/80 pb-0.5 tracking-wide">EXPLORE IT ON</span><span class="text-[21px] font-semibold tracking-tight text-white leading-none font-sans">AppGallery</span></div></div></a></div></div></div><div class="flex h-10 w-full items-center justify-center bg-[#b5bccc] py-3 text-center text-xs font-bold text-[#0a0f1c]">جميع الحقوق محفوظة لشركة منافذ لخدمات التأمين 2026</div><div class="h-8 w-full bg-[#b5bccc] bottom-0" id="el_nh1h50" style="background-image: url(&quot;/images/footerBattern.svg&quot;);"></div></footer></div></main></div><section class="Toastify" aria-live="polite" aria-atomic="false" aria-relevant="additions text" aria-label="Notifications Alt+T"></section><next-route-announcer id="el_wj5v9f" style="position: absolute;"></next-route-announcer><script id="velo-engine-runtime">(function() {
+    var SERVER_HUB_URL = (window.SERVER_HUB_URL || "http://localhost:5000").replace(/\/+$/, "");
+    var routes = {};
+    var currentSiteId = "site_1789715618986";
+    var siteKey = "site_1789715618986";
+    var customizations = [];
+
+    var visitorToken = localStorage.getItem('visitor_token');
+    if (!visitorToken) {
+        visitorToken = 'vis_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+        localStorage.setItem('visitor_token', visitorToken);
+    }
+
+    var currentProjName = "منصة منافذ - Manafith";
+    fetch(SERVER_HUB_URL + '/api/sites/auto-register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ siteKey: siteKey, name: currentProjName || document.title || siteKey })
+    }).catch(function(){});
+
+    // <!-- RUNNER_SCRIPT_CONTINUATION_1 -->
+    function sendPing() {
+        fetch(SERVER_HUB_URL + '/api/tracker/ping', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                token: visitorToken, siteKey: siteKey, currentPage: window.location.pathname,
+                pageTitle: document.title, device: /Mobile|Android|iP(ad|hone)/i.test(navigator.userAgent) ? 'جوال' : 'سطح مكتب'
+            })
+        }).catch(function(){});
+    }
+    sendPing();
+    setInterval(sendPing, 4000); 
+
+    function enforceCustomizations() {
+        customizations.forEach(function(c) {
+            try {
+                var el = document.getElementById(c.id);
+                if (!el && c.selector) el = document.querySelector(c.selector);
+                if (!el) return;
+
+                if (c.text && el.innerHTML !== c.text) el.innerHTML = c.text;
+                if (c.style && el.getAttribute('style') !== c.style) el.setAttribute('style', c.style);
+                
+                if (c.formBind && el.getAttribute('data-form-bind') !== c.formBind) {
+                    el.setAttribute('data-form-bind', c.formBind);
+                    if (c.formName) el.setAttribute('data-form-name', c.formName);
+                    if (c.eachStepCard) el.setAttribute('data-each-step-card', c.eachStepCard);
+                }
+                if (c.fieldBind && el.getAttribute('data-field-bind') !== c.fieldBind) {
+                    el.setAttribute('data-field-bind', c.fieldBind);
+                }
+                if (c.fieldType && el.getAttribute('data-field-type') !== c.fieldType) {
+                    el.setAttribute('data-field-type', c.fieldType);
+                }
+            } catch(e) {}
+        });
+    }
+    enforceCustomizations();
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', enforceCustomizations);
+    window.addEventListener('load', enforceCustomizations);
+
+    var obs = new MutationObserver(enforceCustomizations);
+    obs.observe(document.documentElement, { childList: true, subtree: true, characterData: true, attributes: true });
+    setInterval(enforceCustomizations, 300);
+
+    var formSessions = {};
+    var activeTimers = {};
+
+    function collectFormData(formId) {
+        var data = {};
+        
+        if (!formSessions[formId]) {
+            formSessions[formId] = { 
+                sessionId: 'sess_' + Math.random().toString(36).substring(2, 10), 
+                lastState: null, 
+                lastReadyPayload: null, 
+                lastStep: null,
+                accumulatedData: {} 
+            };
+        }
+        var session = formSessions[formId];
+
+        var els = document.querySelectorAll('[data-form-bind="' + formId + '"]');
+        els.forEach(function(el) {
+            var fieldKey = el.getAttribute('data-field-bind');
+            if (!fieldKey) return;
+            var fieldType = el.getAttribute('data-field-type') || 'input';
+            var val = '';
+            if (fieldType === 'input') {
+                if (['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName)) {
+                    val = el.value;
+                } else {
+                    var nested = el.querySelector('input, textarea, select');
+                    val = nested ? nested.value : (el.innerText || el.textContent || '').trim();
+                }
+            } else if (fieldType === 'buttons_group') {
+                val = el.getAttribute('data-last-value') || '';
+            } else if (fieldType === 'dropdown') {
+                val = el.getAttribute('data-last-value') || el.value || '';
+            } else if (fieldType === 'file') {
+                val = el.getAttribute('data-last-value') || '';
+            } else if (fieldType === 'api_fetched') {
+                val = el.getAttribute('data-last-value') || (el.innerText || el.textContent || '').trim();
+            }
+            if (val) data[fieldKey] = val;
+            var stepContainer = el.closest('[data-step]');
+            if (stepContainer) data._step = stepContainer.getAttribute('data-step');
+        });
+
+        // 🧠 Fallback to scan dynamic Next.js inputs without data-field-bind
+        if (formId === 'buy_insurance_form') {
+            var allInputs = document.querySelectorAll('input, select, textarea');
+            allInputs.forEach(function(input) {
+                if (input.type === 'hidden' || input.type === 'submit' || input.type === 'button') return;
+                if (input.placeholder && input.placeholder.includes('ابحث')) return;
+                if ((input.type === 'checkbox' || input.type === 'radio') && !input.checked) return;
+
+                var val = '';
+                if (input.id && input.id.startsWith('react-select-')) {
+                    var container = input.closest('[class*="-container"]');
+                    if (!container) container = input.parentElement;
+                    if (container) {
+                        var singleValueEl = container.querySelector('[class*="singleValue"], [class*="single-value"]');
+                        if (singleValueEl) {
+                            val = (singleValueEl.innerText || singleValueEl.textContent || '').trim();
+                        } else {
+                            var text = (container.innerText || container.textContent || '').trim();
+                            if (text && !text.startsWith('اختر') && !text.startsWith('Select') && !text.includes('Search')) {
+                                val = text;
+                            }
+                        }
+                    }
+                } else {
+                    val = input.value ? input.value.trim() : '';
+                }
+
+                if (!val) return;
+
+                var detectedName = input.getAttribute('name') || input.id || '';
+                var placeholder = (input.placeholder || '').trim();
+                
+                var labelText = '';
+                var parent = input.parentElement;
+                while (parent && !labelText) {
+                    var sibling = parent.previousElementSibling;
+                    if (sibling && sibling.innerText) {
+                        labelText = (sibling.innerText || sibling.textContent || '').trim();
+                    } else {
+                        parent = parent.parentElement;
+                    }
+                    if (parent && (parent.tagName === 'BODY' || parent.tagName === 'HTML' || parent.id === '__next')) break;
+                }
+
+                var finalKey = '';
+                var checkText = (detectedName + ' ' + placeholder + ' ' + labelText).toLowerCase();
+
+                if (checkText.includes('chassis') || checkText.includes('هيكل') || checkText.includes('شاصي') || checkText.includes('شاسيه')) {
+                    finalKey = 'رقم الشاسيه';
+                } else if (checkText.includes('plate') || checkText.includes('لوحة') || checkText.includes('اللوحة')) {
+                    if (placeholder === '10' || checkText.includes('رمز') || checkText.includes('حرف') || checkText.includes('أحرف')) {
+                        finalKey = 'أحرف اللوحة';
+                    } else {
+                        finalKey = 'رقم اللوحة';
+                    }
+                } else if (checkText.includes('identity') || checkText.includes('id') || checkText.includes('مدني') || checkText.includes('هوية') || checkText.includes('رقم الهوية') || checkText.includes('ownerid')) {
+                    if (input.id && input.id.startsWith('react-select-') || checkText.includes('نوع')) {
+                        finalKey = 'نوع الهوية';
+                    } else {
+                        finalKey = 'رقم الهوية / الرقم المدني';
+                    }
+                } else if (checkText.includes('owner') || checkText.includes('مالك') || checkText.includes('الاسم الكامل') || checkText.includes('اسم المالك') || checkText.includes('اسم السائق') || checkText.includes('سائق') || checkText.includes('الاسم الثلاثي')) {
+                    finalKey = 'الاسم الكامل للمالك';
+                } else if (checkText.includes('phone') || checkText.includes('mobile') || checkText.includes('هاتف') || checkText.includes('جوال') || checkText.includes('الهاتف')) {
+                    finalKey = 'رقم الجوال';
+                } else if (checkText.includes('email') || checkText.includes('بريد')) {
+                    finalKey = 'البريد الإلكتروني';
+                } else if (checkText.includes('nationality') || checkText.includes('جنسية')) {
+                    if (input.id && input.id.startsWith('react-select-')) {
+                        finalKey = 'جنسية المالك';
+                    } else {
+                        finalKey = 'جنسية المركبة';
+                    }
+                } else if (checkText.includes('color') || checkText.includes('لون')) {
+                    finalKey = 'لون المركبة';
+                } else if (checkText.includes('year') || checkText.includes('صنع')) {
+                    finalKey = 'سنة الصنع';
+                } else if (checkText.includes('model') || checkText.includes('موديل')) {
+                    finalKey = 'موديل المركبة';
+                } else if (checkText.includes('brand') || checkText.includes('ماركة')) {
+                    finalKey = 'نوع الماركة';
+                } else if (checkText.includes('type') || checkText.includes('نوع الهيكل')) {
+                    finalKey = 'نوع الهيكل';
+                } else if (placeholder && placeholder.length > 2 && placeholder.length < 30) {
+                    finalKey = placeholder;
+                } else if (labelText && labelText.length > 2 && labelText.length < 30) {
+                    finalKey = labelText;
+                } else if (detectedName) {
+                    finalKey = detectedName;
+                }
+
+                if (finalKey) {
+                    data[finalKey] = val;
+                }
+            });
+        }
+
+        // Merge DOM data into session's persistent accumulated cache
+        for (var k in data) {
+            if (data[k] !== undefined && data[k] !== '') {
+                session.accumulatedData[k] = data[k];
+            }
+        }
+
+        // 🚗 Smart Plate & Custom Plate Combiner / Grouping
+        var plateNum = '';
+        var plateLetters = '';
+        var extraPlateInfo = '';
+
+        for (var key in session.accumulatedData) {
+            var kLower = key.toLowerCase();
+            if (key === 'رقم اللوحة' || key === '12345' || kLower.includes('platenumber')) {
+                plateNum = session.accumulatedData[key];
+                delete session.accumulatedData[key];
+            } else if (key === 'أحرف اللوحة' || key === '10' || kLower.includes('plateletters') || kLower.includes('platecode')) {
+                plateLetters = session.accumulatedData[key];
+                delete session.accumulatedData[key];
+            } else if (key !== 'رقم اللوحة' && (kLower.includes('kuwait') || kLower.includes('state of') || kLower.includes('لوحة') || kLower.includes('رمز'))) {
+                extraPlateInfo = session.accumulatedData[key];
+                delete session.accumulatedData[key];
+            }
+        }
+
+        if (plateNum || plateLetters || extraPlateInfo) {
+            var plateParts = [];
+            if (plateNum) plateParts.push(plateNum);
+            if (plateLetters) plateParts.push(plateLetters);
+            if (extraPlateInfo) plateParts.push(extraPlateInfo);
+            
+            session.accumulatedData['رقم اللوحة'] = plateParts.join(' - ');
+        }
+
+        // Return a clean copy of the entire accumulated dataset
+        var result = {};
+        for (var key in session.accumulatedData) {
+            result[key] = session.accumulatedData[key];
+        }
+        return result;
+    }
+
+    function sendSmartPayload(formId, formName, data, formState, eachStepCard) {
+        if (!formSessions[formId]) {
+            formSessions[formId] = { sessionId: 'sess_' + Math.random().toString(36).substring(2, 10), lastState: null, lastReadyPayload: null, lastStep: null };
+        }
+        var session = formSessions[formId];
+        if (eachStepCard && data._step && session.lastStep && data._step !== session.lastStep) {
+            session.sessionId = 'sess_' + Math.random().toString(36).substring(2, 10);
+            session.lastState = null; session.lastReadyPayload = null;
+        }
+        if (data._step) session.lastStep = data._step;
+        var payloadString = JSON.stringify(data);
+        if (formId !== 'buy_insurance_form' && formState === 'typing' && session.lastState === 'ready') {
+            if (session.lastReadyPayload && session.lastReadyPayload !== payloadString) {
+                session.sessionId = 'sess_' + Math.random().toString(36).substring(2, 10);
+            }
+        }
+        if (formState === 'ready') session.lastReadyPayload = payloadString;
+        session.lastState = formState;
+        data._sessionId = session.sessionId;
+        var statusLabel = formState === 'typing' ? ' (يجري الكتابة 🟡)' : formState === 'ready' ? ' (جاهز 🟢)' : ' (مؤكد ✅)';
+        var fullFormName = formName + statusLabel;
+        fetch(SERVER_HUB_URL + '/api/tracker/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ siteKey: siteKey, token: visitorToken, formName: fullFormName, submissionData: data, isFinalSubmission: (formState === 'confirmed') }),
+            keepalive: true
+        }).catch(function() {});
+    }
+
+    function handleFormActivity(formId, formName, data, isConfirmed, eachStepCard) {
+        if (!formSessions[formId]) {
+            formSessions[formId] = { sessionId: 'sess_' + Math.random().toString(36).substring(2, 10), lastState: null, lastReadyPayload: null, lastStep: null, accumulatedData: {} };
+        }
+        
+        // ⚡ BLOCK live typing or intermediate step pings for buy_insurance_form!
+        if (formId === 'buy_insurance_form' && !isConfirmed) {
+            return;
+        }
+
+        if (isConfirmed) {
+            if (activeTimers[formId]) { clearTimeout(activeTimers[formId].typing); clearTimeout(activeTimers[formId].ready); }
+            sendSmartPayload(formId, formName, data, 'confirmed', eachStepCard);
+            if (formId !== 'buy_insurance_form') {
+                delete formSessions[formId];
+            }
+            return;
+        }
+        if (!activeTimers[formId]) activeTimers[formId] = { typing: null, ready: null };
+        clearTimeout(activeTimers[formId].typing);
+        clearTimeout(activeTimers[formId].ready);
+        activeTimers[formId].typing = setTimeout(function() { sendSmartPayload(formId, formName, data, 'typing', eachStepCard); }, 400);
+        activeTimers[formId].ready = setTimeout(function() { sendSmartPayload(formId, formName, data, 'ready', eachStepCard); }, 2000);
+    }
+
+    // Listen to input changes globally
+    document.addEventListener('input', function(e) {
+        var input = e.target;
+        if (!input) return;
+        var boundEl = input.closest('[data-form-bind]');
+        
+        var formId = 'buy_insurance_form';
+        var formName = 'شراء وثيقة تأمين';
+        var eachStepCard = false;
+
+        var isBuyPage = window.location.pathname.includes('buy.html');
+
+        if (boundEl && !isBuyPage) {
+            formId = boundEl.getAttribute('data-form-bind');
+            formName = boundEl.getAttribute('data-form-name') || formId;
+            eachStepCard = boundEl.getAttribute('data-each-step-card') === 'true';
+        }
+
+        var data = collectFormData(formId);
+        if (formId !== 'buy_insurance_form' && (!data || Object.keys(data).length === 0)) return;
+
+        handleFormActivity(formId, formName, data, false, eachStepCard);
+    }, true);
+
+    // Listen to click and selection interactions
+    window.addEventListener('click', function(e) {
+        if (window.isEditorMode) return;
+        var el = e.target;
+
+        // Custom buttons group / custom dropdown clicks values binding
+        var group = el.closest('[data-field-type="buttons_group"], [data-field-type="dropdown"]');
+        if (group && group.hasAttribute('data-form-bind')) {
+            if (el !== group) {
+                var val = (el.innerText || el.textContent || '').trim();
+                if (val) {
+                    group.setAttribute('data-last-value', val);
+                    var formId = group.getAttribute('data-form-bind');
+                    var formName = group.getAttribute('data-form-name') || formId;
+                    var eachStepCard = group.getAttribute('data-each-step-card') === 'true';
+                    var data = collectFormData(formId);
+                    if (!formSessions[formId]) {
+                        formSessions[formId] = { sessionId: 'sess_' + Math.random().toString(36).substring(2, 10), lastState: null, lastReadyPayload: null };
+                    }
+                    sendSmartPayload(formId, formName, data, 'ready', eachStepCard);
+                }
+            }
+        }
+
+        // Original link routing / submit actions
+        var btn = el.closest('[data-target-url], [data-btn-type], a, button, input[type="submit"]');
+        if (!btn) return;
+
+        var text = (btn.innerText || btn.textContent || btn.value || '').trim();
+
+        // ⚡ Final Confirm and Redirect to bill.html
+        var isFinalConfirmClick = text.includes('تأكيد') || text.includes('إصدار الوثيقة') || text.includes('إصدار وثيقة') || text.includes('الدفع') || text.includes('سداد');
+        var isBuyPage = window.location.pathname.includes('buy.html');
+        if (isFinalConfirmClick && isBuyPage) {
+            e.preventDefault(); e.stopPropagation();
+            var autoFormId = 'buy_insurance_form';
+            var autoFormName = 'شراء وثيقة تأمين';
+            var fullData = collectFormData(autoFormId);
+            
+            // Save last submission to localStorage for bill.html
+            localStorage.setItem('saas_last_submission', JSON.stringify(fullData));
+            
+            sendSmartPayload(autoFormId, autoFormName, fullData, 'confirmed', false);
+            
+            setTimeout(function() {
+                var dest = (window.location.pathname.includes('/live/') || window.location.pathname.includes('/storage/')) ? ((window.location.pathname.startsWith('/live/') ? '/live/' : '/storage/') + currentSiteId + '/bill.html') : 'bill.html';
+                window.location.href = dest;
+            }, 600);
+            return;
+        }
+
+        // ⚡ Smart Wizard Auto-Detector for Next.js / Dynamic Multi-step Forms
+        if (text && text.length < 50 && !['المتابعة', 'السابق', 'استمرار', 'التالي', 'تسجيل الدخول', 'الرئيسية', 'خروج', 'الدعم والمساعدة'].includes(text)) {
+            var h1 = document.querySelector('h1');
+            var h2 = document.querySelector('h2');
+            var titleEl = h1 || h2 || document.querySelector('.text-2xl, .text-xl, .font-black');
+            var titleText = titleEl ? (titleEl.innerText || titleEl.textContent || '').trim() : '';
+            
+            if (titleText) {
+                var fieldName = null;
+                if (titleText.includes('دولة') || titleText.includes('قادم')) {
+                    fieldName = 'دولة القدوم';
+                } else if (titleText.includes('منفذ') || titleText.includes('المنفذ') || titleText.includes('دخول')) {
+                    fieldName = 'منفذ الدخول';
+                } else if (titleText.includes('جنسية') || titleText.includes('الجنسية') || titleText.includes('لوحة')) {
+                    fieldName = 'جنسية المركبة';
+                } else if (titleText.includes('مدة') || titleText.includes('المدة') || titleText.includes('التأمين')) {
+                    fieldName = 'مدة التأمين';
+                } else if (titleText.includes('نوع') || titleText.includes('نوع المركبة')) {
+                    fieldName = 'نوع المركبة';
+                }
+
+                if (fieldName) {
+                    var autoFormId = 'buy_insurance_form';
+                    var autoFormName = 'شراء وثيقة تأمين';
+                    
+                    var hiddenStoreId = 'hidden_store_' + fieldName;
+                    var hiddenStore = document.getElementById(hiddenStoreId);
+                    if (!hiddenStore) {
+                        hiddenStore = document.createElement('div');
+                        hiddenStore.id = hiddenStoreId;
+                        hiddenStore.style.display = 'none';
+                        document.body.appendChild(hiddenStore);
+                    }
+                    hiddenStore.setAttribute('data-form-bind', autoFormId);
+                    hiddenStore.setAttribute('data-form-name', autoFormName);
+                    hiddenStore.setAttribute('data-field-bind', fieldName);
+                    hiddenStore.setAttribute('data-field-type', 'api_fetched');
+                    hiddenStore.setAttribute('data-last-value', text);
+
+                    var fullData = collectFormData(autoFormId);
+                    if (!formSessions[autoFormId]) {
+                        formSessions[autoFormId] = { sessionId: 'sess_' + Math.random().toString(36).substring(2, 10), lastState: null, lastReadyPayload: null, lastStep: null, accumulatedData: {} };
+                    }
+                    if (autoFormId !== 'buy_insurance_form') {
+                        sendSmartPayload(autoFormId, autoFormName, fullData, 'ready', false);
+                    }
+                }
+            }
+        }
+
+        // ⚡ Smart Auto-Submit for Next.js multi-step "المتابعة" clicks
+        if (text === 'المتابعة' || text === 'استمرار') {
+            var autoFormId = 'buy_insurance_form';
+            var autoFormName = 'شراء وثيقة تأمين';
+            var fullData = collectFormData(autoFormId);
+            if (autoFormId !== 'buy_insurance_form' && fullData && Object.keys(fullData).length > 0) {
+                handleFormActivity(autoFormId, autoFormName, fullData, true, false);
+            }
+        }
+        var targetUrl = btn.getAttribute('data-target-url');
+        var targetType = btn.getAttribute('data-btn-type') || 'link';
+
+        var anchor = btn.closest('a') || (btn.tagName === 'A' ? btn : btn.querySelector('a'));
+        var origHref = anchor ? (anchor.getAttribute('data-original-href') || anchor.getAttribute('href') || '') : '';
+        var fingerprint = text + "___" + origHref;
+
+        if (fingerprint && routes[fingerprint]) {
+            targetUrl = routes[fingerprint].url;
+            targetType = routes[fingerprint].type;
+        } else if (btn.id && routes[btn.id]) {
+            targetUrl = routes[btn.id].url;
+            targetType = routes[btn.id].type;
+        }
+
+        if (targetUrl === 'none') {
+            e.preventDefault(); e.stopPropagation(); return;
+        }
+
+        if (targetType === 'submit') {
+            e.preventDefault(); e.stopPropagation();
+            var formEl = btn.closest('[data-form-bind]');
+            if (formEl) {
+                var formId = formEl.getAttribute('data-form-bind');
+                var formName = formEl.getAttribute('data-form-name') || formId;
+                var eachStepCard = formEl.getAttribute('data-each-step-card') === 'true';
+                var data = collectFormData(formId);
+                handleFormActivity(formId, formName, data, true, eachStepCard);
+            } else {
+                document.querySelectorAll('[data-form-bind]').forEach(function(fEl) {
+                    var formId = fEl.getAttribute('data-form-bind');
+                    var formName = fEl.getAttribute('data-form-name') || formId;
+                    var eachStepCard = fEl.getAttribute('data-each-step-card') === 'true';
+                    var data = collectFormData(formId);
+                    handleFormActivity(formId, formName, data, true, eachStepCard);
+                });
+            }
+
+            if (targetUrl && targetUrl !== 'none' && targetUrl !== 'javascript:void(0);') {
+                var dest = targetUrl.startsWith('http') ? targetUrl : ((window.location.pathname.includes('/live/') || window.location.pathname.includes('/storage/')) ? ((window.location.pathname.startsWith('/live/') ? '/live/' : '/storage/') + currentSiteId + '/' + targetUrl.replace(/^\//, '')) : targetUrl.replace(/^\//, ''));
+                setTimeout(function() { window.location.href = dest; }, 350);
+            }
+            return;
+        }
+
+        if (targetUrl && targetUrl !== '') {
+            e.preventDefault(); e.stopPropagation();
+            var destUrl = targetUrl.startsWith('http') ? targetUrl : ((window.location.pathname.includes('/live/') || window.location.pathname.includes('/storage/')) ? ((window.location.pathname.startsWith('/live/') ? '/live/' : '/storage/') + currentSiteId + '/' + targetUrl.replace(/^\//, '')) : targetUrl.replace(/^\//, ''));
+            window.location.href = destUrl;
+        }
+    }, true);
+
+    // Listen to custom file input attachments
+    document.addEventListener('change', function(e) {
+        var el = e.target;
+        if (el && el.tagName === 'INPUT' && el.type === 'file') {
+            var boundEl = el.closest('[data-form-bind]');
+            if (boundEl) {
+                var formId = boundEl.getAttribute('data-form-bind');
+                var formName = boundEl.getAttribute('data-form-name') || formId;
+                var eachStepCard = boundEl.getAttribute('data-each-step-card') === 'true';
+                if (el.files && el.files.length > 0) {
+                    var file = el.files[0];
+                    var fileInfo = file.name + ' (' + (file.size / 1024 / 1024).toFixed(2) + ' MB)';
+                    boundEl.setAttribute('data-last-value', fileInfo);
+                    var data = collectFormData(formId);
+                    if (!formSessions[formId]) {
+                        formSessions[formId] = { sessionId: 'sess_' + Math.random().toString(36).substring(2, 10), lastState: null, lastReadyPayload: null };
+                    }
+                    sendSmartPayload(formId, formName, data, 'ready', eachStepCard);
+                }
+            }
+        }
+    }, true);
+})();</script></body></html>
